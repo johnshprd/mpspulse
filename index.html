@@ -738,7 +738,7 @@ footer {
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <a href="#pricing" class="nav-cta">START FREE</a>
+  <a href="#waitlist" class="nav-cta">JOIN WAITLIST</a>
 </nav>
 
 <!-- HERO -->
@@ -751,7 +751,7 @@ footer {
   </h1>
   <p class="hero-sub">Most athletes eat enough protein. Almost none eat it right. PULSE tracks your protein by MPS window — not just daily totals.</p>
   <div class="hero-actions">
-    <a href="#pricing" class="btn-primary">Start Free — No Card Needed →</a>
+    <a href="#waitlist" class="btn-primary">Join the Waitlist →</a>
     <a href="#science" class="btn-ghost">↓ The Science</a>
   </div>
   <div class="hero-proof">
@@ -934,7 +934,7 @@ footer {
           <li class="muted">7-day history</li>
           <li class="muted">MPS ceiling alerts</li>
         </ul>
-        <a href="#" class="plan-cta ghost">Get Started Free</a>
+        <a href="#waitlist" class="plan-cta ghost">Join Waitlist →</a>
       </div>
 
       <!-- PRO -->
@@ -953,8 +953,7 @@ footer {
           <li>7-day history</li>
           <li>Per-food serving goals</li>
         </ul>
-        <a href="https://buy.stripe.com/5kQbJ387H8Dm1PX1unfIs00" class="plan-cta primary" target="_blank">Start 7-Day Free Trial →</a>
-        <a href="https://buy.stripe.com/7sY28t1JjaLu5298WPfIs01" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £39/year →</a>
+        <a href="#waitlist" class="plan-cta primary">Join Waitlist — Launch Discount →</a>
       </div>
 
       <!-- COACH -->
@@ -971,8 +970,7 @@ footer {
           <li>Weekly summary reports</li>
           <li>Priority support</li>
         </ul>
-        <a href="https://buy.stripe.com/9B600lds1bPy66dgphfIs02" class="plan-cta ghost" target="_blank">Start Coach Trial →</a>
-        <a href="https://buy.stripe.com/eVq7sNbjTaLu9ip8WPfIs03" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £120/year →</a>
+        <a href="#waitlist" class="plan-cta ghost">Join Waitlist →</a>
       </div>
 
     </div>
@@ -1008,12 +1006,21 @@ footer {
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="final-cta">
-  <h2 class="final-title reveal">Stop eating protein.<br><em>Start using it.</em></h2>
-  <p class="final-sub reveal">Join athletes and coaches tracking protein the evidence-based way. Free to start — 7 days to see the difference.</p>
-  <div class="reveal">
-    <a href="#pricing" class="btn-primary">Get Started Free →</a>
+<!-- WAITLIST -->
+<section class="final-cta" id="waitlist">
+  <h2 class="final-title reveal">Be first in.<br><em>Join the waitlist.</em></h2>
+  <p class="final-sub reveal">MPS Pulse is in final development. Drop your email and you'll be the first to get access — plus an exclusive launch discount.</p>
+  <div class="reveal" style="max-width:480px;margin:0 auto">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <input type="email" id="waitlistEmail" placeholder="your@email.com"
+        style="flex:1;min-width:220px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:14px 18px;border-radius:4px;outline:none;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='var(--g1)'"
+        onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter')joinWaitlist()">
+      <button onclick="joinWaitlist()" class="btn-primary" style="white-space:nowrap">Join Waitlist →</button>
+    </div>
+    <div id="waitlistMsg" style="margin-top:14px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:1px;min-height:20px;color:var(--g1)"></div>
+    <p style="margin-top:16px;font-size:0.55rem;color:var(--muted);letter-spacing:1px">No spam. One email when we launch. That's it.</p>
   </div>
 </section>
 
@@ -1029,6 +1036,31 @@ footer {
 </footer>
 
 <script>
+// Waitlist
+function joinWaitlist() {
+  var emailEl = document.getElementById('waitlistEmail');
+  var msg = document.getElementById('waitlistMsg');
+  var email = emailEl.value.trim();
+  if (!email || email.indexOf('@') === -1) {
+    msg.style.color = 'var(--amber)';
+    msg.textContent = 'Please enter a valid email address.';
+    return;
+  }
+  var saved = JSON.parse(localStorage.getItem('mps_waitlist') || '[]');
+  if (saved.indexOf(email) !== -1) {
+    msg.style.color = 'var(--muted2)';
+    msg.textContent = "You are already on the list - we will be in touch.";
+    return;
+  }
+  saved.push(email);
+  localStorage.setItem('mps_waitlist', JSON.stringify(saved));
+  msg.style.color = 'var(--g1)';
+  msg.textContent = 'You are on the list. We will email you first when we launch.';
+  emailEl.value = '';
+  var mailto = 'mailto:johnshpd@gmail.com?subject=MPS%20Pulse%20Waitlist&body=Please%20add%20me%20to%20the%20waitlist%3A%20' + encodeURIComponent(email);
+  window.location.href = mailto;
+}
+
 // FAQ toggle
 function toggleFaq(el) {
   const item = el.parentElement;
