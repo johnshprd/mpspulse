@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSE — Train Your Protein, Not Just Your Muscles</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060806;
+  --surface: #0c100d;
+  --surface2: #121812;
+  --border: #1c241c;
+  --g1: #b4f03c;
+  --g2: #6fc43a;
+  --g3: #2a5c18;
+  --amber: #f0a830;
+  --text: #e4ede0;
+  --muted: #5a7050;
+  --muted2: #8aaa78;
+  --dim: #3a4e34;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px;
+  background: rgba(6,8,6,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(180,240,60,0.08);
+}
+
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.7rem;
+  letter-spacing: 5px;
+  color: var(--g1);
+  filter: drop-shadow(0 0 10px rgba(180,240,60,0.4));
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  color: var(--muted2);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--g1); }
+
+.nav-cta {
+  background: var(--g1);
+  color: #040604;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  padding: 9px 22px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.15s;
+  border: none; cursor: pointer;
+}
+.nav-cta:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(180,240,60,0.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated grid background */
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(180,240,60,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,240,60,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+  pointer-events: none;
+}
+
+/* Glow orb */
+.hero-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(180,240,60,0.07) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%,-50%) scale(1.08); }
+}
+
+.hero-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  color: var(--g2);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  letter-spacing: 6px;
+  line-height: 0.92;
+  color: var(--text);
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.35s forwards;
+}
+.hero-title .accent { color: var(--g1); filter: drop-shadow(0 0 20px rgba(180,240,60,0.5)); }
+.hero-title .serif { font-family: 'Instrument Serif', serif; font-style: italic; letter-spacing: 2px; }
+
+.hero-sub {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  color: var(--muted2);
+  margin-bottom: 40px;
+  max-width: 560px;
+  line-height: 1.5;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex; gap: 14px; align-items: center; justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.65s forwards;
+}
+
+.btn-primary {
+  background: var(--g1);
+  color: #040604;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 4px;
+  padding: 15px 36px;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none; cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 28px rgba(180,240,60,0.35); }
+
+.btn-ghost {
+  background: none;
+  color: var(--muted2);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  padding: 15px 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-ghost:hover { border-color: var(--dim); color: var(--text); }
+
+.hero-proof {
+  margin-top: 56px;
+  display: flex; align-items: center; gap: 32px; justify-content: center; flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.proof-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.proof-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--g1);
+  line-height: 1;
+}
+.proof-label {
+  font-size: 0.52rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.proof-div { width: 1px; height: 32px; background: var(--border); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SCIENCE SECTION ── */
+.section {
+  padding: 100px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.section-tag {
+  font-size: 0.55rem;
+  letter-spacing: 4px;
+  color: var(--g2);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  letter-spacing: 3px;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.section-title em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  color: var(--g1);
+}
+
+.section-body {
+  font-size: 0.78rem;
+  line-height: 1.9;
+  color: var(--muted2);
+  max-width: 560px;
+}
+
+/* MPS DIAGRAM */
+.mps-diagram {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-top: 64px;
+}
+
+.mps-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.mps-chart::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--g1), transparent);
+}
+
+.chart-title {
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.fake-chart {
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.chart-line {
+  position: absolute; inset: 0;
+}
+
+/* Bad example: one big bar */
+.bad-bars { display: flex; align-items: flex-end; gap: 5px; height: 100%; width: 100%; }
+.bad-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--surface2);
+  min-height: 3px;
+}
+.bad-bar.big { background: var(--amber); height: 90%; }
+.bad-bar.tiny { height: 8%; background: var(--g3); }
+
+/* Good example: 4 even bars */
+.good-bars { display: flex; align-items: flex-end; gap: 5px; height: 100%; width: 100%; }
+.good-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--g2);
+  position: relative;
+}
+.good-bar::after {
+  content: '';
+  position: absolute; top: -4px; left: 0; right: 0;
+  height: 4px;
+  background: var(--g1);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--g1);
+}
+
+.chart-verdict {
+  margin-top: 12px;
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+}
+.chart-verdict.bad { color: var(--amber); }
+.chart-verdict.good { color: var(--g1); }
+
+.mps-points { display: flex; flex-direction: column; gap: 20px; }
+.mps-point { display: flex; gap: 14px; align-items: flex-start; }
+.mps-point-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--g3);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 36px;
+}
+.mps-point-text {}
+.mps-point-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.mps-point-desc {
+  font-size: 0.65rem;
+  line-height: 1.7;
+  color: var(--muted2);
+}
+.mps-point-desc strong { color: var(--g1); }
+
+/* ── FEATURES ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2, var(--g3)), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover { border-color: var(--g3); transform: translateY(-3px); }
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  display: block;
+}
+.feature-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.feature-desc {
+  font-size: 0.63rem;
+  line-height: 1.8;
+  color: var(--muted2);
+}
+.feature-desc strong { color: var(--g1); }
+
+/* ── PRICING ── */
+.pricing-section {
+  padding: 100px 48px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+.pricing-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.pricing-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.pricing-card:hover { border-color: var(--dim); }
+.pricing-card.featured {
+  border-color: var(--g1);
+  background: #080f08;
+  box-shadow: 0 0 40px rgba(180,240,60,0.07);
+}
+
+.featured-badge {
+  position: absolute;
+  top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--g1);
+  color: #040604;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  padding: 3px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.plan-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  color: var(--muted2);
+}
+.plan-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: var(--text);
+  line-height: 1;
+  margin: 8px 0 2px;
+}
+.plan-price span {
+  font-size: 1.2rem;
+  color: var(--muted2);
+  vertical-align: super;
+}
+.plan-price sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  vertical-align: baseline;
+}
+.plan-billing {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.plan-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+
+.plan-features { list-style: none; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.plan-features li {
+  font-size: 0.62rem;
+  line-height: 1.5;
+  color: var(--muted2);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.plan-features li::before {
+  content: '→';
+  color: var(--g2);
+  flex-shrink: 0;
+  margin-top: 0px;
+}
+.plan-features li.muted::before { color: var(--muted); }
+.plan-features li.muted { color: var(--muted); }
+
+.plan-cta {
+  margin-top: 20px;
+  display: block;
+  text-align: center;
+  padding: 12px;
+  border-radius: 5px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.plan-cta.primary { background: var(--g1); color: #040604; }
+.plan-cta.primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(180,240,60,0.3); }
+.plan-cta.ghost { border: 1px solid var(--border); color: var(--muted2); }
+.plan-cta.ghost:hover { border-color: var(--dim); color: var(--text); }
+
+.annual-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.annual-note strong { color: var(--g2); }
+
+/* ── TESTIMONIALS ── */
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+.testi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px;
+}
+.testi-quote {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+.testi-name {
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  color: var(--muted2);
+}
+.testi-role {
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+/* ── FAQ ── */
+.faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 2px; max-width: 680px; }
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 16px 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  user-select: none;
+  transition: background 0.15s;
+}
+.faq-q:hover { background: var(--surface2); }
+.faq-q .chevron { color: var(--muted2); transition: transform 0.25s; font-size: 0.8rem; }
+.faq-item.open .faq-q .chevron { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s;
+  background: var(--surface2);
+}
+.faq-item.open .faq-a { max-height: 200px; }
+.faq-a-inner {
+  padding: 14px 20px;
+  font-size: 0.65rem;
+  line-height: 1.8;
+  color: var(--muted2);
+}
+.faq-a-inner strong { color: var(--g1); }
+
+/* ── FINAL CTA ── */
+.final-cta {
+  padding: 120px 48px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+.final-cta::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(180,240,60,0.05) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.final-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  letter-spacing: 4px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.final-title em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  color: var(--g1);
+}
+.final-sub {
+  font-size: 0.7rem;
+  color: var(--muted2);
+  letter-spacing: 1px;
+  margin-bottom: 36px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.8;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+.footer-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 4px;
+  color: var(--g3);
+}
+.footer-links { display: flex; gap: 24px; list-style: none; }
+.footer-links a {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--muted2); }
+.footer-copy {
+  font-size: 0.52rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .section, .pricing-section, .final-cta { padding: 72px 24px; }
+  .mps-diagram { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .testi-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+}
+@media (max-width: 560px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-proof { gap: 16px; }
+  .proof-div { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">PULSE</a>
+  <ul class="nav-links">
+    <li><a href="#science">The Science</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#pricing" class="nav-cta">START FREE</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">Muscle Protein Synthesis · Evidence-Based</div>
+  <h1 class="hero-title">
+    <span class="accent">4 PULSES.</span><br>
+    <span class="serif">Maximum synthesis.</span>
+  </h1>
+  <p class="hero-sub">Most athletes eat enough protein. Almost none eat it right. PULSE tracks your protein by MPS window — not just daily totals.</p>
+  <div class="hero-actions">
+    <a href="#pricing" class="btn-primary">Start Free — No Card Needed →</a>
+    <a href="#science" class="btn-ghost">↓ The Science</a>
+  </div>
+  <div class="hero-proof">
+    <div class="proof-item">
+      <div class="proof-num">3H</div>
+      <div class="proof-label">MPS window per pulse</div>
+    </div>
+    <div class="proof-div"></div>
+    <div class="proof-item">
+      <div class="proof-num">~40G</div>
+      <div class="proof-label">Optimal pulse size</div>
+    </div>
+    <div class="proof-div"></div>
+    <div class="proof-item">
+      <div class="proof-num">4×</div>
+      <div class="proof-label">More synthesis time daily</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCIENCE -->
+<section class="section" id="science">
+  <div class="section-tag">The Science</div>
+  <h2 class="section-title reveal">Your body can't store<br><em>unused protein.</em></h2>
+  <p class="section-body reveal">Muscle protein synthesis (MPS) has a ceiling. Once triggered — typically by ~3–4g of leucine — it runs for around 2–3 hours and then shuts off, regardless of how much more protein you eat. The excess is simply oxidised for energy.</p>
+
+  <div class="mps-diagram">
+    <div class="reveal">
+      <div class="mps-chart" style="margin-bottom:16px">
+        <div class="chart-title">TYPICAL ATHLETE — FRONT-LOADED</div>
+        <div class="fake-chart">
+          <div class="bad-bars">
+            <div class="bad-bar tiny"></div>
+            <div class="bad-bar big"></div>
+            <div class="bad-bar tiny"></div>
+            <div class="bad-bar tiny" style="height:15%"></div>
+            <div class="bad-bar tiny" style="height:5%"></div>
+          </div>
+        </div>
+        <div class="chart-verdict bad">⚠ 1× MPS window — most protein wasted</div>
+      </div>
+      <div class="mps-chart">
+        <div class="chart-title">PULSE ATHLETE — EVENLY SPREAD</div>
+        <div class="fake-chart">
+          <div class="good-bars">
+            <div class="good-bar" style="height:75%"></div>
+            <div class="good-bar" style="height:80%"></div>
+            <div class="good-bar" style="height:78%"></div>
+            <div class="good-bar" style="height:72%"></div>
+          </div>
+        </div>
+        <div class="chart-verdict good">✓ 4× MPS windows — protein fully utilised</div>
+      </div>
+    </div>
+
+    <div class="mps-points reveal">
+      <div class="mps-point">
+        <div class="mps-point-num">01</div>
+        <div class="mps-point-text">
+          <div class="mps-point-title">MPS TRIGGERS PER MEAL</div>
+          <div class="mps-point-desc">Each meal containing <strong>~3–4g leucine</strong> (roughly 30–40g protein) triggers a full synthesis response lasting 2–3 hours.</div>
+        </div>
+      </div>
+      <div class="mps-point">
+        <div class="mps-point-num">02</div>
+        <div class="mps-point-text">
+          <div class="mps-point-title">THE CEILING EFFECT</div>
+          <div class="mps-point-desc">Eating 80g in one sitting doesn't give you 2× the benefit. Beyond <strong>~40–55g</strong>, additional protein is oxidised — not used for muscle repair or growth.</div>
+        </div>
+      </div>
+      <div class="mps-point">
+        <div class="mps-point-num">03</div>
+        <div class="mps-point-text">
+          <div class="mps-point-title">THE PULSE STRATEGY</div>
+          <div class="mps-point-desc">Spacing <strong>3–4 protein pulses</strong> of 30–50g across the day maximises total synthesis time and ensures every gram works harder.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features" style="padding-top:0">
+  <div class="section-tag">Features</div>
+  <h2 class="section-title reveal">Built around <em>synthesis,</em><br>not just grams.</h2>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">⏱</span>
+      <div class="feature-title">LIVE MPS WINDOWS</div>
+      <div class="feature-desc">Each pulse slot shows a live countdown of your current synthesis window. See exactly when it <strong>opens, peaks, and closes</strong> — and when to eat again.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">DISTRIBUTION SCORE</div>
+      <div class="feature-desc">A 0–100 score showing how evenly your protein is spread. <strong>Optimal, Good, Uneven, or Poor</strong> — with a plain-English explanation of why.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">⚠️</span>
+      <div class="feature-title">MPS CEILING ALERTS</div>
+      <div class="feature-desc">PULSE flags when a single meal exceeds the <strong>~55g MPS ceiling</strong>, so you know the excess protein isn't going to muscle.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🍗</span>
+      <div class="feature-title">FULL FOOD LIBRARY</div>
+      <div class="feature-desc">Pulses, meat, and dairy — all with accurate protein-per-100g data. Log <strong>chicken, whey, lentils, eggs, skyr</strong> and more per slot.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🎯</span>
+      <div class="feature-title">PER-FOOD TARGETS</div>
+      <div class="feature-desc">Set a daily serving goal for specific foods. The app shows when each one is <strong>met</strong> — perfect for coaches building client plans.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📅</span>
+      <div class="feature-title">7-DAY HISTORY</div>
+      <div class="feature-desc">Track your protein across the week. See at a glance which days hit goal and where the <strong>distribution broke down</strong>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="padding-top:0">
+  <div class="section-tag">Early Users</div>
+  <h2 class="section-title reveal">What athletes are saying.</h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-quote">"I was hitting 180g of protein a day and still not recovering well. Turns out I was eating 100g at dinner every night. PULSE showed me exactly what was wrong."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">🏋️</div>
+        <div>
+          <div class="testi-name">MARCUS T.</div>
+          <div class="testi-role">Competitive powerlifter</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-quote">"The MPS window countdown is a game changer. I now set a reminder when my lunch pulse closes so I never miss the next window."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">🚴</div>
+        <div>
+          <div class="testi-name">SARAH L.</div>
+          <div class="testi-role">Endurance cyclist</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-quote">"I use this with all my clients now. The distribution score gives me something concrete to coach against — not just 'eat more protein'."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">📋</div>
+        <div>
+          <div class="testi-name">JAMES W.</div>
+          <div class="testi-role">S&C coach, 14 clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title reveal">Less than a <em>protein shake.</em></h2>
+    <p class="section-body reveal">Start free. Upgrade when you're ready. Cancel any time — no questions asked.</p>
+
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="pricing-card reveal">
+        <div class="plan-name">FREE</div>
+        <div class="plan-price"><span>£</span>0</div>
+        <div class="plan-billing">Forever free</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>1 protein pulse slot</li>
+          <li>Basic food library</li>
+          <li>Daily protein total</li>
+          <li class="muted">MPS windows</li>
+          <li class="muted">Distribution score</li>
+          <li class="muted">7-day history</li>
+          <li class="muted">MPS ceiling alerts</li>
+        </ul>
+        <a href="#" class="plan-cta ghost">Get Started Free</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-card featured reveal">
+        <div class="featured-badge">MOST POPULAR</div>
+        <div class="plan-name">PRO</div>
+        <div class="plan-price"><span>£</span>4<sub>.99/mo</sub></div>
+        <div class="plan-billing">or £39/year — save 35%</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>All 4 pulse slots</li>
+          <li>Full food library (pulses, meat, dairy)</li>
+          <li>Live MPS window countdown</li>
+          <li>Distribution score</li>
+          <li>MPS ceiling alerts</li>
+          <li>7-day history</li>
+          <li>Per-food serving goals</li>
+        </ul>
+        <a href="https://buy.stripe.com/5kQbJ387H8Dm1PX1unfIs00" class="plan-cta primary" target="_blank">Start 7-Day Free Trial →</a>
+        <a href="https://buy.stripe.com/7sY28t1JjaLu5298WPfIs01" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £39/year →</a>
+      </div>
+
+      <!-- COACH -->
+      <div class="pricing-card reveal">
+        <div class="plan-name">COACH</div>
+        <div class="plan-price"><span>£</span>14<sub>.99/mo</sub></div>
+        <div class="plan-billing">or £120/year — save 33%</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>Everything in Pro</li>
+          <li>Up to 20 client profiles</li>
+          <li>Client progress dashboard</li>
+          <li>Shareable pulse plans</li>
+          <li>Weekly summary reports</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://buy.stripe.com/9B600lds1bPy66dgphfIs02" class="plan-cta ghost" target="_blank">Start Coach Trial →</a>
+        <a href="https://buy.stripe.com/eVq7sNbjTaLu9ip8WPfIs03" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £120/year →</a>
+      </div>
+
+    </div>
+    <div class="annual-note reveal">All plans include a <strong>7-day free trial</strong>. No credit card required to start.</div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-tag">Questions</div>
+  <h2 class="section-title reveal">Straight answers.</h2>
+  <div class="faq-list reveal">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">IS THE MPS SCIENCE LEGIT? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes. The protein pulse model is based on peer-reviewed research, including work by <strong>Stuart Phillips (McMaster University)</strong> and <strong>Luc van Loon (Maastricht University)</strong> — two of the world's leading experts in protein metabolism and muscle physiology.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">DOES IT WORK IF I EAT 3 MEALS? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Absolutely. 3 evenly-spaced pulses still significantly outperforms loading most of your protein into one meal. PULSE will show your distribution score and flag if you'd benefit from a 4th pulse like a pre-bed snack (e.g. casein or cottage cheese).</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">HOW IS THIS DIFFERENT FROM MYFITNESSPAL? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">MyFitnessPal tracks totals. PULSE tracks <strong>timing and distribution</strong> — the part that actually determines how much of your protein gets used for muscle. Most athletes are already eating enough protein. Almost none are eating it at the right times.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">CAN I USE IT AS A PERSONAL TRAINER? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">The <strong>Coach tier</strong> is built for this — manage up to 20 client profiles, set custom pulse plans, and share weekly reports. It's a genuine differentiator you can use to demonstrate evidence-based practice.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">CAN I CANCEL ANYTIME? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes, cancel from your account at any time with no fees or lock-in. If you're on an annual plan and cancel early, you keep access until the end of your billing period.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="final-title reveal">Stop eating protein.<br><em>Start using it.</em></h2>
+  <p class="final-sub reveal">Join athletes and coaches tracking protein the evidence-based way. Free to start — 7 days to see the difference.</p>
+  <div class="reveal">
+    <a href="#pricing" class="btn-primary">Get Started Free →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">PULSE</div>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 PULSE. All rights reserved.</div>
+</footer>
+
+<script>
+// FAQ toggle
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 0.08 + 's';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
