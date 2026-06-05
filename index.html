@@ -20,11 +20,8 @@
   --muted2: #8aaa78;
   --dim: #3a4e34;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
-
 body {
   background: var(--bg);
   color: var(--text);
@@ -51,7 +48,6 @@ nav {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(180,240,60,0.08);
 }
-
 .nav-logo {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.7rem;
@@ -60,7 +56,6 @@ nav {
   filter: drop-shadow(0 0 10px rgba(180,240,60,0.4));
   text-decoration: none;
 }
-
 .nav-links {
   display: flex; align-items: center; gap: 32px;
   list-style: none;
@@ -74,7 +69,6 @@ nav {
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--g1); }
-
 .nav-cta {
   background: var(--g1);
   color: #040604;
@@ -101,8 +95,6 @@ nav {
   position: relative;
   overflow: hidden;
 }
-
-/* Animated grid background */
 .hero::after {
   content: '';
   position: absolute; inset: 0;
@@ -113,8 +105,6 @@ nav {
   mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
   pointer-events: none;
 }
-
-/* Glow orb */
 .hero-glow {
   position: absolute;
   width: 600px; height: 600px;
@@ -128,7 +118,6 @@ nav {
   0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
   50% { opacity: 1; transform: translate(-50%,-50%) scale(1.08); }
 }
-
 .hero-eyebrow {
   font-size: 0.6rem;
   letter-spacing: 4px;
@@ -138,7 +127,6 @@ nav {
   opacity: 0;
   animation: fadeUp 0.8s 0.2s forwards;
 }
-
 .hero-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(3.5rem, 10vw, 8rem);
@@ -151,7 +139,6 @@ nav {
 }
 .hero-title .accent { color: var(--g1); filter: drop-shadow(0 0 20px rgba(180,240,60,0.5)); }
 .hero-title .serif { font-family: 'Instrument Serif', serif; font-style: italic; letter-spacing: 2px; }
-
 .hero-sub {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
@@ -163,14 +150,12 @@ nav {
   opacity: 0;
   animation: fadeUp 0.8s 0.5s forwards;
 }
-
 .hero-actions {
   display: flex; gap: 14px; align-items: center; justify-content: center;
   flex-wrap: wrap;
   opacity: 0;
   animation: fadeUp 0.8s 0.65s forwards;
 }
-
 .btn-primary {
   background: var(--g1);
   color: #040604;
@@ -185,7 +170,6 @@ nav {
   display: inline-flex; align-items: center; gap: 8px;
 }
 .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 28px rgba(180,240,60,0.35); }
-
 .btn-ghost {
   background: none;
   color: var(--muted2);
@@ -200,7 +184,6 @@ nav {
   display: inline-flex; align-items: center; gap: 6px;
 }
 .btn-ghost:hover { border-color: var(--dim); color: var(--text); }
-
 .hero-proof {
   margin-top: 56px;
   display: flex; align-items: center; gap: 32px; justify-content: center; flex-wrap: wrap;
@@ -223,13 +206,12 @@ nav {
   text-transform: uppercase;
 }
 .proof-div { width: 1px; height: 32px; background: var(--border); }
-
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── SCIENCE SECTION ── */
+/* ── SECTIONS ── */
 .section {
   padding: 100px 48px;
   max-width: 1100px;
@@ -237,7 +219,6 @@ nav {
   position: relative;
   z-index: 1;
 }
-
 .section-tag {
   font-size: 0.55rem;
   letter-spacing: 4px;
@@ -245,7 +226,6 @@ nav {
   text-transform: uppercase;
   margin-bottom: 14px;
 }
-
 .section-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(2.2rem, 5vw, 3.8rem);
@@ -259,7 +239,6 @@ nav {
   font-style: italic;
   color: var(--g1);
 }
-
 .section-body {
   font-size: 0.78rem;
   line-height: 1.9;
@@ -267,7 +246,7 @@ nav {
   max-width: 560px;
 }
 
-/* MPS DIAGRAM */
+/* ── MPS DIAGRAM ── */
 .mps-diagram {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -275,7 +254,6 @@ nav {
   align-items: center;
   margin-top: 64px;
 }
-
 .mps-chart {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -289,7 +267,6 @@ nav {
   position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, var(--g1), transparent);
 }
-
 .chart-title {
   font-size: 0.58rem;
   letter-spacing: 3px;
@@ -297,7 +274,6 @@ nav {
   text-transform: uppercase;
   margin-bottom: 20px;
 }
-
 .fake-chart {
   height: 120px;
   position: relative;
@@ -305,30 +281,12 @@ nav {
   align-items: flex-end;
   gap: 6px;
 }
-
-.chart-line {
-  position: absolute; inset: 0;
-}
-
-/* Bad example: one big bar */
 .bad-bars { display: flex; align-items: flex-end; gap: 5px; height: 100%; width: 100%; }
-.bad-bar {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  background: var(--surface2);
-  min-height: 3px;
-}
+.bad-bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--surface2); min-height: 3px; }
 .bad-bar.big { background: var(--amber); height: 90%; }
 .bad-bar.tiny { height: 8%; background: var(--g3); }
-
-/* Good example: 4 even bars */
 .good-bars { display: flex; align-items: flex-end; gap: 5px; height: 100%; width: 100%; }
-.good-bar {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  background: var(--g2);
-  position: relative;
-}
+.good-bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--g2); position: relative; }
 .good-bar::after {
   content: '';
   position: absolute; top: -4px; left: 0; right: 0;
@@ -337,15 +295,9 @@ nav {
   border-radius: 2px;
   box-shadow: 0 0 8px var(--g1);
 }
-
-.chart-verdict {
-  margin-top: 12px;
-  font-size: 0.58rem;
-  letter-spacing: 1px;
-}
+.chart-verdict { margin-top: 12px; font-size: 0.58rem; letter-spacing: 1px; }
 .chart-verdict.bad { color: var(--amber); }
 .chart-verdict.good { color: var(--g1); }
-
 .mps-points { display: flex; flex-direction: column; gap: 20px; }
 .mps-point { display: flex; gap: 14px; align-items: flex-start; }
 .mps-point-num {
@@ -356,7 +308,6 @@ nav {
   flex-shrink: 0;
   width: 36px;
 }
-.mps-point-text {}
 .mps-point-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1rem;
@@ -364,11 +315,7 @@ nav {
   color: var(--text);
   margin-bottom: 3px;
 }
-.mps-point-desc {
-  font-size: 0.65rem;
-  line-height: 1.7;
-  color: var(--muted2);
-}
+.mps-point-desc { font-size: 0.65rem; line-height: 1.7; color: var(--muted2); }
 .mps-point-desc strong { color: var(--g1); }
 
 /* ── FEATURES ── */
@@ -378,7 +325,6 @@ nav {
   gap: 16px;
   margin-top: 56px;
 }
-
 .feature-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -391,18 +337,13 @@ nav {
 .feature-card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border2, var(--g3)), transparent);
+  background: linear-gradient(90deg, transparent, var(--g3), transparent);
   opacity: 0;
   transition: opacity 0.3s;
 }
 .feature-card:hover { border-color: var(--g3); transform: translateY(-3px); }
 .feature-card:hover::before { opacity: 1; }
-
-.feature-icon {
-  font-size: 1.6rem;
-  margin-bottom: 12px;
-  display: block;
-}
+.feature-icon { font-size: 1.6rem; margin-bottom: 12px; display: block; }
 .feature-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.05rem;
@@ -410,11 +351,7 @@ nav {
   color: var(--text);
   margin-bottom: 8px;
 }
-.feature-desc {
-  font-size: 0.63rem;
-  line-height: 1.8;
-  color: var(--muted2);
-}
+.feature-desc { font-size: 0.63rem; line-height: 1.8; color: var(--muted2); }
 .feature-desc strong { color: var(--g1); }
 
 /* ── PRICING ── */
@@ -426,18 +363,16 @@ nav {
   position: relative;
   z-index: 1;
 }
-.pricing-inner {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
+.pricing-inner { max-width: 900px; margin: 0 auto; }
 .pricing-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-top: 56px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
-
 .pricing-card {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -455,7 +390,6 @@ nav {
   background: #080f08;
   box-shadow: 0 0 40px rgba(180,240,60,0.07);
 }
-
 .featured-badge {
   position: absolute;
   top: -12px; left: 50%; transform: translateX(-50%);
@@ -468,7 +402,6 @@ nav {
   border-radius: 20px;
   white-space: nowrap;
 }
-
 .plan-name {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.2rem;
@@ -482,16 +415,8 @@ nav {
   line-height: 1;
   margin: 8px 0 2px;
 }
-.plan-price span {
-  font-size: 1.2rem;
-  color: var(--muted2);
-  vertical-align: super;
-}
-.plan-price sub {
-  font-size: 0.9rem;
-  color: var(--muted);
-  vertical-align: baseline;
-}
+.plan-price span { font-size: 1.2rem; color: var(--muted2); vertical-align: super; }
+.plan-price sub { font-size: 0.9rem; color: var(--muted); vertical-align: baseline; }
 .plan-billing {
   font-size: 0.55rem;
   letter-spacing: 2px;
@@ -499,13 +424,7 @@ nav {
   text-transform: uppercase;
   margin-bottom: 16px;
 }
-
-.plan-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 12px 0;
-}
-
+.plan-divider { height: 1px; background: var(--border); margin: 12px 0; }
 .plan-features { list-style: none; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .plan-features li {
   font-size: 0.62rem;
@@ -515,15 +434,7 @@ nav {
   gap: 8px;
   align-items: flex-start;
 }
-.plan-features li::before {
-  content: '→';
-  color: var(--g2);
-  flex-shrink: 0;
-  margin-top: 0px;
-}
-.plan-features li.muted::before { color: var(--muted); }
-.plan-features li.muted { color: var(--muted); }
-
+.plan-features li::before { content: '→'; color: var(--g2); flex-shrink: 0; }
 .plan-cta {
   margin-top: 20px;
   display: block;
@@ -540,7 +451,6 @@ nav {
 .plan-cta.primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(180,240,60,0.3); }
 .plan-cta.ghost { border: 1px solid var(--border); color: var(--muted2); }
 .plan-cta.ghost:hover { border-color: var(--dim); color: var(--text); }
-
 .annual-note {
   text-align: center;
   margin-top: 20px;
@@ -580,24 +490,12 @@ nav {
   background: var(--surface2);
   border: 1px solid var(--border);
 }
-.testi-name {
-  font-size: 0.62rem;
-  letter-spacing: 1px;
-  color: var(--muted2);
-}
-.testi-role {
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  color: var(--muted);
-}
+.testi-name { font-size: 0.62rem; letter-spacing: 1px; color: var(--muted2); }
+.testi-role { font-size: 0.55rem; letter-spacing: 1px; color: var(--muted); }
 
 /* ── FAQ ── */
 .faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 2px; max-width: 680px; }
-.faq-item {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-}
+.faq-item { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .faq-q {
   padding: 16px 20px;
   font-family: 'Bebas Neue', sans-serif;
@@ -615,18 +513,9 @@ nav {
 .faq-q:hover { background: var(--surface2); }
 .faq-q .chevron { color: var(--muted2); transition: transform 0.25s; font-size: 0.8rem; }
 .faq-item.open .faq-q .chevron { transform: rotate(180deg); }
-.faq-a {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s;
-  background: var(--surface2);
-}
+.faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; background: var(--surface2); }
 .faq-item.open .faq-a { max-height: 200px; }
-.faq-a-inner {
-  padding: 14px 20px;
-  font-size: 0.65rem;
-  line-height: 1.8;
-  color: var(--muted2);
-}
+.faq-a-inner { padding: 14px 20px; font-size: 0.65rem; line-height: 1.8; color: var(--muted2); }
 .faq-a-inner strong { color: var(--g1); }
 
 /* ── FINAL CTA ── */
@@ -653,11 +542,7 @@ nav {
   line-height: 1;
   margin-bottom: 16px;
 }
-.final-title em {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  color: var(--g1);
-}
+.final-title em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--g1); }
 .final-sub {
   font-size: 0.7rem;
   color: var(--muted2);
@@ -679,34 +564,14 @@ footer {
   position: relative;
   z-index: 1;
 }
-.footer-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.3rem;
-  letter-spacing: 4px;
-  color: var(--g3);
-}
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 4px; color: var(--g3); }
 .footer-links { display: flex; gap: 24px; list-style: none; }
-.footer-links a {
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
+.footer-links a { font-size: 0.55rem; letter-spacing: 2px; color: var(--muted); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
 .footer-links a:hover { color: var(--muted2); }
-.footer-copy {
-  font-size: 0.52rem;
-  letter-spacing: 1px;
-  color: var(--muted);
-}
+.footer-copy { font-size: 0.52rem; letter-spacing: 1px; color: var(--muted); }
 
 /* ── SCROLL REVEAL ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .reveal.visible { opacity: 1; transform: none; }
 
 /* ── RESPONSIVE ── */
@@ -738,7 +603,7 @@ footer {
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <a href="auth.html" class="nav-cta">GET STARTED</a>
+  <a href="#pricing" class="nav-cta">START FREE TRIAL</a>
 </nav>
 
 <!-- HERO -->
@@ -751,7 +616,7 @@ footer {
   </h1>
   <p class="hero-sub">Most athletes eat enough protein. Almost none eat it right. PULSE tracks your protein by MPS window — not just daily totals.</p>
   <div class="hero-actions">
-    <a href="auth.html" class="btn-primary">Start Free — Create Account →</a>
+    <a href="#pricing" class="btn-primary">Start 7-Day Free Trial →</a>
     <a href="#science" class="btn-ghost">↓ The Science</a>
   </div>
   <div class="hero-proof">
@@ -777,7 +642,6 @@ footer {
   <div class="section-tag">The Science</div>
   <h2 class="section-title reveal">Your body can't store<br><em>unused protein.</em></h2>
   <p class="section-body reveal">Muscle protein synthesis (MPS) has a ceiling. Once triggered — typically by ~3–4g of leucine — it runs for around 2–3 hours and then shuts off, regardless of how much more protein you eat. The excess is simply oxidised for energy.</p>
-
   <div class="mps-diagram">
     <div class="reveal">
       <div class="mps-chart" style="margin-bottom:16px">
@@ -806,7 +670,6 @@ footer {
         <div class="chart-verdict good">✓ 4× MPS windows — protein fully utilised</div>
       </div>
     </div>
-
     <div class="mps-points reveal">
       <div class="mps-point">
         <div class="mps-point-num">01</div>
@@ -837,7 +700,6 @@ footer {
 <section class="section" id="features" style="padding-top:0">
   <div class="section-tag">Features</div>
   <h2 class="section-title reveal">Built around <em>synthesis,</em><br>not just grams.</h2>
-
   <div class="features-grid">
     <div class="feature-card reveal">
       <span class="feature-icon">⏱</span>
@@ -861,8 +723,8 @@ footer {
     </div>
     <div class="feature-card reveal">
       <span class="feature-icon">🎯</span>
-      <div class="feature-title">PER-FOOD TARGETS</div>
-      <div class="feature-desc">Set a daily serving goal for specific foods. The app shows when each one is <strong>met</strong> — perfect for coaches building client plans.</div>
+      <div class="feature-title">SMART SERVING MEMORY</div>
+      <div class="feature-desc">The app learns your usual portions. Log <strong>chicken breast</strong> twice and it remembers your serving size — fewer taps every day.</div>
     </div>
     <div class="feature-card reveal">
       <span class="feature-icon">📅</span>
@@ -915,28 +777,8 @@ footer {
   <div class="pricing-inner">
     <div class="section-tag">Pricing</div>
     <h2 class="section-title reveal">Less than a <em>protein shake.</em></h2>
-    <p class="section-body reveal">Start free. Upgrade when you're ready. Cancel any time — no questions asked.</p>
-
+    <p class="section-body reveal">7-day free trial included with every plan. Cancel any time — no questions asked.</p>
     <div class="pricing-grid">
-
-      <!-- FREE -->
-      <div class="pricing-card reveal">
-        <div class="plan-name">FREE</div>
-        <div class="plan-price"><span>£</span>0</div>
-        <div class="plan-billing">Forever free</div>
-        <div class="plan-divider"></div>
-        <ul class="plan-features">
-          <li>1 protein pulse slot</li>
-          <li>Basic food library</li>
-          <li>Daily protein total</li>
-          <li class="muted">MPS windows</li>
-          <li class="muted">Distribution score</li>
-          <li class="muted">7-day history</li>
-          <li class="muted">MPS ceiling alerts</li>
-        </ul>
-        <a href="https://buy.stripe.com/3cI14p87H5raeCJdd5fIs04" class="plan-cta ghost" target="_blank">Start Coach Trial →</a>
-        <a href="https://buy.stripe.com/28E00l1Jj2eY8el1unfIs05" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £120/year →</a>
-      </div>
 
       <!-- PRO -->
       <div class="pricing-card featured reveal">
@@ -954,7 +796,7 @@ footer {
           <li>7-day history</li>
           <li>Per-food serving goals</li>
         </ul>
-        <a href="https://buy.stripe.com/00weVf1Jj6ve1PX7SLfIs06" class="plan-cta primary" target="_blank">Start Free Trial →</a>
+        <a href="https://buy.stripe.com/00weVf1Jj6ve1PX7SLfIs06" class="plan-cta primary" target="_blank">Start 7-Day Free Trial →</a>
         <a href="https://buy.stripe.com/eVq8wR73Df1Kbqx1unfIs07" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £39/year →</a>
       </div>
 
@@ -972,12 +814,12 @@ footer {
           <li>Weekly summary reports</li>
           <li>Priority support</li>
         </ul>
-        <a href="https://buy.stripe.com/3cI14p87H5raeCJdd5fIs04" class="plan-cta ghost" target="_blank">Start Coach Trial →</a>
+        <a href="https://buy.stripe.com/3cI14p87H5raeCJdd5fIs04" class="plan-cta ghost" target="_blank">Start 7-Day Free Trial →</a>
         <a href="https://buy.stripe.com/28E00l1Jj2eY8el1unfIs05" class="plan-cta ghost" style="margin-top:6px;font-size:0.58rem" target="_blank">or pay £120/year →</a>
       </div>
 
     </div>
-    <div class="annual-note reveal">All plans include a <strong>7-day free trial</strong>. No credit card required to start.</div>
+    <div class="annual-note reveal">All plans include a <strong>7-day free trial</strong>. Card required — cancel before day 7 and you won't be charged.</div>
   </div>
 </section>
 
@@ -999,31 +841,26 @@ footer {
       <div class="faq-a"><div class="faq-a-inner">MyFitnessPal tracks totals. PULSE tracks <strong>timing and distribution</strong> — the part that actually determines how much of your protein gets used for muscle. Most athletes are already eating enough protein. Almost none are eating it at the right times.</div></div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">CAN I USE IT AS A PERSONAL TRAINER? <span class="chevron">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">The <strong>Coach tier</strong> is built for this — manage up to 20 client profiles, set custom pulse plans, and share weekly reports. It's a genuine differentiator you can use to demonstrate evidence-based practice.</div></div>
+      <div class="faq-q" onclick="toggleFaq(this)">CAN I CANCEL ANY TIME? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes — cancel any time from your Stripe billing portal. If you cancel during the 7-day trial you won't be charged a penny. No awkward cancellation flows, no questions asked.</div></div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">CAN I CANCEL ANYTIME? <span class="chevron">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">Yes, cancel from your account at any time with no fees or lock-in. If you're on an annual plan and cancel early, you keep access until the end of your billing period.</div></div>
+      <div class="faq-q" onclick="toggleFaq(this)">DOES IT WORK ON MOBILE? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">Yes. PULSE is a web app that works on any device — phone, tablet, or desktop. No app store download needed. Add it to your home screen for a native app feel.</div></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">WHAT DOES THE COACH PLAN INCLUDE? <span class="chevron">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">The Coach plan adds client profile management, a dashboard to track up to 20 clients, shareable pulse plans, and weekly summary reports — everything you need to run protein timing protocols with your athletes.</div></div>
     </div>
   </div>
 </section>
 
-<!-- WAITLIST -->
-<section class="final-cta" id="waitlist">
-  <h2 class="final-title reveal">Ready to start?<br><em>Create your account.</em></h2>
-  <p class="final-sub reveal">Free to start. Track your protein pulses, see your MPS windows, and hit your daily goal the evidence-based way.</p>
-  <div class="reveal" style="max-width:480px;margin:0 auto">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <input type="email" id="waitlistEmail" placeholder="your@email.com"
-        style="flex:1;min-width:220px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:14px 18px;border-radius:4px;outline:none;transition:border-color 0.2s"
-        onfocus="this.style.borderColor='var(--g1)'"
-        onblur="this.style.borderColor='var(--border)'"
-        onkeydown="if(event.key==='Enter')joinWaitlist()">
-      <button onclick="joinWaitlist()" class="btn-primary" style="white-space:nowrap">Join Waitlist →</button>
-    </div>
-    <div id="waitlistMsg" style="margin-top:14px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:1px;min-height:20px;color:var(--g1)"></div>
-    <p style="margin-top:16px;font-size:0.55rem;color:var(--muted);letter-spacing:1px">No spam. One email when we launch. That's it.</p>
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="final-title reveal">Every gram <em>working.</em></h2>
+  <p class="final-sub reveal">Stop leaving muscle on the table. Start your 7-day free trial today — no risk, cancel any time.</p>
+  <div class="reveal">
+    <a href="#pricing" class="btn-primary" style="display:inline-flex">Start 7-Day Free Trial →</a>
   </div>
 </section>
 
@@ -1031,61 +868,27 @@ footer {
 <footer>
   <div class="footer-logo">PULSE</div>
   <ul class="footer-links">
-    <li><a href="#">Privacy</a></li>
-    <li><a href="#">Terms</a></li>
-    <li><a href="#">Contact</a></li>
+    <li><a href="#science">Science</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="mailto:hello@mpspulse.app">Contact</a></li>
   </ul>
-  <div class="footer-copy">© 2026 PULSE. All rights reserved.</div>
+  <div class="footer-copy">© 2026 MPS Pulse. All rights reserved.</div>
 </footer>
 
 <script>
-// Waitlist
-function joinWaitlist() {
-  var emailEl = document.getElementById('waitlistEmail');
-  var msg = document.getElementById('waitlistMsg');
-  var email = emailEl.value.trim();
-  if (!email || email.indexOf('@') === -1) {
-    msg.style.color = 'var(--amber)';
-    msg.textContent = 'Please enter a valid email address.';
-    return;
-  }
-  var saved = JSON.parse(localStorage.getItem('mps_waitlist') || '[]');
-  if (saved.indexOf(email) !== -1) {
-    msg.style.color = 'var(--muted2)';
-    msg.textContent = "You are already on the list - we will be in touch.";
-    return;
-  }
-  saved.push(email);
-  localStorage.setItem('mps_waitlist', JSON.stringify(saved));
-  msg.style.color = 'var(--g1)';
-  msg.textContent = 'You are on the list. We will email you first when we launch.';
-  emailEl.value = '';
-  var mailto = 'mailto:johnshpd@gmail.com?subject=MPS%20Pulse%20Waitlist&body=Please%20add%20me%20to%20the%20waitlist%3A%20' + encodeURIComponent(email);
-  window.location.href = mailto;
-}
-
-// FAQ toggle
 function toggleFaq(el) {
-  const item = el.parentElement;
+  const item = el.closest('.faq-item');
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
 
-// Scroll reveal
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      observer.unobserve(e.target);
-    }
-  });
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.12 });
-
-document.querySelectorAll('.reveal').forEach((el, i) => {
-  el.style.transitionDelay = (i % 4) * 0.08 + 's';
-  observer.observe(el);
-});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
+
 </body>
 </html>
