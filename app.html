@@ -301,6 +301,22 @@ let state = {
 };
 
 // ── AUTH ──────────────────────────────────────────
+async function checkSubscription(userId) {
+  const { data, error } = await db
+    .from('subscriptions')
+    .select('status, current_period_end')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) return false;
+  if (data.status !== 'active') return false;
+  if (data.current_period_end) {
+    const expiry = new Date(data.current_period_end);
+    if (expiry < new Date()) return false;
+  }
+  return true;
+}
+
 async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) {
@@ -308,6 +324,17 @@ async function init() {
     return;
   }
   currentUser = session.user;
+
+  // Check subscription — bypass for your own account during testing
+  const isOwner = currentUser.email === 'johnshpd@gmail.com';
+  if (!isOwner) {
+    const hasAccess = await checkSubscription(currentUser.id);
+    if (!hasAccess) {
+      window.location.href = 'index.html#pricing';
+      return;
+    }
+  }
+
   document.getElementById('userEmail').textContent = currentUser.email;
   await loadUserData();
   document.getElementById('loading').style.display = 'none';
