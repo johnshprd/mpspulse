@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS Pulse — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #080c0a; --surface: #0e1410; --surface2: #141c16;
+  --border: #1e2820; --border2: #263020;
+  --g1: #a8e63a; --g2: #5fb33a; --g3: #2d6622;
+  --amber: #f0a840; --red: #e84040; --blue: #40b4e8;
+  --text: #e8f0e0; --muted: #4a6040; --muted2: #7a9470;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+/* Loading screen */
+#loading {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  z-index: 999;
+}
+.loading-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 6px; color: var(--g1); filter: drop-shadow(0 0 14px rgba(168,230,58,0.5)); }
+.loading-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g1); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
+
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px; border-bottom: 1px solid var(--border);
+  background: rgba(8,12,10,0.95); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 5px; color: var(--g1); filter: drop-shadow(0 0 10px rgba(168,230,58,0.4)); line-height: 1; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.user-email { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--muted2); letter-spacing: 1px; }
+.signout-btn { background: none; border: 1px solid var(--border); color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 1px; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.signout-btn:hover { border-color: var(--red); color: var(--red); }
+
+.goal-pill { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px; }
+.goal-pill label { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--muted2); letter-spacing: 2px; }
+.goal-pill input { background: none; border: none; color: var(--g1); font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; width: 48px; outline: none; text-align: right; }
+
+.app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
+
+/* LEFT */
+.left { border-right: 1px solid var(--border); padding: 22px 18px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+.ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ring-outer { position: relative; width: 160px; height: 160px; }
+.ring-outer svg { transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--surface2); stroke-width: 11; }
+.ring-arc { fill: none; stroke: var(--g1); stroke-width: 11; stroke-linecap: round; stroke-dasharray: 452; stroke-dashoffset: 452; transition: stroke-dashoffset 0.9s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s; filter: drop-shadow(0 0 7px rgba(168,230,58,0.6)); }
+.ring-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.ring-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; color: var(--g1); line-height: 1; transition: color 0.4s; }
+.ring-label { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--muted2); letter-spacing: 2px; }
+.total-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 2px; color: var(--muted2); }
+.daily-met { display: flex; align-items: center; gap: 5px; background: rgba(168,230,58,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
+.daily-met.show { opacity: 1; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 15px; }
+.card-title { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; }
+.stat-label { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--muted2); letter-spacing: 2px; margin-bottom: 4px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--text); line-height: 1; }
+.stat-value.g { color: var(--g1); }
+.stat-value.o { color: var(--amber); }
+
+.dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 54px; }
+.dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.dist-bar-wrap { width: 100%; height: 44px; display: flex; align-items: flex-end; }
+.dist-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border2); min-height: 3px; transition: height 0.5s ease, background 0.3s; }
+.dist-bar.filled { background: var(--g2); }
+.dist-bar.met { background: var(--g1); box-shadow: 0 0 7px rgba(168,230,58,0.3); }
+.dist-bar.over { background: var(--amber); }
+.dist-g { font-family: 'Bebas Neue', sans-serif; font-size: 0.78rem; color: var(--muted2); }
+.dist-label { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted); letter-spacing: 1px; }
+.dist-score-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.dist-score-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; }
+.dist-score-lbl { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted2); letter-spacing: 1px; text-align: right; line-height: 1.5; }
+.score-warn { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--amber); margin-top: 6px; line-height: 1.6; }
+
+.week-bars { display: flex; align-items: flex-end; gap: 5px; height: 50px; }
+.wbar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.wbar { width:100%; border-radius:2px 2px 0 0; background:var(--border2); min-height:3px; transition:height 0.5s ease; }
+.wbar.today { background:var(--g1); box-shadow:0 0 8px rgba(168,230,58,0.25); }
+.wbar.hit { background:var(--g3); }
+.wday { font-family:'Space Mono',monospace; font-size:0.45rem; color:var(--muted); letter-spacing:1px; }
+.wday.today { color:var(--g1); }
+
+/* RIGHT */
+.right { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+
+.sci-banner { background: var(--surface); border: 1px solid var(--border2); border-left: 3px solid var(--g2); border-radius: 0 8px 8px 0; padding: 10px 14px; display: flex; align-items: flex-start; gap: 8px; }
+.sci-text { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--muted2); letter-spacing: 0.5px; line-height: 1.7; }
+.sci-text strong { color: var(--g1); }
+
+.slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--border2); transition:background 0.3s; }
+.slot-card.has-entries::before { background: var(--g2); }
+.slot-card.met::before { background: var(--g1); box-shadow: 0 0 10px rgba(168,230,58,0.4); }
+.slot-card.over::before { background: var(--amber); }
+.slot-card.active-mps { border-color: rgba(168,230,58,0.2); }
+
+.slot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.slot-num { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted); letter-spacing: 3px; }
+.slot-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 2px; color: var(--text); }
+.slot-g { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--muted2); line-height: 1; transition: color 0.3s; }
+.slot-card.has-entries .slot-g { color: var(--g2); }
+.slot-card.met .slot-g { color: var(--g1); text-shadow: 0 0 14px rgba(168,230,58,0.5); }
+.slot-card.over .slot-g { color: var(--amber); }
+.slot-g-lbl { font-family: 'Space Mono', monospace; font-size: 0.44rem; color: var(--muted); letter-spacing: 2px; }
+
+.mps-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
+.mps-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 1s ease, background 0.4s; }
+.mps-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mps-text { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted2); letter-spacing: 1px; }
+.mps-badge { font-family: 'Space Mono', monospace; font-size: 0.44rem; letter-spacing: 1px; padding: 2px 5px; border-radius: 3px; }
+.mps-badge.active { background: rgba(168,230,58,0.15); color: var(--g1); border: 1px solid var(--g2); }
+.mps-badge.ending { background: rgba(240,168,64,0.12); color: var(--amber); border: 1px solid var(--amber); }
+.mps-badge.ended { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.mps-badge.idle { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+.slot-target-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.slot-target-row label { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted); letter-spacing: 2px; }
+.slot-target-row input { background: var(--bg); border: 1px solid var(--border); color: var(--g1); font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; width: 46px; padding: 3px 5px; border-radius: 4px; outline: none; text-align: center; }
+.slot-progress-track { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.slot-progress-fill { height: 100%; border-radius: 2px; background: var(--g2); transition: width 0.5s ease, background 0.3s; width: 0%; }
+
+.slot-entries { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+.slot-entry { display: flex; align-items: center; gap: 7px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; animation: pop 0.25s ease; }
+@keyframes pop { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.entry-icon { font-size: 0.95rem; flex-shrink: 0; }
+.entry-name { font-size: 0.7rem; font-weight: 600; color: var(--text); flex: 1; }
+.entry-meta { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted2); margin-top: 1px; }
+.entry-g { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--g2); line-height: 1; }
+.del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.7rem; padding: 3px; border-radius: 3px; transition: color 0.15s; flex-shrink: 0; }
+.del-btn:hover { color: var(--red); }
+
+.slot-add { display: flex; gap: 5px; align-items: flex-end; flex-wrap: wrap; }
+.cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; }
+.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.48rem; letter-spacing: 1px; padding: 4px 7px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.cat-tab.active { background: var(--bg); color: var(--g1); }
+.cat-tab.meat.active { color: var(--amber); }
+.cat-tab.dairy.active { color: var(--blue); }
+
+.slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.7rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
+.slot-food-select:focus { border-color: var(--g1); }
+.slot-food-select option { background: var(--surface); }
+.srv-wrap { display: flex; flex-direction: column; gap: 2px; }
+.srv-lbl { font-family: 'Space Mono', monospace; font-size: 0.44rem; color: var(--muted2); letter-spacing: 2px; }
+.slot-serving { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 6px 8px; border-radius: 5px; outline: none; width: 62px; }
+.slot-serving:focus { border-color: var(--g1); }
+.slot-add-btn { background: var(--g1); color: #050805; border: none; border-radius: 5px; padding: 6px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; white-space: nowrap; align-self: flex-end; }
+.slot-add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.toast { position: fixed; bottom: 22px; right: 22px; background: var(--g1); color: #050805; font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 9px 15px; border-radius: 6px; letter-spacing: 1px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; pointer-events: none; z-index: 999; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.warn { background: var(--amber); }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .left { border-right: none; border-bottom: 1px solid var(--border); }
+  .slots-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  header { padding: 12px 16px; }
+  .user-email { display: none; }
+  .left, .right { padding: 16px; }
+  .slots-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">PULSE</div>
+  <div class="loading-dot"></div>
+</div>
+
+<header>
+  <div class="logo">PULSE</div>
+  <div class="header-right">
+    <div class="goal-pill">
+      <label>GOAL</label>
+      <input type="number" id="goalInput" value="150" min="40" max="400">
+      <span style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--muted)">G</span>
+    </div>
+    <span class="user-email" id="userEmail"></span>
+    <button class="signout-btn" onclick="signOut()">SIGN OUT</button>
+  </div>
+</header>
+
+<div class="app" id="appContent" style="display:none">
+  <div class="left">
+    <div class="ring-wrap">
+      <div class="ring-outer">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle class="ring-track" cx="80" cy="80" r="72"/>
+          <circle class="ring-arc" id="ringArc" cx="80" cy="80" r="72"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-g" id="ringG">0</div>
+          <div class="ring-label">/ <span id="ringGoal">150</span>G</div>
+        </div>
+      </div>
+      <div class="total-label">TODAY'S PROTEIN</div>
+      <div class="daily-met" id="dailyMet">⚡ DAILY GOAL MET</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">GOAL</div><div class="stat-value g" id="goalDisp">150G</div></div>
+      <div class="stat-card"><div class="stat-label">REMAINING</div><div class="stat-value" id="remainDisp">150G</div></div>
+      <div class="stat-card"><div class="stat-label">ENTRIES</div><div class="stat-value o" id="entriesDisp">0</div></div>
+      <div class="stat-card"><div class="stat-label">% OF GOAL</div><div class="stat-value" id="pctDisp">0%</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">PULSE DISTRIBUTION</div>
+      <div class="dist-bars" id="distBars"></div>
+      <div class="dist-score-row">
+        <div class="dist-score-val" id="distScoreVal" style="color:var(--muted2)">—</div>
+        <div class="dist-score-lbl" id="distScoreLbl">LOG YOUR FIRST<br>PULSE TO SCORE</div>
+      </div>
+      <div class="score-warn" id="scoreWarn"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">7-DAY HISTORY</div>
+      <div class="week-bars" id="weekBars"></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="sci-banner">
+      <span style="font-size:1rem;flex-shrink:0">🔬</span>
+      <div class="sci-text">MPS peaks <strong>~30–90 min post-meal</strong> and lasts <strong>~2–3 hrs</strong>. Beyond <strong>~40–55g per pulse</strong>, excess protein is oxidised. Space 3–4 pulses evenly for maximum synthesis time.</div>
+    </div>
+    <div class="slots-grid" id="slotsGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://xcfxizkflleeahjguviq.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZnhpemtmbGxlZWFoamd1dmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTA2ODMsImV4cCI6MjA5NjE4NjY4M30.FhufokzAT16n6zuL9pGn9QHjkENoijU3Wc_umvXEzjQ';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+const MPS_DURATION_MS = 3 * 60 * 60 * 1000;
+
+const FOODS = {
+  pulses: [
+    {id:'lentils',name:'Red Lentils',icon:'🔴',p100:9.0,typical:180,typicalLabel:'1 cup cooked'},
+    {id:'chickpeas',name:'Chickpeas',icon:'🟡',p100:19.3,typical:150,typicalLabel:'half can'},
+    {id:'blackbeans',name:'Black Beans',icon:'⚫',p100:21.6,typical:150,typicalLabel:'half can'},
+    {id:'kidney',name:'Kidney Beans',icon:'🫘',p100:22.5,typical:150,typicalLabel:'half can'},
+    {id:'edamame',name:'Edamame',icon:'🟢',p100:11.9,typical:150,typicalLabel:'1 cup'},
+    {id:'lupins',name:'Lupin Beans',icon:'🌼',p100:36.2,typical:100,typicalLabel:'small portion'},
+    {id:'splitpeas',name:'Split Peas',icon:'💛',p100:8.3,typical:180,typicalLabel:'1 cup cooked'},
+    {id:'blackeyed',name:'Black-eyed Peas',icon:'🤍',p100:23.5,typical:150,typicalLabel:'half can'},
+  ],
+  meat: [
+    {id:'chicken',name:'Chicken Breast',icon:'🍗',p100:31.0,typical:180,typicalLabel:'1 medium breast'},
+    {id:'beef',name:'Beef Mince',icon:'🥩',p100:26.0,typical:150,typicalLabel:'standard portion'},
+    {id:'tuna',name:'Tuna (tin)',icon:'🐟',p100:29.0,typical:145,typicalLabel:'1 tin'},
+    {id:'eggs',name:'Eggs',icon:'🥚',p100:13.0,typical:200,typicalLabel:'4 large eggs'},
+    {id:'salmon',name:'Salmon',icon:'🍣',p100:25.0,typical:150,typicalLabel:'1 fillet'},
+    {id:'turkey',name:'Turkey',icon:'🦃',p100:29.0,typical:150,typicalLabel:'standard portion'},
+    {id:'pork',name:'Pork Loin',icon:'🐷',p100:27.0,typical:150,typicalLabel:'1 chop'},
+    {id:'prawns',name:'Prawns',icon:'🦐',p100:24.0,typical:150,typicalLabel:'standard portion'},
+  ],
+  dairy: [
+    {id:'greekyo',name:'Greek Yoghurt',icon:'🥛',p100:10.0,typical:200,typicalLabel:'1 large pot'},
+    {id:'cottage',name:'Cottage Cheese',icon:'🫙',p100:11.0,typical:200,typicalLabel:'half tub'},
+    {id:'milk',name:'Whole Milk',icon:'🍼',p100:3.4,typical:250,typicalLabel:'1 large glass'},
+    {id:'cheese',name:'Cheddar',icon:'🧀',p100:25.0,typical:40,typicalLabel:'small slice'},
+    {id:'whey',name:'Whey Protein',icon:'💪',p100:80.0,typical:30,typicalLabel:'1 scoop'},
+    {id:'quark',name:'Quark',icon:'🥣',p100:11.0,typical:200,typicalLabel:'half tub'},
+    {id:'skyr',name:'Skyr',icon:'🍨',p100:11.0,typical:170,typicalLabel:'1 pot'},
+    {id:'kefir',name:'Kefir',icon:'🥤',p100:3.6,typical:250,typicalLabel:'1 large glass'},
+  ]
+};
+const ALL_FOODS = [...FOODS.pulses,...FOODS.meat,...FOODS.dairy];
+function getFood(id){return ALL_FOODS.find(f=>f.id===id);}
+
+const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
+const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
+
+let state = {
+  goal: 150,
+  slotTargets: [40,40,40,30],
+  slots: [[],[],[],[]],
+  slotCats: ['pulses','pulses','pulses','pulses'],
+  weekHistory: [0,0,0,0,0,0,0],
+  servingHistory: {},
+};
+
+// ── AUTH ──────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('userEmail').textContent = currentUser.email;
+  await loadUserData();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('appContent').style.display = 'grid';
+  document.getElementById('goalInput').value = state.goal;
+  renderSlots();
+  updateUI();
+  setInterval(tickMps, 60000);
+  setInterval(checkMidnight, 60000);
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  window.location.href = 'auth.html';
+}
+
+// ── DATA PERSISTENCE ──────────────────────────────
+async function loadUserData() {
+  const today = new Date().toDateString();
+  const { data } = await db
+    .from('user_data')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .single();
+
+  if (data) {
+    state.goal = data.goal || 150;
+    state.slotTargets = data.slot_targets || [40,40,40,30];
+    state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
+    state.servingHistory = data.serving_history || {};
+    if (data.log_date === today) {
+      state.slots = data.slots || [[],[],[],[]];
+    } else {
+      // New day — roll week history
+      state.weekHistory.shift();
+      state.weekHistory.push(0);
+      state.slots = [[],[],[],[]];
+      await saveUserData();
+    }
+  }
+}
+
+async function saveUserData() {
+  const today = new Date().toDateString();
+  const payload = {
+    user_id: currentUser.id,
+    goal: state.goal,
+    slot_targets: state.slotTargets,
+    slots: state.slots,
+    log_date: today,
+    week_history: state.weekHistory,
+    serving_history: state.servingHistory,
+    updated_at: new Date().toISOString(),
+  };
+  await db.from('user_data').upsert(payload, { onConflict: 'user_id' });
+}
+
+function checkMidnight() {
+  // If date has rolled over since last save, reload
+  const stored = localStorage.getItem('mps_date');
+  const today = new Date().toDateString();
+  if (stored && stored !== today) { window.location.reload(); }
+  localStorage.setItem('mps_date', today);
+}
+
+// ── SERVING HISTORY ───────────────────────────────
+function recordServing(foodId, grams) {
+  if (!state.servingHistory[foodId]) state.servingHistory[foodId] = [];
+  state.servingHistory[foodId].push(grams);
+  if (state.servingHistory[foodId].length > 20) state.servingHistory[foodId].shift();
+}
+
+function smartDefault(foodId) {
+  const hist = state.servingHistory[foodId];
+  if (!hist || hist.length < 2) { const f=getFood(foodId); return f?f.typical:100; }
+  const rounded = hist.map(g=>Math.round(g/5)*5);
+  const freq={};let maxC=0,best=rounded[rounded.length-1];
+  for(const v of rounded){freq[v]=(freq[v]||0)+1;if(freq[v]>maxC){maxC=freq[v];best=v;}}
+  return best;
+}
+
+function servingHint(foodId) {
+  const hist=state.servingHistory[foodId];
+  const f=getFood(foodId);
+  if(!hist||hist.length<2) return f?f.typicalLabel:'';
+  return 'your usual';
+}
+
+// ── MPS ───────────────────────────────────────────
+function getMpsState(entries) {
+  if(!entries.length) return {status:'idle',pct:0,label:'Log a food to start MPS window'};
+  const latest=Math.max(...entries.map(e=>e.ts));
+  const elapsed=Date.now()-latest;
+  const pct=Math.max(0,Math.min(100,(elapsed/MPS_DURATION_MS)*100));
+  if(elapsed>MPS_DURATION_MS) return {status:'ended',pct:100,label:'MPS window closed'};
+  const mins=Math.round((MPS_DURATION_MS-elapsed)/60000);
+  const h=Math.floor(mins/60),m=mins%60;
+  const label=h>0?h+'h '+m+'m remaining':m+'m remaining';
+  return {status:pct<70?'active':'ending',pct,label};
+}
+
+// ── FOOD OPTIONS ──────────────────────────────────
+function foodOptionsHtml(cat) {
+  return FOODS[cat].map(f=>{
+    const def=smartDefault(f.id);
+    const hint=servingHint(f.id);
+    return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g ('+hint+')</option>';
+  }).join('');
+}
+
+// ── RENDER SLOTS ──────────────────────────────────
+function slotTotal(si){return state.slots[si].reduce((s,e)=>s+e.protein,0);}
+function dayTotal(){return state.slots.reduce((s,_,i)=>s+slotTotal(i),0);}
+
+function renderSlots() {
+  const grid=document.getElementById('slotsGrid');
+  grid.innerHTML='';
+  state.slots.forEach((entries,si)=>{
+    const total=Math.round(slotTotal(si));
+    const target=state.slotTargets[si];
+    const pct=target?Math.min(100,Math.round(total/target*100)):0;
+    const isMet=total>=target&&target>0;
+    const isOver=total>55;
+    const hasSome=total>0;
+    const cat=state.slotCats[si];
+    const mps=getMpsState(entries);
+    const mpsColors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
+
+    let cls='';
+    if(isOver)cls='over';
+    else if(isMet)cls='met';
+    else if(hasSome)cls='has-entries';
+    if(mps.status==='active'||mps.status==='ending')cls+=' active-mps';
+
+    const entriesHtml=entries.map((e,ei)=>
+      '<div class="slot-entry">'+
+      '<span class="entry-icon">'+e.icon+'</span>'+
+      '<div class="entry-info"><div class="entry-name">'+e.name+'</div>'+
+      '<div class="entry-meta">'+e.serving+'g · '+e.time+'</div></div>'+
+      '<div class="entry-g">'+Math.round(e.protein)+'</div>'+
+      '<button class="del-btn" onclick="deleteEntry('+si+','+ei+')">✕</button>'+
+      '</div>'
+    ).join('');
+
+    const tabsHtml=['pulses','meat','dairy'].map(c=>
+      '<button class="cat-tab '+c+(cat===c?' active':'')+'" onclick="setSlotCat('+si+',\''+c+'\')">'+c+'</button>'
+    ).join('');
+
+    const card=document.createElement('div');
+    card.className='slot-card '+cls;
+    card.id='slot-'+si;
+    card.innerHTML=
+      '<div class="slot-header">'+
+        '<div><div class="slot-num">PULSE '+(si+1)+' · '+SLOT_ICONS[si]+'</div>'+
+        '<div class="slot-name">'+SLOT_NAMES[si]+'</div></div>'+
+        '<div style="text-align:right"><div class="slot-g">'+total+'</div>'+
+        '<div class="slot-g-lbl">G PROTEIN</div></div>'+
+      '</div>'+
+      '<div class="mps-track"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:'+mpsColors[mps.status]+'"></div></div>'+
+      '<div class="mps-info">'+
+        '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
+        '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
+      '</div>'+
+      '<div class="slot-target-row">'+
+        '<label>TARGET</label>'+
+        '<input type="number" value="'+target+'" min="10" max="100" onchange="setSlotTarget('+si+',this.value)">'+
+        '<span style="font-family:Space Mono,monospace;font-size:0.46rem;color:var(--muted)">G</span>'+
+        (isOver?'<span style="color:var(--amber);font-family:Space Mono,monospace;font-size:0.46rem;margin-left:auto">⚠ OVER CEILING</span>':'')+
+      '</div>'+
+      '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
+      '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
+      '<div class="slot-add">'+
+        '<div class="cat-tabs">'+tabsHtml+'</div>'+
+        '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat)+'</select>'+
+        '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
+        '<input class="slot-serving" type="number" id="srv-'+si+'" value="'+smartDefault(FOODS[cat][0].id)+'" min="10" max="1000"></div>'+
+        '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function setSlotCat(si,cat){
+  state.slotCats[si]=cat;
+  const sel=document.getElementById('sel-'+si);
+  if(sel){sel.innerHTML=foodOptionsHtml(cat);onFoodChange(si);}
+  document.querySelectorAll('#slot-'+si+' .cat-tab').forEach(b=>{
+    b.classList.toggle('active',b.classList.contains(cat));
+  });
+}
+
+function setSlotTarget(si,val){
+  const v=parseInt(val);
+  if(!isNaN(v)&&v>0){state.slotTargets[si]=v;updateUI();}
+}
+
+function onFoodChange(si){
+  const sel=document.getElementById('sel-'+si);
+  const srvEl=document.getElementById('srv-'+si);
+  const lblEl=document.getElementById('srv-lbl-'+si);
+  if(!sel||!srvEl)return;
+  const def=smartDefault(sel.value);
+  const hint=servingHint(sel.value);
+  srvEl.value=def;
+  if(lblEl)lblEl.textContent=hint?hint.toUpperCase():'GRAMS';
+}
+
+function addToSlot(si){
+  const sel=document.getElementById('sel-'+si);
+  const srvEl=document.getElementById('srv-'+si);
+  if(!sel||!srvEl)return;
+  const food=getFood(sel.value);if(!food)return;
+  const serving=parseFloat(srvEl.value)||smartDefault(food.id);
+  const protein=(food.p100/100)*serving;
+  const wasOver=slotTotal(si)>55;
+  recordServing(food.id,serving);
+  state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+  const newTotal=slotTotal(si);
+  if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
+  else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
+  else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
+  updateUI();
+}
+
+function deleteEntry(si,ei){
+  state.slots[si].splice(ei,1);
+  updateUI();
+}
+
+// ── DISTRIBUTION SCORE ────────────────────────────
+function calcDistScore(){
+  const totals=state.slots.map((_,i)=>slotTotal(i));
+  const day=totals.reduce((s,v)=>s+v,0);
+  if(day===0)return{score:null,warn:''};
+  const mean=day/4;
+  const variance=totals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/4;
+  const cv=mean>0?Math.sqrt(variance)/mean:0;
+  const score=Math.max(0,Math.round(100-cv*100));
+  let warn='';
+  const max=Math.max(...totals);
+  const maxIdx=totals.indexOf(max);
+  if(max>55)warn='⚠ Pulse '+(maxIdx+1)+' ('+Math.round(max)+'g) exceeds the MPS ceiling — excess will be oxidised.';
+  else if(cv>0.5)warn='↕ Uneven spread — aim for 3–4 equal pulses of 30–50g.';
+  let label,color;
+  if(score>=85){label='OPTIMAL';color='var(--g1)';}
+  else if(score>=60){label='GOOD';color='var(--g2)';}
+  else if(score>=35){label='UNEVEN';color='var(--amber)';}
+  else{label='POOR';color='var(--red)';}
+  return{score,label,color,warn};
+}
+
+// ── MAIN UI UPDATE ────────────────────────────────
+function updateUI(){
+  const total=Math.round(dayTotal());
+  const goal=state.goal;
+  const pct=Math.min(100,total/goal);
+  const circ=452;
+  document.getElementById('ringArc').style.strokeDashoffset=circ-circ*pct;
+  document.getElementById('ringArc').style.stroke=pct>=1?'var(--amber)':'var(--g1)';
+  document.getElementById('ringG').textContent=total;
+  document.getElementById('ringG').style.color=pct>=1?'var(--amber)':'var(--g1)';
+  document.getElementById('ringGoal').textContent=goal;
+  document.getElementById('dailyMet').classList.toggle('show',pct>=1);
+  document.getElementById('goalDisp').textContent=goal+'G';
+  document.getElementById('remainDisp').textContent=Math.max(0,goal-total)+'G';
+  document.getElementById('entriesDisp').textContent=state.slots.reduce((s,sl)=>s+sl.length,0);
+  document.getElementById('pctDisp').textContent=Math.round(pct*100)+'%';
+
+  const slotTotals=state.slots.map((_,i)=>slotTotal(i));
+  const distMax=Math.max(...slotTotals,goal/4,1);
+  document.getElementById('distBars').innerHTML=slotTotals.map((v,i)=>{
+    const h=Math.round((v/distMax)*44);
+    const met=v>=state.slotTargets[i]&&v>0;
+    const over=v>55;
+    const cls=over?'over':met?'met':v>0?'filled':'';
+    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar '+cls+'" style="height:'+Math.max(3,h)+'px"></div></div><div class="dist-g">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
+  }).join('');
+
+  const ds=calcDistScore();
+  if(ds.score!==null){
+    document.getElementById('distScoreVal').textContent=ds.score;
+    document.getElementById('distScoreVal').style.color=ds.color;
+    document.getElementById('distScoreLbl').textContent=ds.label+'\nDISTRIBUTION SCORE';
+    document.getElementById('distScoreLbl').style.whiteSpace='pre';
+    document.getElementById('scoreWarn').textContent=ds.warn;
+  } else {
+    document.getElementById('distScoreVal').textContent='—';
+    document.getElementById('distScoreLbl').textContent='LOG YOUR FIRST\nPULSE TO SCORE';
+    document.getElementById('scoreWarn').textContent='';
+  }
+
+  state.weekHistory[6]=total;
+  renderWeekBars();
+  renderSlots();
+  saveUserData();
+}
+
+function renderWeekBars(){
+  const days=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const tod=new Date().getDay();
+  const off=tod===0?6:tod-1;
+  const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
+  const mx=Math.max(...reord.map(d=>d.val),state.goal,1);
+  document.getElementById('weekBars').innerHTML=reord.map((d,i)=>{
+    const h=Math.max(3,Math.round((d.val/mx)*42));
+    const isToday=i===6;
+    return '<div class="wbar-wrap"><div class="wbar '+(isToday?'today':d.val>=state.goal?'hit':'')+'" style="height:'+h+'px" title="'+d.val+'g"></div><div class="wday '+(isToday?'today':'')+'">'+(d.label)+'</div></div>';
+  }).join('');
+}
+
+function tickMps(){
+  state.slots.forEach((entries,si)=>{
+    if(!entries.length)return;
+    const mps=getMpsState(entries);
+    const fill=document.getElementById('mps-fill-'+si);
+    const text=document.getElementById('mps-text-'+si);
+    const badge=document.getElementById('mps-badge-'+si);
+    if(!fill)return;
+    const colors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
+    fill.style.width=mps.pct+'%';
+    fill.style.background=colors[mps.status];
+    text.textContent=mps.label;
+    badge.textContent=mps.status.toUpperCase();
+    badge.className='mps-badge '+mps.status;
+  });
+}
+
+function showToast(msg,warn){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(warn?' warn':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+document.getElementById('goalInput').addEventListener('input',function(){
+  const v=parseInt(this.value);
+  if(v>=40&&v<=400){state.goal=v;updateUI();}
+});
+
+init();
+</script>
+</body>
+</html>
