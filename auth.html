@@ -248,7 +248,7 @@ body {
 <script>
 const SUPABASE_URL = 'https://xcfxizkflleeahjguviq.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZnhpemtmbGxlZWFoamd1dmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTA2ODMsImV4cCI6MjA5NjE4NjY4M30.FhufokzAT16n6zuL9pGn9QHjkENoijU3Wc_umvXEzjQ';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 function switchTab(tab) {
   document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
@@ -275,7 +275,7 @@ async function handleLogin() {
   var password = document.getElementById('login-password').value;
   if (!email || !password) { setMsg('Please fill in both fields.', 'error'); return; }
   setLoading('login-btn', true);
-  var result = await supabase.auth.signInWithPassword({ email, password });
+  var result = await db.auth.signInWithPassword({ email, password });
   if (result.error) {
     setMsg(result.error.message, 'error');
     setLoading('login-btn', false);
@@ -291,7 +291,7 @@ async function handleSignup() {
   if (!email || !password) { setMsg('Please fill in both fields.', 'error'); return; }
   if (password.length < 8) { setMsg('Password must be at least 8 characters.', 'error'); return; }
   setLoading('signup-btn', true);
-  var result = await supabase.auth.signUp({ email, password });
+  var result = await db.auth.signUp({ email, password });
   if (result.error) {
     setMsg(result.error.message, 'error');
     setLoading('signup-btn', false);
@@ -304,7 +304,7 @@ async function handleSignup() {
 async function handleForgot() {
   var email = document.getElementById('login-email').value.trim();
   if (!email) { setMsg('Enter your email above first.', 'error'); return; }
-  var result = await supabase.auth.resetPasswordForEmail(email, {
+  var result = await db.auth.resetPasswordForEmail(email, {
     redirectTo: 'https://mpspulse.app/auth.html'
   });
   if (result.error) { setMsg(result.error.message, 'error'); }
@@ -312,14 +312,14 @@ async function handleForgot() {
 }
 
 async function handleGoogle() {
-  await supabase.auth.signInWithOAuth({
+  await db.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: 'https://mpspulse.app/app.html' }
   });
 }
 
 // If already logged in, go straight to app
-supabase.auth.getSession().then(function(result) {
+db.auth.getSession().then(function(result) {
   if (result.data.session) {
     window.location.href = 'app.html';
   }
