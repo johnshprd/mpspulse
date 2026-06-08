@@ -465,18 +465,7 @@ header {
 }
 .custom-save-btn:hover { filter: brightness(1.1); }
 
-/* RECENT FOODS */
-.recent-foods { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
-.recent-chip {
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 20px; padding: 4px 10px;
-  font-size: 0.62rem; color: var(--muted2);
-  cursor: pointer; transition: all 0.15s;
-  display: flex; align-items: center; gap: 4px;
-  white-space: nowrap;
-}
-.recent-chip:hover { border-color: var(--g2); color: var(--g1); background: rgba(168,230,58,0.05); }
-.recent-chip-protein { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; color: var(--g2); }
+
 
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
@@ -829,20 +818,7 @@ function foodOptionsHtml(cat, si) {
   }).join('');
 }
 
-// ── RECENT FOODS ──────────────────────────────────
-function getRecentFoodsForSlot(si) {
-  // Only show foods previously logged in THIS slot, most recent first, deduped
-  const seen = new Set();
-  const recent = [];
-  const entries = [...(state.slots[si]||[])].reverse();
-  for(const e of entries){
-    if(!seen.has(e.foodId)){
-      seen.add(e.foodId);
-      recent.push({foodId:e.foodId, name:e.name, icon:e.icon, serving:e.serving, protein:e.protein});
-    }
-  }
-  return recent.slice(0,4);
-}
+
 
 // ── RENDER SLOTS ──────────────────────────────────
 function slotTotal(si){return state.slots[si].reduce((s,e)=>s+e.protein,0);}
@@ -909,7 +885,7 @@ function renderSlots() {
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
-      '<div class="recent-foods" id="recent-'+si+'"></div>'+
+
       '<div class="cat-tabs" style="margin-bottom:6px">'+tabsHtml+'</div>'+
       (cat==='quick' ?
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
@@ -1203,7 +1179,6 @@ function updateUI(){
   state.weekHistory[6]=total;
   renderWeekBars();
   renderSlots();
-  renderAllRecentFoods();
   saveUserData();
 }
 
