@@ -134,6 +134,7 @@ header {
 .cat-tab.active { background: var(--bg); color: var(--g1); }
 .cat-tab.meat.active { color: var(--amber); }
 .cat-tab.dairy.active { color: var(--blue); }
+.cat-tab.mine.active { color: var(--amber); }
 .slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.7rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
 .slot-food-select:focus { border-color: var(--g1); }
 .slot-food-select option { background: var(--surface); }
@@ -386,6 +387,76 @@ header {
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.warn { background: var(--amber); }
 
+/* CUSTOM FOOD MODAL */
+.custom-modal {
+  position: fixed; inset: 0;
+  background: rgba(4,8,4,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 600;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.custom-modal.open { opacity: 1; pointer-events: all; }
+.custom-inner {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+.custom-inner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--amber), transparent);
+  border-radius: 16px 16px 0 0;
+}
+.custom-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem; letter-spacing: 4px; color: var(--amber);
+}
+.custom-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; color: var(--muted2);
+  cursor: pointer; font-size: 1rem; transition: color 0.15s;
+}
+.custom-close:hover { color: var(--red); }
+.custom-field { display: flex; flex-direction: column; gap: 5px; }
+.custom-label { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted2); letter-spacing: 2px; }
+.custom-input {
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; padding: 8px 10px; border-radius: 6px; outline: none;
+}
+.custom-input:focus { border-color: var(--amber); }
+.custom-row { display: flex; gap: 10px; }
+.custom-save-btn {
+  background: var(--amber); color: #050805;
+  border: none; border-radius: 6px; padding: 10px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+  letter-spacing: 3px; cursor: pointer; transition: all 0.15s; width: 100%;
+}
+.custom-save-btn:hover { filter: brightness(1.1); }
+
+/* RECENT FOODS */
+.recent-foods { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+.recent-chip {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 0.62rem; color: var(--muted2);
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.recent-chip:hover { border-color: var(--g2); color: var(--g1); background: rgba(168,230,58,0.05); }
+.recent-chip-protein { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; color: var(--g2); }
+
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
   .left { border-right: none; border-bottom: 1px solid var(--border); }
@@ -506,6 +577,33 @@ header {
   </div>
 </div>
 
+<!-- CUSTOM FOOD MODAL -->
+<div class="custom-modal" id="customModal">
+  <div class="custom-inner">
+    <button class="custom-close" onclick="closeCustomFood()">✕</button>
+    <div class="custom-title">ADD CUSTOM FOOD</div>
+    <div class="custom-field">
+      <div class="custom-label">FOOD NAME</div>
+      <input class="custom-input" id="cfName" type="text" placeholder="e.g. Protein Bar">
+    </div>
+    <div class="custom-row">
+      <div class="custom-field" style="flex:0 0 80px">
+        <div class="custom-label">EMOJI</div>
+        <input class="custom-input" id="cfIcon" type="text" placeholder="🍽️" maxlength="2">
+      </div>
+      <div class="custom-field" style="flex:1">
+        <div class="custom-label">PROTEIN PER 100G</div>
+        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 25" min="0" max="100">
+      </div>
+      <div class="custom-field" style="flex:1">
+        <div class="custom-label">TYPICAL SERVING (G)</div>
+        <input class="custom-input" id="cfTypical" type="number" placeholder="e.g. 150" min="1">
+      </div>
+    </div>
+    <button class="custom-save-btn" onclick="saveCustomFood()">SAVE FOOD</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -555,7 +653,8 @@ const FOODS = {
 };
 
 const ALL_FOODS = [...FOODS.pulses,...FOODS.meat,...FOODS.dairy];
-function getFood(id){return ALL_FOODS.find(f=>f.id===id);}
+function getAllFoods(){return [...FOODS.pulses,...FOODS.meat,...FOODS.dairy,...(state.customFoods||[])];}
+function getFood(id){return getAllFoods().find(f=>f.id===id);}
 
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
 const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
@@ -567,6 +666,7 @@ let state = {
   slotCats: ['pulses','pulses','pulses','pulses'],
   weekHistory: [0,0,0,0,0,0,0],
   servingHistory: {},
+  customFoods: [],
 };
 
 // ── AUTH ──────────────────────────────────────────
@@ -619,6 +719,7 @@ async function loadUserData() {
     state.slotTargets = data.slot_targets || [40,40,40,30];
     state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
     state.servingHistory = data.serving_history || {};
+    state.customFoods = data.custom_foods || [];
     if (data.log_date === today) {
       state.slots = data.slots || [[],[],[],[]];
     } else {
@@ -639,6 +740,7 @@ async function saveUserData() {
     slots: state.slots,
     log_date: today,
     week_history: state.weekHistory,
+    custom_foods: state.customFoods,
     serving_history: state.servingHistory,
     updated_at: new Date().toISOString(),
   };
@@ -689,12 +791,38 @@ function getMpsState(entries) {
 }
 
 // ── FOOD OPTIONS ──────────────────────────────────
-function foodOptionsHtml(cat) {
-  return FOODS[cat].map(f=>{
+function foodOptionsHtml(cat, si) {
+  if(cat === 'mine') {
+    if(!state.customFoods || state.customFoods.length === 0) {
+      return '<option value="">No custom foods yet</option>';
+    }
+    return '<option value="">Select a food...</option>' + state.customFoods.map(f=>{
+      const def=smartDefault(f.id)||f.typical||100;
+      return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g</option>';
+    }).join('');
+  }
+  return '<option value="">Select a food...</option>' + FOODS[cat].map(f=>{
     const def=smartDefault(f.id);
     const hint=servingHint(f.id);
     return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g ('+hint+')</option>';
   }).join('');
+}
+
+// ── RECENT FOODS ──────────────────────────────────
+function getRecentFoods() {
+  // Get foods logged today across all slots, most recent first, deduped
+  const seen = new Set();
+  const recent = [];
+  for(let si=0; si<4; si++){
+    const entries = [...(state.slots[si]||[])].reverse();
+    for(const e of entries){
+      if(!seen.has(e.foodId)){
+        seen.add(e.foodId);
+        recent.push({foodId:e.foodId, name:e.name, icon:e.icon, serving:e.serving, protein:e.protein});
+      }
+    }
+  }
+  return recent.slice(0,5);
 }
 
 // ── RENDER SLOTS ──────────────────────────────────
@@ -730,7 +858,7 @@ function renderSlots() {
       '</div>'
     ).join('');
 
-    const tabsHtml=['pulses','meat','dairy'].map(c=>
+    const tabsHtml=['pulses','meat','dairy','mine'].map(c=>
       '<button class="cat-tab '+c+(cat===c?' active':'')+'" onclick="setSlotCat('+si+',\''+c+'\')">'+c+'</button>'
     ).join('');
 
@@ -757,14 +885,17 @@ function renderSlots() {
       '</div>'+
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
-      '<div class="slot-add">'+
+      '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
+      '<div class="recent-foods" id="recent-'+si+'"></div>'+
+      '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
       '<div class="cat-tabs">'+tabsHtml+'</div>'+
-      '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat)+'</select>'+
+      '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
       '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
-      '<input class="slot-serving" type="number" id="srv-'+si+'" value="'+smartDefault(FOODS[cat][0].id)+'" min="10" max="1000"></div>'+
+      '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g"></div>'+
       '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
       '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-      '</div>';
+      (cat==="mine"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
+      '</div></div>';
     grid.appendChild(card);
   });
 }
@@ -772,10 +903,12 @@ function renderSlots() {
 function setSlotCat(si,cat){
   state.slotCats[si]=cat;
   const sel=document.getElementById('sel-'+si);
-  if(sel){sel.innerHTML=foodOptionsHtml(cat);onFoodChange(si);}
+  if(sel){sel.innerHTML=foodOptionsHtml(cat,si);onFoodChange(si);}
   document.querySelectorAll('#slot-'+si+' .cat-tab').forEach(b=>{
     b.classList.toggle('active',b.classList.contains(cat));
   });
+  // Show/hide + NEW button for mine tab
+  renderSlots();
 }
 
 function setSlotTarget(si,val){
@@ -798,8 +931,9 @@ function addToSlot(si){
   const sel=document.getElementById('sel-'+si);
   const srvEl=document.getElementById('srv-'+si);
   if(!sel||!srvEl)return;
+  if(!sel.value){showToast('Select a food first',true);return;}
   const food=getFood(sel.value);if(!food)return;
-  const serving=parseFloat(srvEl.value)||smartDefault(food.id);
+  const serving=parseFloat(srvEl.value)||smartDefault(food.id)||100;
   const protein=(food.p100/100)*serving;
   const wasOver=slotTotal(si)>55;
   recordServing(food.id,serving);
@@ -1035,6 +1169,7 @@ function updateUI(){
   state.weekHistory[6]=total;
   renderWeekBars();
   renderSlots();
+  renderAllRecentFoods();
   saveUserData();
 }
 
@@ -1066,6 +1201,73 @@ function tickMps(){
     badge.textContent=mps.status.toUpperCase();
     badge.className='mps-badge '+mps.status;
   });
+}
+
+function renderAllRecentFoods(){
+  const recent = getRecentFoods();
+  for(let si=0;si<4;si++){
+    const el=document.getElementById('recent-'+si);
+    if(!el)continue;
+    if(recent.length===0){el.innerHTML='';continue;}
+    el.innerHTML=recent.map((r,ri)=>
+      '<div class="recent-chip" data-si="'+si+'" data-fi="'+r.foodId.replace(/"/g,"")+'" onclick="quickAddChip(this)">'+
+      r.icon+' '+r.name+
+      '<span class="recent-chip-protein">'+Math.round(r.protein)+'</span>'+
+      '<span style="font-family:Space Mono,monospace;font-size:0.4rem;color:var(--muted)">G</span>'+
+      '</div>'
+    ).join('');
+  }
+}
+
+function quickAddChip(el){
+  const si=parseInt(el.dataset.si);
+  const foodId=el.dataset.fi;
+  quickAdd(si,foodId);
+}
+
+function quickAdd(si, foodId){
+  const food=getFood(foodId);if(!food)return;
+  const serving=smartDefault(foodId)||food.typical||100;
+  const protein=(food.p100/100)*serving;
+  const wasOver=slotTotal(si)>55;
+  recordServing(foodId,serving);
+  state.slots[si].push({foodId,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+  const newTotal=slotTotal(si);
+  if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
+  else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
+  else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
+  updateUI();
+}
+
+// ── CUSTOM FOOD ────────────────────────────────────
+function openCustomFood(){
+  document.getElementById('customModal').classList.add('open');
+  document.getElementById('cfName').value='';
+  document.getElementById('cfIcon').value='';
+  document.getElementById('cfProtein').value='';
+  document.getElementById('cfTypical').value='';
+}
+
+function closeCustomFood(){
+  document.getElementById('customModal').classList.remove('open');
+}
+
+function saveCustomFood(){
+  const name=document.getElementById('cfName').value.trim();
+  const icon=document.getElementById('cfIcon').value.trim()||'🍽️';
+  const p100=parseFloat(document.getElementById('cfProtein').value);
+  const typical=parseFloat(document.getElementById('cfTypical').value)||100;
+  if(!name||isNaN(p100)||p100<=0){showToast('Fill in name and protein',true);return;}
+  const id='custom_'+Date.now();
+  state.customFoods.push({id,name,icon,p100,typical,typicalLabel:'custom serving'});
+  closeCustomFood();
+  showToast('✓ '+name+' added to My Foods');
+  updateUI();
+}
+
+function deleteCustomFood(id){
+  state.customFoods=state.customFoods.filter(f=>f.id!==id);
+  updateUI();
 }
 
 function showToast(msg,warn){
