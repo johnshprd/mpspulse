@@ -126,33 +126,20 @@ header {
 .slot-card.over .slot-g { color: var(--amber); }
 .slot-g-lbl { font-family: 'Space Mono', monospace; font-size: 0.44rem; color: var(--muted); letter-spacing: 2px; }
 .mps-track { 
-  height: 6px; 
+  height: 4px;
   background: var(--surface2);
-  border-radius: 0;
+  border-radius: 2px;
   margin-bottom: 3px;
   overflow: hidden;
-  /* Dashed effect using repeating gradient */
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--surface2) 0px,
-    var(--surface2) 8px,
-    transparent 8px,
-    transparent 12px
-  );
+  opacity: 0.6;
+  border-top: 1px dashed rgba(255,255,255,0.08);
 }
 .mps-fill { 
-  height: 100%; 
-  border-radius: 0;
+  height: 100%;
+  border-radius: 2px;
   width: 0%; 
   transition: width 1s ease, background 0.4s;
-  /* Dashed fill using repeating gradient */
-  background-image: repeating-linear-gradient(
-    90deg,
-    currentColor 0px,
-    currentColor 8px,
-    transparent 8px,
-    transparent 12px
-  );
+  opacity: 0.7;
 }
 .mps-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .mps-text { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted2); letter-spacing: 1px; }
@@ -164,8 +151,8 @@ header {
 .slot-target-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
 .slot-target-row label { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted); letter-spacing: 2px; }
 .slot-target-row input { background: var(--bg); border: 1px solid var(--border); color: var(--g1); font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; width: 46px; padding: 3px 5px; border-radius: 4px; outline: none; text-align: center; }
-.slot-progress-track { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
-.slot-progress-fill { height: 100%; border-radius: 2px; background: var(--g2); transition: width 0.5s ease, background 0.3s; width: 0%; }
+.slot-progress-track { height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.slot-progress-fill { height: 100%; border-radius: 4px; background: var(--g2); transition: width 0.5s ease, background 0.3s; width: 0%; }
 .slot-entries { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
 .slot-entry { display: flex; align-items: center; gap: 7px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; animation: pop 0.25s ease; }
 @keyframes pop { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
@@ -900,7 +887,10 @@ function renderSlots() {
       '<div style="text-align:right"><div class="slot-g">'+total+'</div>'+
       '<div class="slot-g-lbl">G PROTEIN</div></div>'+
       '</div>'+
-      '<div class="mps-track"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;color:'+mpsColors[mps.status]+';background-image:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
+      '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:'+mpsColors[mps.status]+'"></div></div>'+
+      '<span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px;white-space:nowrap">MPS</span>'+
+      '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
       '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
@@ -1234,8 +1224,7 @@ function tickMps(){
     if(!fill)return;
     const colors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
     fill.style.width=mps.pct+'%';
-    const c=colors[mps.status];
-    fill.style.backgroundImage='repeating-linear-gradient(90deg,'+c+' 0px,'+c+' 8px,transparent 8px,transparent 12px)';
+    fill.style.background=colors[mps.status];
     text.textContent=mps.label;
     badge.textContent=mps.status.toUpperCase();
     badge.className='mps-badge '+mps.status;
