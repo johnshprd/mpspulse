@@ -97,11 +97,11 @@ header {
 .slot-card.slot-1 { background: #1a2010; border-color: #4a6020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
 .slot-card.slot-2 { background: #201c10; border-color: #605020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,160,40,0.1); }
 .slot-card.slot-3 { background: #1e1028; border-color: #503060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(160,80,200,0.1); }
-/* Slot accent top bar */
-.slot-card.slot-0::before { background: #3090c0; height: 3px; }
-.slot-card.slot-1::before { background: #7ed030; height: 3px; }
-.slot-card.slot-2::before { background: #e0b030; height: 3px; }
-.slot-card.slot-3::before { background: #a050d0; height: 3px; }
+/* Slot accent top bar - removed */
+.slot-card.slot-0::before { background: transparent; }
+.slot-card.slot-1::before { background: transparent; }
+.slot-card.slot-2::before { background: transparent; }
+.slot-card.slot-3::before { background: transparent; }
 /* Slot name colours */
 .slot-card.slot-0 .slot-name { color: #60b0e0; }
 .slot-card.slot-1 .slot-name { color: #a8e63a; }
@@ -112,10 +112,10 @@ header {
 .slot-card.slot-1 .slot-num { color: #5a9030; }
 .slot-card.slot-2 .slot-num { color: #806030; }
 .slot-card.slot-3 .slot-num { color: #703090; }
-.slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--border2); transition:background 0.3s; }
-.slot-card.has-entries::before { background: var(--g2); }
-.slot-card.met::before { background: var(--g1); box-shadow: 0 0 10px rgba(168,230,58,0.4); }
-.slot-card.over::before { background: var(--amber); }
+.slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:0; background:transparent; }
+.slot-card.has-entries::before { background: transparent; }
+.slot-card.met::before { background: transparent; }
+.slot-card.over::before { background: transparent; }
 .slot-card.active-mps { border-color: rgba(168,230,58,0.2); }
 .slot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 .slot-num { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted); letter-spacing: 3px; }
