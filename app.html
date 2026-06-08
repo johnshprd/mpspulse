@@ -865,8 +865,7 @@ function renderSlots() {
       '<span class="entry-icon">'+e.icon+'</span>'+
       '<div class="entry-info"><div class="entry-name">'+e.name+'</div>'+
       '<div class="entry-meta">'+
-        (e.serving?e.serving+'g · ':'')+
-        '<span onclick="editEntryTime('+si+','+ei+')" style="cursor:pointer;background:rgba(168,230,58,0.08);border:1px solid rgba(168,230,58,0.2);border-radius:4px;padding:2px 7px;color:var(--g2);font-size:0.6rem;letter-spacing:1px;">🕐 '+e.time+'</span>'+
+        (e.serving?e.serving+'g':'')+'&nbsp;·&nbsp;'+e.time+
       '</div></div>'+
       '<div class="entry-g">'+Math.round(e.protein)+'</div>'+
       '<button class="del-btn" onclick="deleteEntry('+si+','+ei+')">✕</button>'+
@@ -893,7 +892,10 @@ function renderSlots() {
       '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+      (entries.length?'<span onclick="editSlotTime('+si+')" style="cursor:pointer;background:rgba(168,230,58,0.08);border:1px solid rgba(168,230,58,0.2);border-radius:4px;padding:2px 8px;color:var(--g2);font-size:0.55rem;letter-spacing:1px;white-space:nowrap">🕐 EDIT TIME</span>':'')+
       '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
+      '</div>'+
       '</div>'+
       '<div class="slot-target-row">'+
       '<label>TARGET</label>'+
@@ -1245,6 +1247,27 @@ function renderAllRecentFoods(){
       '</div>'
     ).join('');
   }
+}
+
+// ── EDIT SLOT TIME ────────────────────────────────
+function editSlotTime(si){
+  const entries = state.slots[si];
+  if(!entries || !entries.length) return;
+  // Use the first entry's time as the default
+  const current = entries[0].time || '00:00';
+  const newTime = prompt('Set meal time for this pulse (HH:MM):', current);
+  if(!newTime) return;
+  const match = newTime.match(/^(\d{1,2}):(\d{2})$/);
+  if(!match){showToast('Invalid time. Use HH:MM e.g. 07:30',true);return;}
+  const h=parseInt(match[1]), m=parseInt(match[2]);
+  if(h<0||h>23||m<0||m>59){showToast('Invalid time',true);return;}
+  const formatted = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  const now = new Date();
+  const ts = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
+  // Update ALL entries in this slot to the same time
+  state.slots[si].forEach(e => { e.time = formatted; e.ts = ts; });
+  showToast('Pulse '+(si+1)+' time set to '+formatted);
+  updateUI();
 }
 
 // ── EDIT ENTRY TIME ──────────────────────────────
