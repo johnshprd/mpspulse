@@ -126,20 +126,22 @@ header {
 .slot-card.over .slot-g { color: var(--amber); }
 .slot-g-lbl { font-family: 'Space Mono', monospace; font-size: 0.44rem; color: var(--muted); letter-spacing: 2px; }
 .mps-track { 
-  height: 4px;
-  background: var(--surface2);
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--surface2) 0px, var(--surface2) 8px,
+    transparent 8px, transparent 12px
+  );
   border-radius: 2px;
   margin-bottom: 3px;
   overflow: hidden;
-  opacity: 0.6;
-  border-top: 1px dashed rgba(255,255,255,0.08);
+  opacity: 0.7;
 }
 .mps-fill { 
   height: 100%;
   border-radius: 2px;
   width: 0%; 
-  transition: width 1s ease, background 0.4s;
-  opacity: 0.7;
+  transition: width 1s ease;
 }
 .mps-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .mps-text { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted2); letter-spacing: 1px; }
@@ -887,7 +889,7 @@ function renderSlots() {
       '<div class="slot-g-lbl">G PROTEIN</div></div>'+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
-      '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:'+mpsColors[mps.status]+'"></div></div>'+
+      '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
       '<span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px;white-space:nowrap">MPS</span>'+
       '</div>'+
       '<div class="mps-info">'+
@@ -1226,7 +1228,8 @@ function tickMps(){
     if(!fill)return;
     const colors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
     fill.style.width=mps.pct+'%';
-    fill.style.background=colors[mps.status];
+    const c=colors[mps.status];
+    fill.style.background='repeating-linear-gradient(90deg,'+c+' 0px,'+c+' 8px,transparent 8px,transparent 12px)';
     text.textContent=mps.label;
     badge.textContent=mps.status.toUpperCase();
     badge.className='mps-badge '+mps.status;
