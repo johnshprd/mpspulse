@@ -92,21 +92,21 @@ header {
 .sci-text strong { color: var(--g1); }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
-/* Per-slot tints */
-.slot-card.slot-0 { background: #0d1410; border-color: #1e2e22; }
-.slot-card.slot-1 { background: #0e1412; border-color: #1e2c20; }
-.slot-card.slot-2 { background: #0f1311; border-color: #21281e; }
-.slot-card.slot-3 { background: #101514; border-color: #1e2a20; }
-/* Slot accent colours on the top bar */
-.slot-card.slot-0::before { background: #1a3828; }
-.slot-card.slot-1::before { background: #1a3020; }
-.slot-card.slot-2::before { background: #2a2a18; }
-.slot-card.slot-3::before { background: #182830; }
+/* Per-slot distinct backgrounds - much higher contrast */
+.slot-card.slot-0 { background: #111a13; border-color: #2a3e2c; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.slot-card.slot-1 { background: #131a11; border-color: #2e3e28; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.slot-card.slot-2 { background: #1a1810; border-color: #3a3218; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.slot-card.slot-3 { background: #101820; border-color: #1e3040; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+/* Slot accent top bar */
+.slot-card.slot-0::before { background: #3a8a50; }
+.slot-card.slot-1::before { background: #5fb33a; }
+.slot-card.slot-2::before { background: #c8a030; }
+.slot-card.slot-3::before { background: #3090b0; }
 /* Slot name colours */
-.slot-card.slot-0 .slot-name { color: #a8e6a0; }
-.slot-card.slot-1 .slot-name { color: #a8d4a0; }
-.slot-card.slot-2 .slot-name { color: #d4c890; }
-.slot-card.slot-3 .slot-name { color: #90c8d4; }
+.slot-card.slot-0 .slot-name { color: #90e0a0; }
+.slot-card.slot-1 .slot-name { color: #a8e63a; }
+.slot-card.slot-2 .slot-name { color: #e0c060; }
+.slot-card.slot-3 .slot-name { color: #60c0e0; }
 .slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--border2); transition:background 0.3s; }
 .slot-card.has-entries::before { background: var(--g2); }
 .slot-card.met::before { background: var(--g1); box-shadow: 0 0 10px rgba(168,230,58,0.4); }
