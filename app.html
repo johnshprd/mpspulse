@@ -135,6 +135,7 @@ header {
 .cat-tab.meat.active { color: var(--amber); }
 .cat-tab.dairy.active { color: var(--blue); }
 .cat-tab.mine.active { color: var(--amber); }
+.cat-tab.quick.active { color: var(--g1); }
 .slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.7rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
 .slot-food-select:focus { border-color: var(--g1); }
 .slot-food-select option { background: var(--surface); }
@@ -584,7 +585,7 @@ header {
     <div class="custom-title">ADD CUSTOM FOOD</div>
     <div class="custom-field">
       <div class="custom-label">FOOD NAME</div>
-      <input class="custom-input" id="cfName" type="text" placeholder="e.g. Protein Bar">
+      <input class="custom-input" id="cfName" type="text" placeholder="e.g. Protein Bar, Greek Yoghurt">
     </div>
     <div class="custom-row">
       <div class="custom-field" style="flex:0 0 80px">
@@ -592,8 +593,8 @@ header {
         <input class="custom-input" id="cfIcon" type="text" placeholder="🍽️" maxlength="2">
       </div>
       <div class="custom-field" style="flex:1">
-        <div class="custom-label">PROTEIN PER 100G</div>
-        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 25" min="0" max="100">
+        <div class="custom-label">PROTEIN (G)</div>
+        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 35" min="0" max="300">
       </div>
       <div class="custom-field" style="flex:1">
         <div class="custom-label">TYPICAL SERVING (G)</div>
@@ -663,7 +664,7 @@ let state = {
   goal: 150,
   slotTargets: [40,40,40,30],
   slots: [[],[],[],[]],
-  slotCats: ['pulses','pulses','pulses','pulses'],
+  slotCats: ['quick','quick','quick','quick'],
   weekHistory: [0,0,0,0,0,0,0],
   servingHistory: {},
   customFoods: [],
@@ -858,7 +859,7 @@ function renderSlots() {
       '</div>'
     ).join('');
 
-    const tabsHtml=['pulses','meat','dairy','mine'].map(c=>
+    const tabsHtml=['quick','pulses','meat','dairy','mine'].map(c=>
       '<button class="cat-tab '+c+(cat===c?' active':'')+'" onclick="setSlotCat('+si+',\''+c+'\')">'+c+'</button>'
     ).join('');
 
@@ -887,15 +888,26 @@ function renderSlots() {
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
       '<div class="recent-foods" id="recent-'+si+'"></div>'+
-      '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-      '<div class="cat-tabs">'+tabsHtml+'</div>'+
-      '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
-      '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
-      '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g"></div>'+
-      '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
-      '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-      (cat==="mine"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
-      '</div></div>';
+      '<div class="cat-tabs" style="margin-bottom:6px">'+tabsHtml+'</div>'+
+      (cat==='quick' ?
+        '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
+        '<input class="slot-food-select" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px">'+
+        '<div class="srv-wrap"><div class="srv-lbl">PROTEIN G</div>'+
+        '<input class="slot-serving" type="number" id="quick-p-'+si+'" placeholder="35" min="1" max="300" style="width:70px"></div>'+
+        '<button class="slot-add-btn" onclick="addQuickMeal('+si+')">+ADD</button>'+
+        '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
+        '</div>'
+      :
+        '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
+        '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
+        '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
+        '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g"></div>'+
+        '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
+        '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
+        (cat==="mine"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
+        '</div>'
+      )+
+      '</div>';
     grid.appendChild(card);
   });
 }
@@ -1219,6 +1231,34 @@ function renderAllRecentFoods(){
   }
 }
 
+// ── QUICK MEAL ENTRY ──────────────────────────────
+function addQuickMeal(si){
+  const nameEl=document.getElementById('quick-name-'+si);
+  const pEl=document.getElementById('quick-p-'+si);
+  if(!nameEl||!pEl)return;
+  const name=nameEl.value.trim();
+  const protein=parseFloat(pEl.value);
+  if(!name){showToast('Enter a meal name',true);return;}
+  if(isNaN(protein)||protein<=0){showToast('Enter protein amount',true);return;}
+  const wasOver=slotTotal(si)>55;
+  state.slots[si].push({
+    foodId:'quick_'+Date.now(),
+    name,
+    icon:'🍽️',
+    serving:0,
+    protein,
+    ts:Date.now(),
+    time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
+  });
+  nameEl.value='';
+  pEl.value='';
+  const newTotal=slotTotal(si);
+  if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
+  else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
+  else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
+  updateUI();
+}
+
 function quickAddChip(el){
   const si=parseInt(el.dataset.si);
   const foodId=el.dataset.fi;
@@ -1255,11 +1295,13 @@ function closeCustomFood(){
 function saveCustomFood(){
   const name=document.getElementById('cfName').value.trim();
   const icon=document.getElementById('cfIcon').value.trim()||'🍽️';
-  const p100=parseFloat(document.getElementById('cfProtein').value);
+  const protein=parseFloat(document.getElementById('cfProtein').value);
   const typical=parseFloat(document.getElementById('cfTypical').value)||100;
-  if(!name||isNaN(p100)||p100<=0){showToast('Fill in name and protein',true);return;}
+  if(!name||isNaN(protein)||protein<=0){showToast('Fill in name and protein',true);return;}
   const id='custom_'+Date.now();
-  state.customFoods.push({id,name,icon,p100,typical,typicalLabel:'custom serving'});
+  // Store as direct protein — p100 is set so that at typical serving it gives the right amount
+  const p100=(protein/typical)*100;
+  state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
   closeCustomFood();
   showToast('✓ '+name+' added to My Foods');
   updateUI();
