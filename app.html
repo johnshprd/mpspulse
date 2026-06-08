@@ -722,7 +722,8 @@ async function signOut() {
 
 // ── DATA PERSISTENCE ──────────────────────────────
 async function loadUserData() {
-  const today = new Date().toDateString();
+  // Use consistent ISO date format YYYY-MM-DD to avoid locale mismatch
+  const today = new Date().toISOString().slice(0,10);
   const { data } = await db.from('user_data').select('*').eq('user_id', currentUser.id).single();
   if (data) {
     state.goal = data.goal || 150;
@@ -730,7 +731,9 @@ async function loadUserData() {
     state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
     state.servingHistory = data.serving_history || {};
     state.customFoods = data.custom_foods || [];
-    if (data.log_date === today) {
+    // Normalise stored date — handle both old format and ISO format
+    const storedDate = data.log_date ? new Date(data.log_date).toISOString().slice(0,10) : null;
+    if (storedDate === today) {
       state.slots = data.slots || [[],[],[],[]];
     } else {
       state.weekHistory.shift();
@@ -742,7 +745,7 @@ async function loadUserData() {
 }
 
 async function saveUserData() {
-  const today = new Date().toDateString();
+  const today = new Date().toISOString().slice(0,10);
   const payload = {
     user_id: currentUser.id,
     goal: state.goal,
