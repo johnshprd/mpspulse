@@ -853,7 +853,11 @@ function renderSlots() {
       '<div class="slot-entry">'+
       '<span class="entry-icon">'+e.icon+'</span>'+
       '<div class="entry-info"><div class="entry-name">'+e.name+'</div>'+
-      '<div class="entry-meta">'+e.serving+'g · '+e.time+'</div></div>'+
+      '<div class="entry-meta">'+
+        (e.serving?e.serving+'g · ':'')+
+        '<span class="entry-time" onclick="editEntryTime('+si+','+ei+')" title="Tap to edit time" style="cursor:pointer;text-decoration:underline dotted;color:var(--muted2)">'+e.time+'</span>'+
+        ' ✎'+
+      '</div></div>'+
       '<div class="entry-g">'+Math.round(e.protein)+'</div>'+
       '<button class="del-btn" onclick="deleteEntry('+si+','+ei+')">✕</button>'+
       '</div>'
@@ -1229,6 +1233,29 @@ function renderAllRecentFoods(){
       '</div>'
     ).join('');
   }
+}
+
+// ── EDIT ENTRY TIME ──────────────────────────────
+function editEntryTime(si, ei){
+  const entry = state.slots[si][ei];
+  if(!entry) return;
+  // Show a time input prompt
+  const current = entry.time || '00:00';
+  const newTime = prompt('Edit meal time (HH:MM):', current);
+  if(!newTime) return;
+  // Validate format
+  const match = newTime.match(/^(\d{1,2}):(\d{2})$/);
+  if(!match){showToast('Invalid time format. Use HH:MM',true);return;}
+  const h=parseInt(match[1]), m=parseInt(match[2]);
+  if(h<0||h>23||m<0||m>59){showToast('Invalid time',true);return;}
+  // Update time and recalculate ts for MPS countdown
+  const formatted = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  const now = new Date();
+  const ts = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
+  state.slots[si][ei].time = formatted;
+  state.slots[si][ei].ts = ts;
+  showToast('Time updated to '+formatted);
+  updateUI();
 }
 
 // ── QUICK MEAL ENTRY ──────────────────────────────
