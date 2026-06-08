@@ -830,20 +830,18 @@ function foodOptionsHtml(cat, si) {
 }
 
 // ── RECENT FOODS ──────────────────────────────────
-function getRecentFoods() {
-  // Get foods logged today across all slots, most recent first, deduped
+function getRecentFoodsForSlot(si) {
+  // Only show foods previously logged in THIS slot, most recent first, deduped
   const seen = new Set();
   const recent = [];
-  for(let si=0; si<4; si++){
-    const entries = [...(state.slots[si]||[])].reverse();
-    for(const e of entries){
-      if(!seen.has(e.foodId)){
-        seen.add(e.foodId);
-        recent.push({foodId:e.foodId, name:e.name, icon:e.icon, serving:e.serving, protein:e.protein});
-      }
+  const entries = [...(state.slots[si]||[])].reverse();
+  for(const e of entries){
+    if(!seen.has(e.foodId)){
+      seen.add(e.foodId);
+      recent.push({foodId:e.foodId, name:e.name, icon:e.icon, serving:e.serving, protein:e.protein});
     }
   }
-  return recent.slice(0,5);
+  return recent.slice(0,4);
 }
 
 // ── RENDER SLOTS ──────────────────────────────────
@@ -1240,10 +1238,10 @@ function tickMps(){
 }
 
 function renderAllRecentFoods(){
-  const recent = getRecentFoods();
   for(let si=0;si<4;si++){
     const el=document.getElementById('recent-'+si);
     if(!el)continue;
+    const recent = getRecentFoodsForSlot(si);
     if(recent.length===0){el.innerHTML='';continue;}
     el.innerHTML=recent.map((r,ri)=>
       '<div class="recent-chip" data-si="'+si+'" data-fi="'+r.foodId.replace(/"/g,"")+'" onclick="quickAddChip(this)">'+
