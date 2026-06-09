@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS Pulse HQ</title>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;MPS Pulse HQ&quot;,&quot;short_name&quot;:&quot;HQ&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#060906&quot;,&quot;theme_color&quot;:&quot;#a8e63a&quot;}">
+<meta name="theme-color" content="#a8e63a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pulse HQ">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060906;
+  --s1: #0c110c;
+  --s2: #111811;
+  --b1: #1a241a;
+  --b2: #243024;
+  --g1: #a8e63a;
+  --g2: #5fb33a;
+  --g3: #2d6622;
+  --amber: #f0a840;
+  --red: #e84040;
+  --blue: #40b4e8;
+  --purple: #a040e8;
+  --text: #e8f0e0;
+  --m1: #4a6040;
+  --m2: #7a9470;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:40px;}
+
+/* GRID NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,230,58,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(168,230,58,0.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* HEADER */
+.hdr{padding:20px 20px 0;position:relative;z-index:1;}
+.hdr-top{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--b2);margin-bottom:20px;}
+.logo-wrap{display:flex;flex-direction:column;gap:2px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:8px;color:var(--g1);filter:drop-shadow(0 0 14px rgba(168,230,58,0.45));line-height:1;}
+.logo-sub{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:4px;color:var(--m2);text-transform:uppercase;}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(168,230,58,0.07);border:1px solid var(--g2);border-radius:20px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:2px;color:var(--g1);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g1);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* STATUS STRIP */
+.status-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1;}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:12px 14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat.ok::before{background:var(--g1);box-shadow:0 0 8px rgba(168,230,58,0.4);}
+.stat.warn::before{background:var(--amber);}
+.stat.off::before{background:var(--red);}
+.stat-label{font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:4px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1;}
+.stat.ok .stat-val{color:var(--g1);}
+.stat.warn .stat-val{color:var(--amber);}
+.stat.off .stat-val{color:var(--red);}
+.stat-sub{font-family:'Space Mono',monospace;font-size:0.42rem;color:var(--m1);margin-top:2px;letter-spacing:1px;}
+
+/* SECTIONS */
+.pad{padding:0 20px;position:relative;z-index:1;}
+.sec{margin-bottom:24px;}
+.sec-hdr{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:3px;color:var(--m2);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--b1);}
+
+/* LINK CARDS */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.lc{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:14px;text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:all 0.15s;position:relative;overflow:hidden;cursor:pointer;}
+.lc::after{content:'↗';position:absolute;top:10px;right:10px;color:var(--m1);font-size:0.7rem;transition:all 0.15s;}
+.lc:hover{border-color:var(--b2);transform:translateY(-2px);}
+.lc:hover::after{color:var(--g1);transform:translate(2px,-2px);}
+.lc.hi{background:#0a130a;border-color:var(--g3);}
+.lc.hi:hover{border-color:var(--g1);}
+.lc-icon{font-size:1.3rem;}
+.lc-name{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:2px;color:var(--text);}
+.lc-desc{font-family:'Space Mono',monospace;font-size:0.44rem;color:var(--m2);letter-spacing:1px;line-height:1.6;}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:1px;padding:2px 6px;border-radius:3px;margin-top:2px;}
+.badge.g{background:rgba(168,230,58,0.1);color:var(--g1);border:1px solid var(--g3);}
+.badge.a{background:rgba(240,168,64,0.1);color:var(--amber);border:1px solid rgba(240,168,64,0.3);}
+.badge.b{background:rgba(64,180,232,0.1);color:var(--blue);border:1px solid rgba(64,180,232,0.3);}
+.badge.p{background:rgba(160,64,232,0.1);color:var(--purple);border:1px solid rgba(160,64,232,0.3);}
+.badge.n{background:var(--s2);color:var(--m2);border:1px solid var(--b1);}
+
+/* FLOW */
+.flow{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:16px;display:flex;align-items:center;gap:0;overflow-x:auto;}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:60px;}
+.flow-icon{font-size:1.2rem;}
+.flow-label{font-family:'Space Mono',monospace;font-size:0.4rem;color:var(--m2);letter-spacing:0.5px;text-align:center;line-height:1.4;max-width:60px;}
+.flow-arrow{color:var(--g3);font-size:1rem;padding:0 6px;flex-shrink:0;margin-bottom:14px;}
+
+/* COSTS */
+.costs{background:var(--s1);border:1px solid var(--b1);border-radius:8px;overflow:hidden;}
+.costs table{width:100%;border-collapse:collapse;}
+.costs th{font-family:'Space Mono',monospace;font-size:0.44rem;color:var(--m2);letter-spacing:2px;text-align:left;padding:8px 12px;border-bottom:1px solid var(--b1);}
+.costs td{font-size:0.72rem;color:var(--text);padding:9px 12px;border-bottom:1px solid var(--b1);}
+.costs tr:last-child td{border-bottom:none;}
+.costs tr:hover td{background:var(--s2);}
+.costs td.free{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--g1);}
+.costs td.paid{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--amber);}
+.costs td.var{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:var(--blue);}
+
+/* SQL */
+.sql-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.sql-block{background:var(--bg);border:1px solid var(--b1);border-radius:6px;padding:10px;}
+.sql-comment{font-family:'Space Mono',monospace;font-size:0.44rem;color:var(--g2);margin-bottom:4px;}
+.sql-code{font-family:'Space Mono',monospace;font-size:0.44rem;color:var(--m2);line-height:1.8;}
+.sql-copy{float:right;background:none;border:1px solid var(--b2);color:var(--m2);font-family:'Space Mono',monospace;font-size:0.4rem;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.sql-copy:hover{border-color:var(--g2);color:var(--g1);}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:5px;}
+.ci{display:flex;align-items:flex-start;gap:10px;background:var(--s1);border:1px solid var(--b1);border-radius:7px;padding:10px 13px;cursor:pointer;transition:all 0.15s;user-select:none;}
+.ci:hover{border-color:var(--b2);}
+.ci.done{opacity:0.45;}
+.ci.done .cb{background:var(--g1);border-color:var(--g1);color:#040804;}
+.cb{width:16px;height:16px;border-radius:3px;border:1px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:transparent;margin-top:2px;transition:all 0.15s;}
+.ci-text{font-size:0.72rem;color:var(--text);line-height:1.5;flex:1;}
+.tag{font-family:'Space Mono',monospace;font-size:0.4rem;padding:1px 5px;border-radius:2px;margin-left:5px;vertical-align:middle;}
+.tag.u{background:rgba(232,64,64,0.12);color:var(--red);border:1px solid rgba(232,64,64,0.3);}
+.tag.t{background:rgba(240,168,64,0.12);color:var(--amber);border:1px solid rgba(240,168,64,0.3);}
+.tag.s{background:rgba(168,230,58,0.08);color:var(--g2);border:1px solid var(--g3);}
+
+/* REDDIT TRACKER */
+.reddit-grid{display:flex;flex-direction:column;gap:6px;}
+.rpost{background:var(--s1);border:1px solid var(--b1);border-radius:7px;padding:11px 13px;display:flex;align-items:center;gap:10px;}
+.rpost-sub{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;color:var(--m2);flex-shrink:0;width:120px;}
+.rpost-views{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--g1);}
+.rpost-label{font-family:'Space Mono',monospace;font-size:0.4rem;color:var(--m1);letter-spacing:1px;}
+.rpost-status{margin-left:auto;font-family:'Space Mono',monospace;font-size:0.44rem;padding:2px 7px;border-radius:3px;}
+.rpost-status.live{background:rgba(168,230,58,0.1);color:var(--g1);border:1px solid var(--g3);}
+.rpost-status.removed{background:rgba(232,64,64,0.1);color:var(--red);border:1px solid rgba(232,64,64,0.3);}
+.rpost-status.pending{background:rgba(240,168,64,0.1);color:var(--amber);border:1px solid rgba(240,168,64,0.3);}
+
+/* NOTES */
+.notes{width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:13px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.6rem;line-height:1.8;resize:vertical;min-height:90px;outline:none;transition:border-color 0.2s;}
+.notes:focus{border-color:var(--g2);}
+.notes::placeholder{color:var(--m1);}
+
+/* TIKTOK STATUS */
+.tiktok-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px;}
+.tiktok-icon{font-size:1.8rem;flex-shrink:0;}
+.tiktok-info{flex:1;}
+.tiktok-handle{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--text);}
+.tiktok-sub{font-family:'Space Mono',monospace;font-size:0.46rem;color:var(--m2);letter-spacing:1px;margin-top:2px;}
+.tiktok-badge{font-family:'Space Mono',monospace;font-size:0.46rem;padding:3px 10px;border-radius:4px;background:rgba(168,230,58,0.1);color:var(--g1);border:1px solid var(--g3);}
+
+/* FOOTER */
+.footer{padding:24px 20px 0;border-top:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:4px;color:var(--g3);}
+.footer-note{font-family:'Space Mono',monospace;font-size:0.44rem;color:var(--m1);letter-spacing:1px;}
+
+@media(max-width:600px){
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr;}
+  .status-strip{grid-template-columns:1fr 1fr;}
+  .flow{flex-wrap:wrap;justify-content:center;}
+  .footer{flex-direction:column;gap:10px;text-align:center;}
+}
+
+/* PIN LOCK */
+.pin-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:24px;z-index:9999;
+}
+.pin-logo{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:8px;color:var(--g1);filter:drop-shadow(0 0 14px rgba(168,230,58,0.45));}
+.pin-label{font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:3px;color:var(--m2);}
+.pin-dots{display:flex;gap:12px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--b2);background:transparent;transition:all 0.15s;}
+.pin-dot.filled{background:var(--g1);border-color:var(--g1);box-shadow:0 0 8px rgba(168,230,58,0.5);}
+.pin-dot.error{background:var(--red);border-color:var(--red);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:220px;}
+.pin-btn{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);cursor:pointer;transition:all 0.15s;text-align:center;}
+.pin-btn:hover{background:var(--s2);border-color:var(--b2);}
+.pin-btn:active{transform:scale(0.95);}
+.pin-btn.zero{grid-column:2;}
+.pin-btn.del{background:none;border:1px solid var(--b1);color:var(--m2);font-size:1rem;}
+.pin-error{font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--red);letter-spacing:2px;opacity:0;transition:opacity 0.2s;}
+.pin-error.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- PIN LOCK SCREEN -->
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-logo">PULSE</div>
+  <div class="pin-label">COMMAND CENTRE · ENTER PIN</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn zero" onclick="pinPress('0')">0</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pinError">INCORRECT PIN</div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo-wrap">
+      <div class="logo">PULSE</div>
+      <div class="logo-sub">Command Centre · mpspulse.app</div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  <div class="status-strip">
+    <div class="stat ok">
+      <div class="stat-label">SITE</div>
+      <div class="stat-val">LIVE ✓</div>
+      <div class="stat-sub">mpspulse.app</div>
+    </div>
+    <div class="stat ok">
+      <div class="stat-label">PAYMENTS</div>
+      <div class="stat-val">ACTIVE ✓</div>
+      <div class="stat-sub">Stripe live</div>
+    </div>
+    <div class="stat ok">
+      <div class="stat-label">WEBHOOK</div>
+      <div class="stat-val">0% ERR ✓</div>
+      <div class="stat-sub">Supabase fn</div>
+    </div>
+    <div class="stat warn">
+      <div class="stat-label">ANALYTICS</div>
+      <div class="stat-val">NONE</div>
+      <div class="stat-sub">Add Plausible</div>
+    </div>
+  </div>
+</div>
+
+<div class="pad">
+
+  <!-- YOUR APP -->
+  <div class="sec">
+    <div class="sec-hdr">Your App</div>
+    <div class="grid-4">
+      <a href="https://mpspulse.app" target="_blank" class="lc hi">
+        <span class="lc-icon">🌐</span>
+        <div class="lc-name">LIVE SITE</div>
+        <div class="lc-desc">Landing page</div>
+        <span class="badge g">PRODUCTION</span>
+      </a>
+      <a href="https://mpspulse.app/app.html" target="_blank" class="lc hi">
+        <span class="lc-icon">⚡</span>
+        <div class="lc-name">THE APP</div>
+        <div class="lc-desc">Protein tracker</div>
+        <span class="badge g">GATED</span>
+      </a>
+      <a href="https://mpspulse.app/auth.html" target="_blank" class="lc">
+        <span class="lc-icon">🔐</span>
+        <div class="lc-name">AUTH</div>
+        <div class="lc-desc">Sign in / up</div>
+        <span class="badge b">SUPABASE</span>
+      </a>
+      <a href="https://github.com/johnshprd/mpspulse" target="_blank" class="lc">
+        <span class="lc-icon">💻</span>
+        <div class="lc-name">GITHUB</div>
+        <div class="lc-desc">Source code</div>
+        <span class="badge n">FREE HOST</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- STRIPE -->
+  <div class="sec">
+    <div class="sec-hdr">Stripe — Payments</div>
+    <div class="grid-3">
+      <a href="https://dashboard.stripe.com/payments" target="_blank" class="lc">
+        <span class="lc-icon">💳</span>
+        <div class="lc-name">PAYMENTS</div>
+        <div class="lc-desc">All transactions</div>
+        <span class="badge a">CHECK DAILY</span>
+      </a>
+      <a href="https://dashboard.stripe.com/subscriptions" target="_blank" class="lc">
+        <span class="lc-icon">🔄</span>
+        <div class="lc-name">SUBSCRIBERS</div>
+        <div class="lc-desc">Active · trial · cancelled</div>
+        <span class="badge a">CHECK DAILY</span>
+      </a>
+      <a href="https://dashboard.stripe.com/reports/overview" target="_blank" class="lc">
+        <span class="lc-icon">📈</span>
+        <div class="lc-name">REVENUE</div>
+        <div class="lc-desc">MRR · churn · net</div>
+        <span class="badge g">MRR</span>
+      </a>
+      <a href="https://dashboard.stripe.com/payment-links" target="_blank" class="lc">
+        <span class="lc-icon">🔗</span>
+        <div class="lc-name">PAY LINKS</div>
+        <div class="lc-desc">Pro + Coach × 2</div>
+        <span class="badge n">4 ACTIVE</span>
+      </a>
+      <a href="https://dashboard.stripe.com/webhooks/we_1TevO3R6xWj9bTlysxyicYvx" target="_blank" class="lc">
+        <span class="lc-icon">🪝</span>
+        <div class="lc-name">WEBHOOK</div>
+        <div class="lc-desc">MPS Pulse · 4 events</div>
+        <span class="badge g">HEALTHY</span>
+      </a>
+      <a href="https://dashboard.stripe.com/customers" target="_blank" class="lc">
+        <span class="lc-icon">👥</span>
+        <div class="lc-name">CUSTOMERS</div>
+        <div class="lc-desc">All billing records</div>
+        <span class="badge b">CRM</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- SUPABASE -->
+  <div class="sec">
+    <div class="sec-hdr">Supabase — Backend</div>
+    <div class="grid-3">
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/auth/users" target="_blank" class="lc">
+        <span class="lc-icon">👤</span>
+        <div class="lc-name">USERS</div>
+        <div class="lc-desc">All accounts + emails</div>
+        <span class="badge g">AUTH</span>
+      </a>
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/editor" target="_blank" class="lc">
+        <span class="lc-icon">🗄️</span>
+        <div class="lc-name">SUBSCRIPTIONS</div>
+        <div class="lc-desc">Who paid · plan · expiry</div>
+        <span class="badge a">CHECK IF ISSUES</span>
+      </a>
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/sql/new" target="_blank" class="lc">
+        <span class="lc-icon">🔍</span>
+        <div class="lc-name">SQL EDITOR</div>
+        <div class="lc-desc">Run queries · debug</div>
+        <span class="badge p">POWER TOOL</span>
+      </a>
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/functions/stripe-webhook/logs" target="_blank" class="lc">
+        <span class="lc-icon">🪝</span>
+        <div class="lc-name">WEBHOOK LOGS</div>
+        <div class="lc-desc">stripe-webhook fn</div>
+        <span class="badge b">DEBUG</span>
+      </a>
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/functions/bright-endpoint/logs" target="_blank" class="lc">
+        <span class="lc-icon">📸</span>
+        <div class="lc-name">SCAN LOGS</div>
+        <div class="lc-desc">bright-endpoint · meal AI</div>
+        <span class="badge b">DEBUG</span>
+      </a>
+      <a href="https://supabase.com/dashboard/project/xcfxizkflleeahjguviq/functions" target="_blank" class="lc">
+        <span class="lc-icon">⚙️</span>
+        <div class="lc-name">EDGE FNS</div>
+        <div class="lc-desc">2 functions deployed</div>
+        <span class="badge g">LIVE</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- MARKETING -->
+  <div class="sec">
+    <div class="sec-hdr">Marketing</div>
+
+    <!-- TikTok -->
+    <div style="margin-bottom:8px">
+      <div class="tiktok-card">
+        <div class="tiktok-icon">🎵</div>
+        <div class="tiktok-info">
+          <div class="tiktok-handle">@JOHNSHEPPARD686</div>
+          <div class="tiktok-sub">johnshpd@gmail.com · Account restored after appeal</div>
+        </div>
+        <a href="https://tiktok.com/@johnsheppard686" target="_blank" class="tiktok-badge">OPEN ↗</a>
+      </div>
+    </div>
+
+    <!-- Reddit posts -->
+    <div class="reddit-grid">
+      <div class="rpost">
+        <div>
+          <div class="rpost-sub">r/leangains</div>
+          <div class="rpost-label">1.5K VIEWS · 7 COMMENTS</div>
+        </div>
+        <div style="margin-left:12px">
+          <div class="rpost-views">1.5K</div>
+          <div class="rpost-label">VIEWS</div>
+        </div>
+        <div class="rpost-status live">LIVE</div>
+      </div>
+      <div class="rpost">
+        <div>
+          <div class="rpost-sub">r/StrongerByScience</div>
+          <div class="rpost-label">Hostile reception · app mention triggered</div>
+        </div>
+        <div class="rpost-status removed">HOSTILE</div>
+      </div>
+      <div class="rpost">
+        <div>
+          <div class="rpost-sub">r/bodybuilding</div>
+          <div class="rpost-label">AutoMod flagged · new account</div>
+        </div>
+        <div class="rpost-status pending">PENDING</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONEY FLOW -->
+  <div class="sec">
+    <div class="sec-hdr">How the money flows</div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-icon">🌐</div><div class="flow-label">User visits mpspulse.app</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">💳</div><div class="flow-label">Clicks trial · Stripe checkout</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">🪝</div><div class="flow-label">Stripe fires webhook</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">⚡</div><div class="flow-label">Supabase writes sub row</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">✉️</div><div class="flow-label">User signs up same email</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">✅</div><div class="flow-label">App grants access</div></div>
+    </div>
+  </div>
+
+  <!-- COSTS -->
+  <div class="sec">
+    <div class="sec-hdr">Costs</div>
+    <div class="costs">
+      <table>
+        <thead><tr><th>SERVICE</th><th>PURPOSE</th><th>COST</th></tr></thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Hosts HTML files</td><td class="free">FREE</td></tr>
+          <tr><td>Supabase</td><td>Auth · database · edge functions</td><td class="free">FREE</td></tr>
+          <tr><td>Cloudflare</td><td>DNS routing</td><td class="free">FREE</td></tr>
+          <tr><td>mpspulse.app domain</td><td>Domain name via Porkbun</td><td class="paid">~£10/yr</td></tr>
+          <tr><td>Stripe</td><td>Payment processing</td><td class="var">1.4% + 20p/txn</td></tr>
+          <tr><td>Anthropic API</td><td>Meal photo scan (bright-endpoint)</td><td class="var">~£0.01/scan</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SQL QUERIES -->
+  <div class="sec">
+    <div class="sec-hdr">Useful SQL Queries</div>
+    <div class="sql-card">
+      <div class="sql-block">
+        <button class="sql-copy" onclick="copySql(this)">COPY</button>
+        <div class="sql-comment">-- Recent subscribers</div>
+        <div class="sql-code">select u.email, s.plan, s.status, s.current_period_end<br>from subscriptions s<br>join auth.users u on u.id = s.user_id<br>order by s.updated_at desc limit 10;</div>
+      </div>
+      <div class="sql-block">
+        <button class="sql-copy" onclick="copySql(this)">COPY</button>
+        <div class="sql-comment">-- Active subscriber count</div>
+        <div class="sql-code">select count(*) as active_subscribers<br>from subscriptions where status = 'active';</div>
+      </div>
+      <div class="sql-block">
+        <button class="sql-copy" onclick="copySql(this)">COPY</button>
+        <div class="sql-comment">-- Total user count</div>
+        <div class="sql-code">select count(*) as total_users from auth.users;</div>
+      </div>
+      <div class="sql-block">
+        <button class="sql-copy" onclick="copySql(this)">COPY</button>
+        <div class="sql-comment">-- Fix stuck user (manual sub insert)</div>
+        <div class="sql-code">insert into subscriptions (user_id, plan, status, stripe_customer_id, current_period_end, updated_at)<br>select id, 'pro_monthly', 'active', 'cus_manual', (now() + interval '30 days'), now()<br>from auth.users where email = 'EMAIL_HERE';</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEXT ACTIONS -->
+  <div class="sec">
+    <div class="sec-hdr">Next Actions</div>
+    <div class="checklist" id="cl">
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Post Reddit article in r/fitness (larger audience than leangains) <span class="tag u">THIS WEEK</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Record and post TikTok video — account restored ✓ <span class="tag t">THIS WEEK</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Start Instagram DM campaign — 10 PTs per day offering free month <span class="tag t">THIS WEEK</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Deactivate the 4 old June 4th Stripe payment links <span class="tag t">TODAY</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Add analytics to landing page (Plausible or Google Analytics) <span class="tag s">SOON</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Write SEO blog post — "Protein timing for muscle growth" at mpspulse.app/blog <span class="tag s">SOON</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Run real end-to-end payment test with fresh email — confirm automated flow works without manual SQL <span class="tag s">SOON</span></div></div>
+      <div class="ci" onclick="tick(this)"><div class="cb">✓</div><div class="ci-text">Add "Add to home screen" prompt in app.html for mobile users <span class="tag s">SOON</span></div></div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="sec">
+    <div class="sec-hdr">Notes</div>
+    <textarea class="notes" id="notes" placeholder="Notes saved in your browser..."></textarea>
+  </div>
+
+</div>
+
+<div class="footer pad">
+  <div class="footer-logo">PULSE HQ</div>
+  <div class="footer-note">ADD TO HOME SCREEN FOR QUICK ACCESS</div>
+</div>
+
+<script>
+function tick(el){
+  el.classList.toggle('done');
+  save();
+}
+function save(){
+  const states=[...document.querySelectorAll('.ci')].map(e=>e.classList.contains('done'));
+  localStorage.setItem('hq_checks',JSON.stringify(states));
+  localStorage.setItem('hq_notes',document.getElementById('notes').value);
+}
+function load(){
+  const s=localStorage.getItem('hq_checks');
+  if(s){const arr=JSON.parse(s);document.querySelectorAll('.ci').forEach((e,i)=>{if(arr[i])e.classList.add('done');});}
+  const n=localStorage.getItem('hq_notes');
+  if(n)document.getElementById('notes').value=n;
+}
+function copySql(btn){
+  const block=btn.closest('.sql-block');
+  const code=block.querySelector('.sql-code').innerText;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',1500);
+  });
+}
+document.getElementById('notes').addEventListener('input',save);
+
+// PIN LOCK
+const PIN = '5446';
+let pinEntry = '';
+
+function pinPress(d){
+  if(pinEntry.length >= 4) return;
+  pinEntry += d;
+  updateDots();
+  if(pinEntry.length === 4) checkPin();
+}
+function pinDel(){
+  pinEntry = pinEntry.slice(0,-1);
+  updateDots();
+}
+function updateDots(){
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('d'+i);
+    dot.classList.toggle('filled', i < pinEntry.length);
+    dot.classList.remove('error');
+  }
+}
+function checkPin(){
+  if(pinEntry === PIN){
+    document.getElementById('pinScreen').style.display='none';
+    localStorage.setItem('hq_unlocked', Date.now());
+    load();
+  } else {
+    for(let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
+    document.getElementById('pinError').classList.add('show');
+    setTimeout(()=>{
+      pinEntry='';
+      updateDots();
+      document.getElementById('pinError').classList.remove('show');
+    }, 800);
+  }
+}
+
+// Check if recently unlocked (stays unlocked for 8 hours)
+const lastUnlock = localStorage.getItem('hq_unlocked');
+if(lastUnlock && Date.now() - parseInt(lastUnlock) < 8*60*60*1000){
+  document.getElementById('pinScreen').style.display='none';
+  load();
+} else {
+  document.getElementById('pinScreen').style.display='flex';
+}
+</script>
+</body>
+</html>
