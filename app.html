@@ -685,9 +685,15 @@ function getFood(id){return getAllFoods().find(f=>f.id===id);}
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
 const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
 
+function distributeGoal(goal) {
+  const base = Math.floor(goal / 4);
+  const rem = goal - base * 4;
+  return [base+(rem>0?1:0), base+(rem>1?1:0), base+(rem>2?1:0), base];
+}
+
 let state = {
   goal: 150,
-  slotTargets: [40,40,40,30],
+  slotTargets: [38,38,37,37],
   slots: [[],[],[],[]],
   slotCats: ['quick','quick','quick','quick'],
   weekHistory: [0,0,0,0,0,0,0],
@@ -743,7 +749,7 @@ async function loadUserData() {
   const { data } = await db.from('user_data').select('*').eq('user_id', currentUser.id).single();
   if (data) {
     state.goal = data.goal || 150;
-    state.slotTargets = data.slot_targets || [40,40,40,30];
+    state.slotTargets = distributeGoal(state.goal);
     state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
     state.servingHistory = data.serving_history || {};
     state.customFoods = data.custom_foods || [];
@@ -1386,7 +1392,7 @@ function showToast(msg,warn){
 
 document.getElementById('goalInput').addEventListener('input',function(){
   const v=parseInt(this.value);
-  if(v>=40&&v<=400){state.goal=v;updateUI();}
+  if(v>=40&&v<=400){state.goal=v;state.slotTargets=distributeGoal(v);saveUserData();updateUI();}
 });
 
 // Close modal on background click
