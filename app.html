@@ -484,33 +484,28 @@ header {
 
 
 /* === UX IMPROVEMENTS === */
+.tip-wrap { position: relative; display: inline-flex; align-items: center; }
+.tip-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.65rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; font-family: 'Space Mono', monospace; flex-shrink: 0; user-select: none; }
+.tip-box { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1a2a1a; border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 0.72rem; color: var(--text); width: 210px; line-height: 1.6; z-index: 300; }
+.tip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--border2); }
+.tip-wrap.open .tip-box { display: block; }
+.tip-wrap.right .tip-box { left: auto; right: 0; transform: none; }
+.tip-wrap.right .tip-box::after { left: auto; right: 12px; transform: none; }
 
-/* Tooltip */
-.tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
-.tooltip-icon { width: 15px; height: 15px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.55rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 5px; font-family: 'Space Mono', monospace; flex-shrink: 0; }
-.tooltip-box { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 8px 12px; font-size: 0.7rem; color: var(--text); width: 200px; line-height: 1.5; z-index: 200; pointer-events: none; }
-.tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--border2); }
-.tooltip-wrap:hover .tooltip-box, .tooltip-wrap.active .tooltip-box { display: block; }
+.spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.65rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
 
-/* Goal hint */
-.goal-hint { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted); letter-spacing: 1px; text-align: center; margin-top: -10px; }
-
-/* Onboarding overlay */
-#onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
+#onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
 .ob-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 28px 24px; max-width: 340px; width: 100%; }
 .ob-step { display: none; }
 .ob-step.active { display: block; }
-.ob-icon { font-size: 2rem; margin-bottom: 12px; }
-.ob-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 3px; color: var(--g1); margin-bottom: 8px; }
-.ob-text { font-size: 0.82rem; color: var(--muted2); line-height: 1.6; margin-bottom: 20px; }
-.ob-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
-.ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); }
+.ob-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.ob-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 3px; color: var(--g1); margin-bottom: 8px; }
+.ob-text { font-size: 0.82rem; color: var(--muted2); line-height: 1.65; margin-bottom: 20px; }
+.ob-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; }
+.ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); transition: background 0.2s; }
 .ob-dot.active { background: var(--g1); }
-.ob-btn { background: var(--g1); color: var(--bg); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; border: none; border-radius: 8px; padding: 12px 24px; cursor: pointer; width: 100%; font-weight: 700; }
+.ob-btn { background: var(--g1); color: var(--bg); font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; border: none; border-radius: 8px; padding: 13px 24px; cursor: pointer; width: 100%; font-weight: 700; }
 .ob-skip { text-align: center; margin-top: 10px; font-size: 0.65rem; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; letter-spacing: 1px; }
-
-/* Pulse spacing warning */
-.spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.65rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; display: none; }
 
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
@@ -527,7 +522,6 @@ header {
 </head>
 <body>
 
-<!-- Onboarding -->
 <div id="onboarding" style="display:none">
   <div class="ob-card">
     <div class="ob-dots">
@@ -539,24 +533,24 @@ header {
     <div class="ob-step active" id="obs0">
       <div class="ob-icon">🎯</div>
       <div class="ob-title">Welcome to MPS Pulse</div>
-      <div class="ob-text">MPS Pulse helps you build more muscle by timing your protein correctly — not just tracking your daily total.</div>
+      <div class="ob-text">MPS Pulse helps you build more muscle by timing your protein correctly — not just hitting a daily total.</div>
     </div>
     <div class="ob-step" id="obs1">
       <div class="ob-icon">⚡</div>
       <div class="ob-title">Set Your Goal</div>
-      <div class="ob-text">Start by setting your daily protein goal at the top. A good starting point is 1.6–2.2g per kg of bodyweight. Your 4 pulse targets will be set automatically.</div>
+      <div class="ob-text">Set your daily protein goal at the top. A good target is 1.6–2.2g per kg of bodyweight. Your 4 pulse targets will be distributed automatically.</div>
     </div>
     <div class="ob-step" id="obs2">
       <div class="ob-icon">🕐</div>
       <div class="ob-title">Space Your Pulses</div>
-      <div class="ob-text">Each meal triggers a Muscle Protein Synthesis window lasting ~2–3 hours. Spread your 4 pulses at least 3 hours apart for maximum effect.</div>
+      <div class="ob-text">Each meal triggers a Muscle Protein Synthesis window lasting ~2–3 hours. Space your 4 pulses at least 3 hours apart for best results.</div>
     </div>
     <div class="ob-step" id="obs3">
       <div class="ob-icon">💪</div>
       <div class="ob-title">Hit Every Pulse</div>
-      <div class="ob-text">Aim for 30–50g of protein per pulse. Going over doesn't help — your body can only use so much per meal. Consistency across all 4 pulses is the key.</div>
+      <div class="ob-text">Aim for 30–50g per pulse. Going over doesn't help — your body can only use so much per meal. Consistency across all 4 pulses is what drives results.</div>
     </div>
-    <button class="ob-btn" onclick="obNext()">NEXT →</button>
+    <button class="ob-btn" id="obBtn" onclick="obNext()">NEXT →</button>
     <div class="ob-skip" onclick="closeOnboarding()">SKIP</div>
   </div>
 </div>
@@ -573,9 +567,9 @@ header {
       <label>GOAL</label>
       <input type="number" id="goalInput" value="150" min="40" max="400">
       <span style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--muted)">G</span>
-      <div class="tooltip-wrap" onclick="this.classList.toggle('active')">
-        <div class="tooltip-icon">?</div>
-        <div class="tooltip-box">Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute.</div>
+      <div class="tip-wrap right" id="goalTip">
+        <div class="tip-btn" onclick="toggleTip('goalTip')">?</div>
+        <div class="tip-box">Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly.</div>
       </div>
     </div>
     <span class="user-email" id="userEmail"></span>
@@ -955,16 +949,21 @@ function renderSlots() {
     card.className='slot-card slot-'+si+' '+cls;
     card.id='slot-'+si;
 
-    // Check pulse spacing warning
-    const prevEntries = si > 0 ? state.slots[si-1] : [];
-    const prevLastTime = prevEntries.length ? prevEntries[prevEntries.length-1].time : null;
-    const firstTime = entries.length ? entries[0].time : null;
+    // Pulse spacing warning
     let spacingWarn = '';
-    if(prevLastTime && firstTime) {
-      const [ph,pm] = prevLastTime.split(':').map(Number);
-      const [fh,fm] = firstTime.split(':').map(Number);
-      const diffMins = (fh*60+fm) - (ph*60+pm);
-      if(diffMins < 180 && diffMins > 0) spacingWarn = '<div class="spacing-warn" style="display:block">⚠ Only '+(Math.round(diffMins/6)/10)+'h since last pulse — space pulses 3h+ apart for best MPS</div>';
+    if(si > 0) {
+      const prevEntries = state.slots[si-1];
+      const prevLastTime = prevEntries.length ? prevEntries[prevEntries.length-1].time : null;
+      const firstTime = entries.length ? entries[0].time : null;
+      if(prevLastTime && firstTime) {
+        const [ph,pm] = prevLastTime.split(':').map(Number);
+        const [fh,fm] = firstTime.split(':').map(Number);
+        const diffMins = (fh*60+fm) - (ph*60+pm);
+        if(diffMins > 0 && diffMins < 180) {
+          const hrs = (diffMins/60).toFixed(1);
+          spacingWarn = '<div class="spacing-warn">⚠ Only '+hrs+'h since last pulse — aim for 3h+ between pulses for best MPS</div>';
+        }
+      }
     }
 
     card.innerHTML=
@@ -977,7 +976,7 @@ function renderSlots() {
       spacingWarn+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
       '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
-      '<span class="tooltip-wrap" onclick="this.classList.toggle(\'active\')"><span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px;white-space:nowrap">MPS</span><div class="tooltip-icon" style="width:12px;height:12px;font-size:0.45rem">?</div><div class="tooltip-box" style="left:auto;right:0;transform:none;">Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. The dashed bar shows your active window.</div></span>'+
+      '<div class="tip-wrap right" id="mpsTip'+si+'"><span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.6rem" onclick="toggleTip(\'mpsTip'+si+'\')">?</div><div class="tip-box">Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress.</div></div>'+
       '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
@@ -995,7 +994,6 @@ function renderSlots() {
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
-
       '<div class="cat-tabs" style="margin-bottom:6px">'+tabsHtml+'</div>'+
       (cat==='quick' ?
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
@@ -1481,34 +1479,41 @@ document.getElementById('scanModal').addEventListener('click', function(e) {
   if (e.target === this) closeScan();
 });
 
-// === ONBOARDING ===
-let obCurrentStep = 0;
-const OB_STEPS = 4;
-
-function showOnboarding() {
-  document.getElementById('onboarding').style.display = 'flex';
+// === TOOLTIP ===
+function toggleTip(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isOpen = el.classList.contains('open');
+  // Close all open tooltips first
+  document.querySelectorAll('.tip-wrap.open').forEach(t => t.classList.remove('open'));
+  if(!isOpen) el.classList.add('open');
 }
+// Close tooltips when clicking outside
+document.addEventListener('click', function(e) {
+  if(!e.target.closest('.tip-wrap')) {
+    document.querySelectorAll('.tip-wrap.open').forEach(t => t.classList.remove('open'));
+  }
+});
 
+// === ONBOARDING ===
+let obStep = 0;
+const OB_TOTAL = 4;
+function obNext() {
+  obStep++;
+  if(obStep >= OB_TOTAL) { closeOnboarding(); return; }
+  for(let i=0;i<OB_TOTAL;i++){
+    document.getElementById('obs'+i).classList.toggle('active', i===obStep);
+    document.getElementById('od'+i).classList.toggle('active', i===obStep);
+  }
+  document.getElementById('obBtn').textContent = obStep === OB_TOTAL-1 ? 'GET STARTED →' : 'NEXT →';
+}
 function closeOnboarding() {
   document.getElementById('onboarding').style.display = 'none';
-  localStorage.setItem('mps_onboarded', '1');
+  localStorage.setItem('mps_onboarded','1');
 }
-
-function obNext() {
-  obCurrentStep++;
-  if(obCurrentStep >= OB_STEPS) { closeOnboarding(); return; }
-  for(let i=0;i<OB_STEPS;i++){
-    document.getElementById('obs'+i).classList.toggle('active', i===obCurrentStep);
-    document.getElementById('od'+i).classList.toggle('active', i===obCurrentStep);
-  }
-  if(obCurrentStep === OB_STEPS-1) {
-    document.querySelector('.ob-btn').textContent = 'GET STARTED →';
-  }
-}
-
 function checkOnboarding() {
   if(!localStorage.getItem('mps_onboarded')) {
-    setTimeout(showOnboarding, 800);
+    setTimeout(()=>{ document.getElementById('onboarding').style.display='flex'; }, 900);
   }
 }
 
