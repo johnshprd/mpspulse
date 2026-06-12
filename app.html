@@ -151,6 +151,8 @@ header {
 .mps-badge.ending { background: rgba(240,168,64,0.12); color: var(--amber); border: 1px solid var(--amber); }
 .mps-badge.ended { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 .mps-badge.idle { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.edit-time-input { background: rgba(168,230,58,0.08); border: 1px solid rgba(168,230,58,0.2); border-radius: 4px; padding: 2px 6px; color: var(--g2); font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 1px; cursor: pointer; outline: none; }
+.edit-time-input::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(5) hue-rotate(60deg); cursor: pointer; }
 .slot-target-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
 .slot-target-row label { font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--muted); letter-spacing: 2px; }
 .slot-target-row input { background: var(--bg); border: 1px solid var(--border); color: var(--g1); font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; width: 46px; padding: 3px 5px; border-radius: 4px; outline: none; text-align: center; }
@@ -1012,7 +1014,7 @@ function renderSlots() {
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
-      (entries.length?'<span onclick="editSlotTime('+si+')" style="cursor:pointer;background:rgba(168,230,58,0.08);border:1px solid rgba(168,230,58,0.2);border-radius:4px;padding:2px 8px;color:var(--g2);font-size:0.55rem;letter-spacing:1px;white-space:nowrap">🕐 EDIT TIME</span>':'')+
+      (entries.length?'<input type="time" class="edit-time-input" value="'+entries[0].time+'" onchange="setSlotTime('+si+',this.value)" title="Edit pulse time">':'')+
       '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
       '</div>'+
       '</div>'+
@@ -1370,21 +1372,15 @@ function renderAllRecentFoods(){
 }
 
 // ── EDIT SLOT TIME ────────────────────────────────
-function editSlotTime(si){
+function setSlotTime(si, newTime){
   const entries = state.slots[si];
   if(!entries || !entries.length) return;
-  // Use the first entry's time as the default
-  const current = entries[0].time || '00:00';
-  const newTime = prompt('Set meal time for this pulse (HH:MM):', current);
-  if(!newTime) return;
   const match = newTime.match(/^(\d{1,2}):(\d{2})$/);
-  if(!match){showToast('Invalid time. Use HH:MM e.g. 07:30',true);return;}
+  if(!match){showToast('Invalid time',true);return;}
   const h=parseInt(match[1]), m=parseInt(match[2]);
-  if(h<0||h>23||m<0||m>59){showToast('Invalid time',true);return;}
   const formatted = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
   const now = new Date();
   const ts = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
-  // Update ALL entries in this slot to the same time
   state.slots[si].forEach(e => { e.time = formatted; e.ts = ts; });
   showToast('Pulse '+(si+1)+' time set to '+formatted);
   updateUI();
