@@ -1038,7 +1038,7 @@ function renderSlots() {
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
-        '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g"></div>'+
+        '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
@@ -1074,7 +1074,7 @@ function onFoodChange(si){
   const def=smartDefault(sel.value);
   const hint=servingHint(sel.value);
   srvEl.value=def;
-  if(lblEl)lblEl.textContent=hint?hint.toUpperCase():'GRAMS';
+  if(lblEl)lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
 }
 
 function addToSlot(si){
