@@ -125,6 +125,7 @@ header {
 .slot-card.met .slot-g { color: var(--g1); text-shadow: 0 0 14px rgba(168,230,58,0.5); }
 .slot-card.over .slot-g { color: var(--amber); }
 .slot-g-lbl { font-family: 'Space Mono', monospace; font-size: 0.44rem; color: var(--muted); letter-spacing: 2px; }
+.target-met { color: var(--g1); font-weight: 700; text-shadow: 0 0 8px rgba(168,230,58,0.5); }
 .mps-track { 
   height: 6px;
   background: repeating-linear-gradient(
@@ -999,7 +1000,7 @@ function renderSlots() {
       '<div><div class="slot-num">PULSE '+(si+1)+' · '+SLOT_ICONS[si]+'</div>'+
       '<div class="slot-name">'+SLOT_NAMES[si]+'</div></div>'+
       '<div style="text-align:right"><div class="slot-g">'+total+'</div>'+
-      '<div class="slot-g-lbl">G PROTEIN</div></div>'+
+      '<div class="slot-g-lbl">G PROTEIN'+(isMet?' <span class="target-met">✓ TARGET MET</span>':'')+'</div></div>'+
       '</div>'+
       spacingWarn+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
