@@ -92,6 +92,7 @@ header {
 .sci-text strong { color: var(--g1); }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.slot-card:has(.tip-wrap.open) { overflow: visible; }
 /* Per-slot distinct backgrounds - strong contrast */
 .slot-card.slot-0 { background: #0e1f28; border-color: #1a4060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(60,140,200,0.1); }
 .slot-card.slot-1 { background: #1a2010; border-color: #4a6020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
@@ -491,6 +492,8 @@ header {
 .tip-wrap.open .tip-box { display: block; }
 .tip-wrap.right .tip-box { left: auto; right: 0; transform: none; }
 .tip-wrap.right .tip-box::after { left: auto; right: 12px; transform: none; }
+.tip-wrap.down .tip-box { bottom: auto; top: calc(100% + 8px); }
+.tip-wrap.down .tip-box::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--border2); }
 
 .spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.65rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
 
@@ -976,7 +979,7 @@ function renderSlots() {
       spacingWarn+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
       '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
-      '<div class="tip-wrap right" id="mpsTip'+si+'"><span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.6rem" onclick="toggleTip(\'mpsTip'+si+'\')">?</div><div class="tip-box">Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress.</div></div>'+
+      '<div class="tip-wrap down right" id="mpsTip'+si+'"><span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.6rem" onclick="toggleTip(\'mpsTip'+si+'\')">?</div><div class="tip-box">Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress.</div></div>'+
       '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
