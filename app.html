@@ -92,7 +92,6 @@ header {
 .sci-text strong { color: var(--g1); }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
-.slot-card:has(.tip-wrap.open) { overflow: visible; }
 /* Per-slot distinct backgrounds - strong contrast */
 .slot-card.slot-0 { background: #0e1f28; border-color: #1a4060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(60,140,200,0.1); }
 .slot-card.slot-1 { background: #1a2010; border-color: #4a6020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
@@ -166,12 +165,15 @@ header {
 .del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.7rem; padding: 3px; border-radius: 3px; transition: color 0.15s; flex-shrink: 0; }
 .del-btn:hover { color: var(--red); }
 .slot-add { display: flex; gap: 5px; align-items: flex-end; flex-wrap: wrap; }
-.cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; }
-.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.48rem; letter-spacing: 1px; padding: 4px 7px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; flex-wrap: wrap; }
+.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.42rem; letter-spacing: 1px; padding: 4px 6px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 .cat-tab.active { background: var(--bg); color: var(--g1); }
 .cat-tab.meat.active { color: var(--amber); }
 .cat-tab.dairy.active { color: var(--blue); }
-.cat-tab.mine.active { color: var(--amber); }
+.cat-tab.legumes.active { color: var(--g2); }
+.cat-tab.veg.active { color: #6fcf6f; }
+.cat-tab.nuts.active { color: #c9a16a; }
+.cat-tab.custom.active { color: var(--amber); }
 .cat-tab.quick.active { color: var(--g1); }
 .slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.7rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
 .slot-food-select:focus { border-color: var(--g1); }
@@ -485,15 +487,8 @@ header {
 
 
 /* === UX IMPROVEMENTS === */
-.tip-wrap { position: relative; display: inline-flex; align-items: center; }
 .tip-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.65rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; font-family: 'Space Mono', monospace; flex-shrink: 0; user-select: none; }
-.tip-box { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1a2a1a; border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 0.72rem; color: var(--text); width: 210px; line-height: 1.6; z-index: 300; }
-.tip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--border2); }
-.tip-wrap.open .tip-box { display: block; }
-.tip-wrap.right .tip-box { left: auto; right: 0; transform: none; }
-.tip-wrap.right .tip-box::after { left: auto; right: 12px; transform: none; }
-.tip-wrap.down .tip-box { bottom: auto; top: calc(100% + 8px); }
-.tip-wrap.down .tip-box::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--border2); }
+.global-tooltip { position: fixed; display: none; background: #1a2a1a; border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 0.72rem; color: var(--text); width: 210px; line-height: 1.6; z-index: 1000; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
 
 .spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.65rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
 
@@ -558,6 +553,8 @@ header {
   </div>
 </div>
 
+<div id="globalTooltip" class="global-tooltip"></div>
+
 <div id="loading">
   <div class="loading-logo">PULSE</div>
   <div class="loading-dot"></div>
@@ -570,10 +567,7 @@ header {
       <label>GOAL</label>
       <input type="number" id="goalInput" value="150" min="40" max="400">
       <span style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--muted)">G</span>
-      <div class="tip-wrap down right" id="goalTip">
-        <div class="tip-btn" onclick="toggleTip('goalTip')">?</div>
-        <div class="tip-box">Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly.</div>
-      </div>
+      <div class="tip-btn" data-tip="Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly." onclick="showTooltip(this)">?</div>
     </div>
     <span class="user-email" id="userEmail"></span>
     <button class="signout-btn" onclick="signOut()">SIGN OUT</button>
@@ -710,7 +704,7 @@ let scanImageBase64 = null;
 let scanFoods = [];
 
 const FOODS = {
-  pulses: [
+  legumes: [
     {id:'lentils',name:'Red Lentils',icon:'🔴',p100:9.0,typical:180,typicalLabel:'1 cup cooked'},
     {id:'chickpeas',name:'Chickpeas',icon:'🟡',p100:19.3,typical:150,typicalLabel:'half can'},
     {id:'blackbeans',name:'Black Beans',icon:'⚫',p100:21.6,typical:150,typicalLabel:'half can'},
@@ -719,6 +713,10 @@ const FOODS = {
     {id:'lupins',name:'Lupin Beans',icon:'🌼',p100:36.2,typical:100,typicalLabel:'small portion'},
     {id:'splitpeas',name:'Split Peas',icon:'💛',p100:8.3,typical:180,typicalLabel:'1 cup cooked'},
     {id:'blackeyed',name:'Black-eyed Peas',icon:'🤍',p100:23.5,typical:150,typicalLabel:'half can'},
+    {id:'tofu',name:'Tofu',icon:'⬜',p100:8.0,typical:150,typicalLabel:'standard portion'},
+    {id:'tempeh',name:'Tempeh',icon:'🟫',p100:19.0,typical:100,typicalLabel:'standard portion'},
+    {id:'butterbeans',name:'Butter Beans',icon:'🫛',p100:8.0,typical:150,typicalLabel:'half can'},
+    {id:'pinto',name:'Pinto Beans',icon:'🟤',p100:21.4,typical:150,typicalLabel:'half can'},
   ],
   meat: [
     {id:'chicken',name:'Chicken Breast',icon:'🍗',p100:31.0,typical:180,typicalLabel:'1 medium breast'},
@@ -729,6 +727,10 @@ const FOODS = {
     {id:'turkey',name:'Turkey',icon:'🦃',p100:29.0,typical:150,typicalLabel:'standard portion'},
     {id:'pork',name:'Pork Loin',icon:'🐷',p100:27.0,typical:150,typicalLabel:'1 chop'},
     {id:'prawns',name:'Prawns',icon:'🦐',p100:24.0,typical:150,typicalLabel:'standard portion'},
+    {id:'bacon',name:'Bacon',icon:'🥓',p100:37.0,typical:60,typicalLabel:'2-3 rashers'},
+    {id:'lamb',name:'Lamb',icon:'🍖',p100:25.0,typical:150,typicalLabel:'standard portion'},
+    {id:'cod',name:'Cod',icon:'🐠',p100:23.0,typical:150,typicalLabel:'1 fillet'},
+    {id:'ham',name:'Ham',icon:'🍖',p100:21.0,typical:60,typicalLabel:'2-3 slices'},
   ],
   dairy: [
     {id:'greekyo',name:'Greek Yoghurt',icon:'🥛',p100:10.0,typical:200,typicalLabel:'1 large pot'},
@@ -739,11 +741,34 @@ const FOODS = {
     {id:'quark',name:'Quark',icon:'🥣',p100:11.0,typical:200,typicalLabel:'half tub'},
     {id:'skyr',name:'Skyr',icon:'🍨',p100:11.0,typical:170,typicalLabel:'1 pot'},
     {id:'kefir',name:'Kefir',icon:'🥤',p100:3.6,typical:250,typicalLabel:'1 large glass'},
+    {id:'mozzarella',name:'Mozzarella',icon:'🧀',p100:22.0,typical:50,typicalLabel:'small portion'},
+    {id:'parmesan',name:'Parmesan',icon:'🧀',p100:38.0,typical:20,typicalLabel:'1 tbsp grated'},
+  ],
+  veg: [
+    {id:'peas',name:'Peas',icon:'🟢',p100:5.4,typical:120,typicalLabel:'side portion'},
+    {id:'broccoli',name:'Broccoli',icon:'🥦',p100:2.8,typical:120,typicalLabel:'side portion'},
+    {id:'spinach',name:'Spinach',icon:'🥬',p100:2.9,typical:100,typicalLabel:'large handful'},
+    {id:'sweetcorn',name:'Sweetcorn',icon:'🌽',p100:3.2,typical:120,typicalLabel:'side portion'},
+    {id:'mushrooms',name:'Mushrooms',icon:'🍄',p100:3.1,typical:100,typicalLabel:'side portion'},
+    {id:'sprouts',name:'Brussels Sprouts',icon:'🥬',p100:3.4,typical:120,typicalLabel:'side portion'},
+    {id:'kale',name:'Kale',icon:'🥬',p100:4.3,typical:100,typicalLabel:'large handful'},
+    {id:'asparagus',name:'Asparagus',icon:'🥬',p100:2.2,typical:120,typicalLabel:'side portion'},
+    {id:'potato',name:'Potato',icon:'🥔',p100:2.0,typical:180,typicalLabel:'1 medium potato'},
+  ],
+  nuts: [
+    {id:'almonds',name:'Almonds',icon:'🌰',p100:21.0,typical:30,typicalLabel:'small handful'},
+    {id:'peanuts',name:'Peanuts',icon:'🥜',p100:25.0,typical:30,typicalLabel:'small handful'},
+    {id:'peanutbutter',name:'Peanut Butter',icon:'🥜',p100:25.0,typical:30,typicalLabel:'1-2 tbsp'},
+    {id:'cashews',name:'Cashews',icon:'🌰',p100:18.0,typical:30,typicalLabel:'small handful'},
+    {id:'pumpkinseeds',name:'Pumpkin Seeds',icon:'🌱',p100:19.0,typical:30,typicalLabel:'small handful'},
+    {id:'chiaseeds',name:'Chia Seeds',icon:'⚫',p100:17.0,typical:20,typicalLabel:'1-2 tbsp'},
+    {id:'walnuts',name:'Walnuts',icon:'🌰',p100:15.0,typical:30,typicalLabel:'small handful'},
+    {id:'pistachios',name:'Pistachios',icon:'🌰',p100:20.0,typical:30,typicalLabel:'small handful'},
   ]
 };
 
-const ALL_FOODS = [...FOODS.pulses,...FOODS.meat,...FOODS.dairy];
-function getAllFoods(){return [...FOODS.pulses,...FOODS.meat,...FOODS.dairy,...(state.customFoods||[])];}
+const ALL_FOODS = [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts];
+function getAllFoods(){return [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts,...(state.customFoods||[])];}
 function getFood(id){return getAllFoods().find(f=>f.id===id);}
 
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
@@ -891,7 +916,7 @@ function getMpsState(entries) {
 
 // ── FOOD OPTIONS ──────────────────────────────────
 function foodOptionsHtml(cat, si) {
-  if(cat === 'mine') {
+  if(cat === 'custom') {
     if(!state.customFoods || state.customFoods.length === 0) {
       return '<option value="">No custom foods yet</option>';
     }
@@ -944,7 +969,7 @@ function renderSlots() {
       '</div>'
     ).join('');
 
-    const tabsHtml=['quick','pulses','meat','dairy','mine'].map(c=>
+    const tabsHtml=['quick','legumes','meat','dairy','veg','nuts','custom'].map(c=>
       '<button class="cat-tab '+c+(cat===c?' active':'')+'" onclick="setSlotCat('+si+',\''+c+'\')">'+c+'</button>'
     ).join('');
 
@@ -979,7 +1004,7 @@ function renderSlots() {
       spacingWarn+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
       '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
-      '<div class="tip-wrap down right" id="mpsTip'+si+'"><span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.6rem" onclick="toggleTip(\'mpsTip'+si+'\')">?</div><div class="tip-box">Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress.</div></div>'+
+      '<span style="font-family:Space Mono,monospace;font-size:0.42rem;color:var(--muted);letter-spacing:1px;margin-right:2px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.6rem" data-tip="Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress." onclick="showTooltip(this)">?</div>'+
       '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
@@ -1013,7 +1038,7 @@ function renderSlots() {
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g"></div>'+
         '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-        (cat==="mine"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
+        (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
         '</div>'
       )+
       '</div>';
@@ -1483,18 +1508,30 @@ document.getElementById('scanModal').addEventListener('click', function(e) {
 });
 
 // === TOOLTIP ===
-function toggleTip(id) {
-  const el = document.getElementById(id);
-  if(!el) return;
-  const isOpen = el.classList.contains('open');
-  // Close all open tooltips first
-  document.querySelectorAll('.tip-wrap.open').forEach(t => t.classList.remove('open'));
-  if(!isOpen) el.classList.add('open');
+function showTooltip(btn) {
+  const tip = document.getElementById('globalTooltip');
+  const isOpen = tip.style.display === 'block' && tip._activeBtn === btn;
+  if(isOpen) { tip.style.display = 'none'; tip._activeBtn = null; return; }
+  tip.textContent = btn.getAttribute('data-tip');
+  tip.style.display = 'block';
+  tip._activeBtn = btn;
+  const rect = btn.getBoundingClientRect();
+  const tipWidth = 210;
+  let left = rect.left + rect.width/2 - tipWidth/2;
+  if(left < 8) left = 8;
+  if(left + tipWidth > window.innerWidth - 8) left = window.innerWidth - tipWidth - 8;
+  let top = rect.bottom + 8;
+  // If not enough room below, show above
+  const estHeight = 90;
+  if(top + estHeight > window.innerHeight - 8) top = rect.top - estHeight - 8;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
 }
-// Close tooltips when clicking outside
 document.addEventListener('click', function(e) {
-  if(!e.target.closest('.tip-wrap')) {
-    document.querySelectorAll('.tip-wrap.open').forEach(t => t.classList.remove('open'));
+  if(!e.target.classList.contains('tip-btn')) {
+    const tip = document.getElementById('globalTooltip');
+    tip.style.display = 'none';
+    tip._activeBtn = null;
   }
 });
 
