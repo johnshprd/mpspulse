@@ -1042,6 +1042,7 @@ function renderSlots() {
         '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
+        (cat==="custom"&&state.customFoods&&state.customFoods.length?'<button class="scan-btn" onclick="deleteSelectedCustomFood('+si+')" style="border-color:#e05a5a;color:#e05a5a" title="Delete selected food">🗑 DELETE</button>':'')+
         '</div>'
       )+
       '</div>';
@@ -1491,6 +1492,17 @@ function saveCustomFood(){
 function deleteCustomFood(id){
   state.customFoods=state.customFoods.filter(f=>f.id!==id);
   updateUI();
+}
+
+function deleteSelectedCustomFood(si){
+  const sel=document.getElementById('sel-'+si);
+  if(!sel||!sel.value){showToast('Select a food to delete first',true);return;}
+  const food=state.customFoods.find(f=>f.id===sel.value);
+  if(!food)return;
+  if(confirm('Delete "'+food.name+'" from your custom foods?')){
+    deleteCustomFood(food.id);
+    showToast('🗑 '+food.name+' deleted');
+  }
 }
 
 function showToast(msg,warn){
