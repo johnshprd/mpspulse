@@ -57,14 +57,14 @@ header {
 .daily-met { display: flex; align-items: center; gap: 5px; background: rgba(168,230,58,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
 .daily-met.show { opacity: 1; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 15px; }
-.card-title { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.card-title { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; position: relative; z-index: 2; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; }
 .stat-label { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--muted2); letter-spacing: 2px; margin-bottom: 4px; }
 .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--text); line-height: 1; }
 .stat-value.g { color: var(--g1); }
 .stat-value.o { color: var(--amber); }
-.dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 54px; }
+.dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 54px; margin-top: 4px; }
 .dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .dist-bar-wrap { width: 100%; height: 44px; display: flex; align-items: flex-end; }
 .dist-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border2); min-height: 3px; transition: height 0.5s ease, background 0.3s; }
