@@ -506,6 +506,18 @@ header {
 .spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.65rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
 
 #onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+#startPointer {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--g1); color: #050805; border: none; border-radius: 30px;
+  padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
+  letter-spacing: 2px; cursor: pointer; z-index: 400; display: none;
+  box-shadow: 0 4px 20px rgba(168,230,58,0.4); align-items: center; gap: 8px;
+}
+#startPointer.show { display: flex; animation: pointerBounce 1.4s ease-in-out infinite; }
+#startPointer .arrow { font-size: 1.1rem; animation: arrowBob 1.4s ease-in-out infinite; }
+@keyframes pointerBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
+@keyframes arrowBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 .ob-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 28px 24px; max-width: 340px; width: 100%; }
 .ob-step { display: none; }
 .ob-step.active { display: block; }
@@ -532,6 +544,10 @@ header {
 </style>
 </head>
 <body>
+
+<button id="startPointer" onclick="goToFirstPulse()">
+  <span class="arrow">↓</span> START LOGGING <span class="arrow">↓</span>
+</button>
 
 <div id="onboarding" style="display:none">
   <div class="ob-card">
@@ -1618,11 +1634,29 @@ function obNext() {
 function closeOnboarding() {
   document.getElementById('onboarding').style.display = 'none';
   localStorage.setItem('mps_onboarded','1');
+  showStartPointer();
 }
 function checkOnboarding() {
   if(!localStorage.getItem('mps_onboarded')) {
     setTimeout(()=>{ document.getElementById('onboarding').style.display='flex'; }, 900);
+  } else {
+    setTimeout(showStartPointer, 600);
   }
+}
+
+function showStartPointer(){
+  const ptr = document.getElementById('startPointer');
+  if(!ptr) return;
+  ptr.classList.add('show');
+  const hideOnScroll = () => { ptr.classList.remove('show'); window.removeEventListener('scroll', hideOnScroll); };
+  window.addEventListener('scroll', hideOnScroll, { passive: true });
+}
+
+function goToFirstPulse(){
+  const target = document.getElementById('slot-0');
+  if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const ptr = document.getElementById('startPointer');
+  if(ptr) ptr.classList.remove('show');
 }
 
 init();
