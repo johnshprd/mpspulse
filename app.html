@@ -1053,10 +1053,10 @@ function renderSlots() {
       (cat==='quick' ?
         '<div class="step-lbl">TYPE MEAL NAME &amp; PROTEIN, THEN ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-        '<input class="slot-food-select" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px">'+
+        '<input class="slot-food-select" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px" oninput="checkQuickReady('+si+')">'+
         '<div class="srv-wrap"><div class="srv-lbl">PROTEIN G</div>'+
-        '<input class="slot-serving" type="number" id="quick-p-'+si+'" placeholder="35" min="1" max="300" style="width:70px"></div>'+
-        '<button class="slot-add-btn" onclick="addQuickMeal('+si+')">+ADD</button>'+
+        '<input class="slot-serving" type="number" id="quick-p-'+si+'" placeholder="35" min="1" max="300" style="width:70px" oninput="checkQuickReady('+si+')"></div>'+
+        '<button class="slot-add-btn" id="quick-add-btn-'+si+'" onclick="addQuickMeal('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         '</div>'
       :
@@ -1106,6 +1106,15 @@ function setSlotCat(si,cat){
 function setSlotTarget(si,val){
   const v=parseInt(val);
   if(!isNaN(v)&&v>0){state.slotTargets[si]=v;updateUI();}
+}
+
+function checkQuickReady(si){
+  const nameEl=document.getElementById('quick-name-'+si);
+  const pEl=document.getElementById('quick-p-'+si);
+  const btnEl=document.getElementById('quick-add-btn-'+si);
+  if(!nameEl||!pEl||!btnEl)return;
+  const ready = nameEl.value.trim().length>0 && pEl.value && parseFloat(pEl.value)>0;
+  btnEl.disabled = !ready;
 }
 
 function onFoodChange(si){
