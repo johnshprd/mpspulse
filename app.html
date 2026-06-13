@@ -176,7 +176,17 @@ header {
 .food-search { width: 100%; background: var(--bg); border: 1px solid var(--g2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; padding: 9px 12px; border-radius: 7px; outline: none; box-sizing: border-box; }
 .food-search:focus { border-color: var(--g1); box-shadow: 0 0 0 2px rgba(168,230,58,0.15); }
 .step-lbl { font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; }
+.browse-toggle { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-bottom: 6px; user-select: none; }
+.browse-toggle:hover { color: var(--g2); }
 .cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; flex-wrap: wrap; }
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168,230,58,0.45); }
+  50% { box-shadow: 0 0 0 6px rgba(168,230,58,0); }
+}
+.pulse-glow { animation: pulseGlow 1.8s ease-out infinite; }
+.pulse-glow:focus { animation: none; }
+.slot-add-btn.pulse-glow:not(:disabled) { animation: pulseGlow 1.4s ease-out infinite; }
 .cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.42rem; letter-spacing: 1px; padding: 4px 6px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 .cat-tab.active { background: var(--bg); color: var(--g1); }
 .cat-tab.meat.active { color: var(--amber); }
@@ -1061,18 +1071,18 @@ function renderSlots() {
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
       '<div class="food-search-wrap">'+
-      '<input class="food-search" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
+      '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
       '<datalist id="foodlist-'+si+'">'+ALL_FOODS.map(f=>'<option value="'+f.name+'">').join('')+(state.customFoods||[]).map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
       '</div>'+
-      '<div class="step-lbl">OR BROWSE A CATEGORY</div>'+
-      '<div class="cat-tabs" style="margin-bottom:6px">'+tabsHtml+'</div>'+
+      '<div class="browse-toggle" id="browse-toggle-'+si+'" onclick="toggleCatTabs('+si+')">▸ BROWSE BY CATEGORY</div>'+
+      '<div class="cat-tabs" id="cat-tabs-'+si+'" style="margin-bottom:6px;display:none">'+tabsHtml+'</div>'+
       (cat==='quick' ?
         '<div class="step-lbl">TYPE MEAL NAME &amp; PROTEIN, THEN ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<input class="slot-food-select" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px" oninput="checkQuickReady('+si+')">'+
         '<div class="srv-wrap"><div class="srv-lbl">PROTEIN G</div>'+
         '<input class="slot-serving" type="number" id="quick-p-'+si+'" placeholder="35" min="1" max="300" style="width:70px" oninput="checkQuickReady('+si+')"></div>'+
-        '<button class="slot-add-btn" id="quick-add-btn-'+si+'" onclick="addQuickMeal('+si+')" disabled>+ADD</button>'+
+        '<button class="slot-add-btn pulse-glow" id="quick-add-btn-'+si+'" onclick="addQuickMeal('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         '</div>'
       :
@@ -1081,7 +1091,7 @@ function renderSlots() {
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
-        '<button class="slot-add-btn" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
+        '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
         (cat==="custom"&&state.customFoods&&state.customFoods.length?'<button class="scan-btn" onclick="deleteSelectedCustomFood('+si+')" style="border-color:#e05a5a;color:#e05a5a" title="Delete selected food">🗑 DELETE</button>':'')+
@@ -1128,9 +1138,20 @@ function checkQuickReady(si){
   const nameEl=document.getElementById('quick-name-'+si);
   const pEl=document.getElementById('quick-p-'+si);
   const btnEl=document.getElementById('quick-add-btn-'+si);
+  const searchEl=document.getElementById('food-search-'+si);
   if(!nameEl||!pEl||!btnEl)return;
   const ready = nameEl.value.trim().length>0 && pEl.value && parseFloat(pEl.value)>0;
   btnEl.disabled = !ready;
+  if(searchEl) searchEl.classList.toggle('pulse-glow', !ready);
+}
+
+function toggleCatTabs(si){
+  const tabs=document.getElementById('cat-tabs-'+si);
+  const toggle=document.getElementById('browse-toggle-'+si);
+  if(!tabs||!toggle)return;
+  const open = tabs.style.display !== 'none';
+  tabs.style.display = open ? 'none' : 'flex';
+  toggle.textContent = (open ? '▸' : '▾') + ' BROWSE BY CATEGORY';
 }
 
 function onFoodChange(si){
@@ -1138,9 +1159,11 @@ function onFoodChange(si){
   const srvEl=document.getElementById('srv-'+si);
   const lblEl=document.getElementById('srv-lbl-'+si);
   const btnEl=document.getElementById('add-btn-'+si);
+  const searchEl=document.getElementById('food-search-'+si);
   if(!sel||!srvEl)return;
   const hasFood = !!sel.value;
   if(btnEl) btnEl.disabled = !hasFood;
+  if(searchEl) searchEl.classList.toggle('pulse-glow', !hasFood);
   if(!hasFood){
     srvEl.value='';
     if(lblEl)lblEl.textContent='GRAMS';
