@@ -96,6 +96,7 @@ header {
 .sci-text strong { color: var(--g1); }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.slot-card * { max-width: 100%; box-sizing: border-box; }
 /* Per-slot distinct backgrounds - strong contrast */
 .slot-card.slot-0 { background: #0e1f28; border-color: #1a4060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(60,140,200,0.1); }
 .slot-card.slot-1 { background: #1a2010; border-color: #4a6020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
