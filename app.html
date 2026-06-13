@@ -172,6 +172,10 @@ header {
 .del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.7rem; padding: 3px; border-radius: 3px; transition: color 0.15s; flex-shrink: 0; }
 .del-btn:hover { color: var(--red); }
 .slot-add { display: flex; gap: 5px; align-items: flex-end; flex-wrap: wrap; }
+.food-search-wrap { margin-bottom: 6px; }
+.food-search { width: 100%; background: var(--bg); border: 1px solid var(--g2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; padding: 9px 12px; border-radius: 7px; outline: none; box-sizing: border-box; }
+.food-search:focus { border-color: var(--g1); box-shadow: 0 0 0 2px rgba(168,230,58,0.15); }
+.step-lbl { font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; }
 .cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; flex-wrap: wrap; }
 .cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.42rem; letter-spacing: 1px; padding: 4px 6px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 .cat-tab.active { background: var(--bg); color: var(--g1); }
@@ -777,6 +781,13 @@ const FOODS = {
 const ALL_FOODS = [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts];
 function getAllFoods(){return [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts,...(state.customFoods||[])];}
 function getFood(id){return getAllFoods().find(f=>f.id===id);}
+function getFoodCategory(id){
+  for(const cat of ['legumes','meat','dairy','veg','nuts']){
+    if(FOODS[cat].some(f=>f.id===id)) return cat;
+  }
+  if((state.customFoods||[]).some(f=>f.id===id)) return 'custom';
+  return 'quick';
+}
 
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
 const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
@@ -1031,8 +1042,14 @@ function renderSlots() {
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
+      '<div class="food-search-wrap">'+
+      '<input class="food-search" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
+      '<datalist id="foodlist-'+si+'">'+ALL_FOODS.map(f=>'<option value="'+f.name+'">').join('')+(state.customFoods||[]).map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
+      '</div>'+
+      '<div class="step-lbl">OR BROWSE A CATEGORY</div>'+
       '<div class="cat-tabs" style="margin-bottom:6px">'+tabsHtml+'</div>'+
       (cat==='quick' ?
+        '<div class="step-lbl">TYPE MEAL NAME &amp; PROTEIN, THEN ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<input class="slot-food-select" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px">'+
         '<div class="srv-wrap"><div class="srv-lbl">PROTEIN G</div>'+
@@ -1041,6 +1058,7 @@ function renderSlots() {
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         '</div>'
       :
+        '<div class="step-lbl">1. CHOOSE FOOD&nbsp;&nbsp;&nbsp;2. CHECK GRAMS&nbsp;&nbsp;&nbsp;3. ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
@@ -1054,6 +1072,22 @@ function renderSlots() {
       '</div>';
     grid.appendChild(card);
   });
+}
+
+function searchFood(si, query){
+  if(!query || query.length < 2) return;
+  const all = getAllFoods();
+  const match = all.find(f => f.name.toLowerCase() === query.trim().toLowerCase());
+  if(!match) return; // only act on an exact match (user picked from suggestions)
+  const cat = getFoodCategory(match.id);
+  state.slotCats[si] = cat;
+  renderSlots();
+  setTimeout(()=>{
+    const sel = document.getElementById('sel-'+si);
+    if(sel){ sel.value = match.id; onFoodChange(si); }
+    const srv = document.getElementById('srv-'+si);
+    if(srv){ srv.focus(); srv.select(); }
+  }, 0);
 }
 
 function setSlotCat(si,cat){
