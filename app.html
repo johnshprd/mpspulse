@@ -195,6 +195,8 @@ header {
 .slot-serving:focus { border-color: var(--g1); }
 .slot-add-btn { background: var(--g1); color: #050805; border: none; border-radius: 5px; padding: 6px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; white-space: nowrap; align-self: flex-end; }
 .slot-add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.slot-add-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+.slot-add-btn:disabled:hover { filter: none; transform: none; }
 
 /* CAMERA BUTTON */
 .scan-btn {
@@ -1063,7 +1065,7 @@ function renderSlots() {
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
-        '<button class="slot-add-btn" onclick="addToSlot('+si+')">+ADD</button>'+
+        '<button class="slot-add-btn" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
         (cat==="custom"&&state.customFoods&&state.customFoods.length?'<button class="scan-btn" onclick="deleteSelectedCustomFood('+si+')" style="border-color:#e05a5a;color:#e05a5a" title="Delete selected food">🗑 DELETE</button>':'')+
@@ -1110,7 +1112,15 @@ function onFoodChange(si){
   const sel=document.getElementById('sel-'+si);
   const srvEl=document.getElementById('srv-'+si);
   const lblEl=document.getElementById('srv-lbl-'+si);
+  const btnEl=document.getElementById('add-btn-'+si);
   if(!sel||!srvEl)return;
+  const hasFood = !!sel.value;
+  if(btnEl) btnEl.disabled = !hasFood;
+  if(!hasFood){
+    srvEl.value='';
+    if(lblEl)lblEl.textContent='GRAMS';
+    return;
+  }
   const def=smartDefault(sel.value);
   const hint=servingHint(sel.value);
   srvEl.value=def;
