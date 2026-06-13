@@ -188,15 +188,17 @@ header {
 .pulse-glow:focus { animation: none; }
 .pulse-glow:disabled { animation: none; }
 .slot-add-btn.pulse-glow:not(:disabled) { animation: pulseGlow 1.4s ease-out infinite; }
-.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.61rem; letter-spacing: 1px; padding: 4px 6px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.61rem; letter-spacing: 1px; padding: 6px 10px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; flex: 1; }
 .cat-tab.active { background: var(--bg); color: var(--g1); }
-.cat-tab.meat.active { color: var(--amber); }
-.cat-tab.dairy.active { color: var(--blue); }
-.cat-tab.legumes.active { color: var(--g2); }
-.cat-tab.veg.active { color: #6fcf6f; }
-.cat-tab.nuts.active { color: #c9a16a; }
-.cat-tab.custom.active { color: var(--amber); }
-.cat-tab.quick.active { color: var(--g1); }
+.manage-foods-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; margin-top: 4px; max-height: 220px; overflow-y: auto; }
+.mf-group-label { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; margin: 8px 0 3px; }
+.mf-group-label:first-child { margin-top: 0; }
+.mf-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px; font-size: 0.78rem; border-bottom: 1px solid var(--surface2); }
+.mf-row:last-of-type { border-bottom: none; }
+.mf-del { background: none; border: none; color: #e05a5a; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; }
+.mf-del:hover { transform: scale(1.15); }
+.mf-restore { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--g2); letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 8px; text-align: center; }
+.mf-restore:hover { color: var(--g1); }
 .slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.94rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
 .slot-food-select:focus { border-color: var(--g1); }
 .slot-food-select option { background: var(--surface); }
@@ -809,14 +811,8 @@ const FOODS = {
 
 const ALL_FOODS = [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts];
 function getAllFoods(){return [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts,...(state.customFoods||[])];}
+function getVisibleFoods(){return getAllFoods().filter(f=>!(state.hiddenFoods||[]).includes(f.id));}
 function getFood(id){return getAllFoods().find(f=>f.id===id);}
-function getFoodCategory(id){
-  for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    if(FOODS[cat].some(f=>f.id===id)) return cat;
-  }
-  if((state.customFoods||[]).some(f=>f.id===id)) return 'custom';
-  return 'quick';
-}
 
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
 const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
@@ -831,10 +827,11 @@ let state = {
   goal: 150,
   slotTargets: [38,38,37,37],
   slots: [[],[],[],[]],
-  slotCats: ['quick','quick','quick','quick'],
+  slotCats: ['db','db','db','db'],
   weekHistory: [0,0,0,0,0,0,0],
   servingHistory: {},
   customFoods: [],
+  hiddenFoods: [],
 };
 
 // ── AUTH ──────────────────────────────────────────
@@ -889,6 +886,7 @@ async function loadUserData() {
     state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
     state.servingHistory = data.serving_history || {};
     state.customFoods = data.custom_foods || [];
+    state.hiddenFoods = data.hidden_foods || [];
     // Normalise stored date — handle both old format and ISO format
     const storedDate = data.log_date ? new Date(data.log_date).toISOString().slice(0,10) : null;
     if (storedDate === today) {
@@ -912,6 +910,7 @@ async function saveUserData() {
     log_date: today,
     week_history: state.weekHistory,
     custom_foods: state.customFoods,
+    hidden_foods: state.hiddenFoods,
     serving_history: state.servingHistory,
     updated_at: new Date().toISOString(),
   };
@@ -962,21 +961,30 @@ function getMpsState(entries) {
 }
 
 // ── FOOD OPTIONS ──────────────────────────────────
-function foodOptionsHtml(cat, si) {
-  if(cat === 'custom') {
-    if(!state.customFoods || state.customFoods.length === 0) {
-      return '<option value="">No custom foods yet</option>';
-    }
-    return '<option value="">Select a food...</option>' + state.customFoods.map(f=>{
+const CAT_LABELS = {legumes:'Legumes',meat:'Meat & Eggs',dairy:'Dairy',veg:'Vegetables',nuts:'Nuts & Seeds'};
+
+function foodOptionsHtml(si) {
+  let html = '<option value="">Select a food...</option>';
+  for(const cat of ['legumes','meat','dairy','veg','nuts']){
+    const items = FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id));
+    if(!items.length) continue;
+    html += '<optgroup label="'+CAT_LABELS[cat]+'">';
+    html += items.map(f=>{
+      const def=smartDefault(f.id);
+      const hint=servingHint(f.id);
+      return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g ('+hint+')</option>';
+    }).join('');
+    html += '</optgroup>';
+  }
+  if(state.customFoods && state.customFoods.length){
+    html += '<optgroup label="My Foods">';
+    html += state.customFoods.map(f=>{
       const def=smartDefault(f.id)||f.typical||100;
       return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g</option>';
     }).join('');
+    html += '</optgroup>';
   }
-  return '<option value="">Select a food...</option>' + FOODS[cat].map(f=>{
-    const def=smartDefault(f.id);
-    const hint=servingHint(f.id);
-    return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g ('+hint+')</option>';
-  }).join('');
+  return html;
 }
 
 
@@ -1016,8 +1024,8 @@ function renderSlots() {
       '</div>'
     ).join('');
 
-    const tabsHtml=['quick','legumes','meat','dairy','veg','nuts','custom'].map(c=>
-      '<button class="cat-tab '+c+(cat===c?' active':'')+'" onclick="setSlotCat('+si+',\''+c+'\')">'+c+'</button>'
+    const modeTabsHtml=['db','quick'].map(m=>
+      '<button class="cat-tab '+(cat===m?'active':'')+'" onclick="setSlotMode('+si+',\''+m+'\')">'+(m==='db'?'FOOD DATABASE':'QUICK ENTRY')+'</button>'
     ).join('');
 
     const card=document.createElement('div');
@@ -1071,12 +1079,7 @@ function renderSlots() {
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
-      '<div class="food-search-wrap">'+
-      '<input class="food-search'+(cat==='quick'?'':' pulse-glow')+'" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
-      '<datalist id="foodlist-'+si+'">'+ALL_FOODS.map(f=>'<option value="'+f.name+'">').join('')+(state.customFoods||[]).map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
-      '</div>'+
-      '<div class="browse-toggle" id="browse-toggle-'+si+'" onclick="toggleCatTabs('+si+')">▸ BROWSE BY CATEGORY</div>'+
-      '<div class="cat-tabs" id="cat-tabs-'+si+'" style="margin-bottom:6px;display:none">'+tabsHtml+'</div>'+
+      '<div class="cat-tabs" style="margin-bottom:6px">'+modeTabsHtml+'</div>'+
       (cat==='quick' ?
         '<div class="step-lbl">TYPE MEAL NAME &amp; PROTEIN, THEN ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
@@ -1087,16 +1090,20 @@ function renderSlots() {
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
         '</div>'
       :
-        '<div class="step-lbl">1. CHOOSE FOOD&nbsp;&nbsp;&nbsp;2. CHECK GRAMS&nbsp;&nbsp;&nbsp;3. ADD</div>'+
+        '<div class="food-search-wrap">'+
+        '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
+        '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
+        '</div>'+
+        '<div class="step-lbl">OR PICK FROM THE LIST&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;THEN CHECK GRAMS &amp; ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-        '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(cat,si)+'</select>'+
+        '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-        (cat==="custom"?'<button class="scan-btn" onclick="openCustomFood()" style="border-color:var(--amber);color:var(--amber)">+ NEW</button>':'')+
-        (cat==="custom"&&state.customFoods&&state.customFoods.length?'<button class="scan-btn" onclick="deleteSelectedCustomFood('+si+')" style="border-color:#e05a5a;color:#e05a5a" title="Delete selected food">🗑 DELETE</button>':'')+
-        '</div>'
+        '</div>'+
+        '<div class="browse-toggle" id="manage-toggle-'+si+'" onclick="toggleManageFoods('+si+')">'+(manageOpen[si]?'▾':'▸')+' MANAGE FOODS</div>'+
+        '<div class="manage-foods-panel" id="manage-panel-'+si+'" style="display:'+(manageOpen[si]?'block':'none')+'">'+renderManageFoodsPanel(si)+'</div>'
       )+
       '</div>';
     grid.appendChild(card);
@@ -1105,29 +1112,68 @@ function renderSlots() {
 
 function searchFood(si, query){
   if(!query || query.length < 2) return;
-  const all = getAllFoods();
-  const match = all.find(f => f.name.toLowerCase() === query.trim().toLowerCase());
+  const match = getVisibleFoods().find(f => f.name.toLowerCase() === query.trim().toLowerCase());
   if(!match) return; // only act on an exact match (user picked from suggestions)
-  const cat = getFoodCategory(match.id);
-  state.slotCats[si] = cat;
-  renderSlots();
-  setTimeout(()=>{
-    const sel = document.getElementById('sel-'+si);
-    if(sel){ sel.value = match.id; onFoodChange(si); }
-    const srv = document.getElementById('srv-'+si);
-    if(srv){ srv.focus(); srv.select(); }
-  }, 0);
+  const sel = document.getElementById('sel-'+si);
+  if(sel){ sel.value = match.id; onFoodChange(si); }
+  const srv = document.getElementById('srv-'+si);
+  if(srv){ srv.focus(); srv.select(); }
+  const searchEl = document.getElementById('food-search-'+si);
+  if(searchEl) searchEl.value = '';
 }
 
-function setSlotCat(si,cat){
-  state.slotCats[si]=cat;
-  const sel=document.getElementById('sel-'+si);
-  if(sel){sel.innerHTML=foodOptionsHtml(cat,si);onFoodChange(si);}
-  document.querySelectorAll('#slot-'+si+' .cat-tab').forEach(b=>{
-    b.classList.toggle('active',b.classList.contains(cat));
-  });
-  // Show/hide + NEW button for mine tab
+function setSlotMode(si,mode){
+  state.slotCats[si]=mode;
   renderSlots();
+}
+
+let manageOpen = {};
+function toggleManageFoods(si){
+  manageOpen[si] = !manageOpen[si];
+  renderSlots();
+}
+
+function renderManageFoodsPanel(si){
+  let html = '';
+  for(const cat of ['legumes','meat','dairy','veg','nuts']){
+    const items = FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id));
+    if(!items.length) continue;
+    html += '<div class="mf-group-label">'+CAT_LABELS[cat]+'</div>';
+    html += items.map(f=>
+      '<div class="mf-row"><span>'+f.icon+' '+f.name+'</span><button class="mf-del" onclick="hideFood(\''+f.id+'\')" title="Remove from database">🗑</button></div>'
+    ).join('');
+  }
+  if(state.customFoods && state.customFoods.length){
+    html += '<div class="mf-group-label">MY FOODS</div>';
+    html += state.customFoods.map(f=>
+      '<div class="mf-row"><span>'+f.icon+' '+f.name+'</span><button class="mf-del" onclick="hideFood(\''+f.id+'\')" title="Delete">🗑</button></div>'
+    ).join('');
+  }
+  if(state.hiddenFoods && state.hiddenFoods.length){
+    html += '<div class="mf-restore" onclick="restoreHiddenFoods()">↺ RESTORE '+state.hiddenFoods.length+' HIDDEN FOOD'+(state.hiddenFoods.length>1?'S':'')+'</div>';
+  }
+  html += '<button class="scan-btn" style="margin-top:8px;border-color:var(--amber);color:var(--amber)" onclick="openCustomFood()">+ ADD NEW FOOD</button>';
+  return html;
+}
+
+function hideFood(id){
+  if(state.customFoods && state.customFoods.some(f=>f.id===id)){
+    const food=state.customFoods.find(f=>f.id===id);
+    state.customFoods=state.customFoods.filter(f=>f.id!==id);
+    showToast('🗑 '+food.name+' deleted');
+  } else {
+    if(!state.hiddenFoods) state.hiddenFoods=[];
+    const food=getAllFoods().find(f=>f.id===id);
+    state.hiddenFoods.push(id);
+    showToast('🗑 '+(food?food.name:'Food')+' removed from database');
+  }
+  updateUI();
+}
+
+function restoreHiddenFoods(){
+  state.hiddenFoods=[];
+  showToast('↺ Hidden foods restored');
+  updateUI();
 }
 
 function setSlotTarget(si,val){
@@ -1144,15 +1190,6 @@ function checkQuickReady(si){
   btnEl.disabled = !ready;
   nameEl.classList.toggle('pulse-glow', !ready && !nameEl.value.trim());
   pEl.classList.toggle('pulse-glow', !ready && !!nameEl.value.trim() && !pEl.value);
-}
-
-function toggleCatTabs(si){
-  const tabs=document.getElementById('cat-tabs-'+si);
-  const toggle=document.getElementById('browse-toggle-'+si);
-  if(!tabs||!toggle)return;
-  const open = tabs.style.display !== 'none';
-  tabs.style.display = open ? 'none' : 'flex';
-  toggle.textContent = (open ? '▸' : '▾') + ' BROWSE BY CATEGORY';
 }
 
 function onFoodChange(si){
@@ -1585,17 +1622,6 @@ function saveCustomFood(){
 function deleteCustomFood(id){
   state.customFoods=state.customFoods.filter(f=>f.id!==id);
   updateUI();
-}
-
-function deleteSelectedCustomFood(si){
-  const sel=document.getElementById('sel-'+si);
-  if(!sel||!sel.value){showToast('Select a food to delete first',true);return;}
-  const food=state.customFoods.find(f=>f.id===sel.value);
-  if(!food)return;
-  if(confirm('Delete "'+food.name+'" from your custom foods?')){
-    deleteCustomFood(food.id);
-    showToast('🗑 '+food.name+' deleted');
-  }
 }
 
 function showToast(msg,warn){
