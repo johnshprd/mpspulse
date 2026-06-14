@@ -14,12 +14,9 @@
 :root {
   --bg: #f4f6f2; --surface: #ffffff; --surface2: #e8ede4;
   --border: #d0d8c8; --border2: #c0ccb4;
-  --g1: #3d9e30; --g2: #2e7d22; --g3: #1e5c16;
+  --g1: #4a9e1a; --g2: #3a8010; --g3: #2a6008;
   --amber: #c07800; --red: #cc2020; --blue: #1880b8;
   --text: #1a2414; --muted: #7a9068; --muted2: #5a7048;
-  --header-bg: rgba(235,240,230,0.96);
-  --logo-glow: rgba(61,158,48,0.25);
-  --ring-glow: rgba(61,158,48,0.4);
 }
 [data-theme="dark"] {
   --bg: #080c0a; --surface: #0e1410; --surface2: #141c16;
@@ -27,9 +24,6 @@
   --g1: #a8e63a; --g2: #5fb33a; --g3: #2d6622;
   --amber: #f0a840; --red: #e84040; --blue: #40b4e8;
   --text: #e8f0e0; --muted: #4a6040; --muted2: #7a9470;
-  --header-bg: rgba(8,12,10,0.95);
-  --logo-glow: rgba(168,230,58,0.4);
-  --ring-glow: rgba(168,230,58,0.6);
 }
 * { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
 }
@@ -41,17 +35,17 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
   z-index: 999;
 }
-.loading-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 6px; color: var(--g1); filter: drop-shadow(0 0 14px var(--logo-glow)); }
+.loading-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 6px; color: var(--g1); filter: drop-shadow(0 0 14px rgba(168,230,58,0.5)); }
 .loading-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g1); animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
 header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 28px; border-bottom: 1px solid var(--border);
-  background: var(--header-bg, rgba(8,12,10,0.95)); backdrop-filter: blur(12px);
+  background: rgba(8,12,10,0.95); backdrop-filter: blur(12px);
   position: sticky; top: 0; z-index: 100;
 }
-.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 5px; color: var(--g1); filter: drop-shadow(0 0 10px var(--logo-glow)); line-height: 1; }
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 5px; color: var(--g1); filter: drop-shadow(0 0 10px rgba(168,230,58,0.4)); line-height: 1; }
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-email { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; }
 .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.74rem; letter-spacing: 1px; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
@@ -69,7 +63,7 @@ header {
 .ring-outer { position: relative; width: 160px; height: 160px; }
 .ring-outer svg { transform: rotate(-90deg); }
 .ring-track { fill: none; stroke: var(--surface2); stroke-width: 11; }
-.ring-arc { fill: none; stroke: var(--g1); stroke-width: 11; stroke-linecap: round; stroke-dasharray: 452; stroke-dashoffset: 452; transition: stroke-dashoffset 0.9s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s; filter: drop-shadow(0 0 7px var(--ring-glow)); }
+.ring-arc { fill: none; stroke: var(--g1); stroke-width: 11; stroke-linecap: round; stroke-dasharray: 452; stroke-dashoffset: 452; transition: stroke-dashoffset 0.9s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s; filter: drop-shadow(0 0 7px rgba(168,230,58,0.6)); }
 .ring-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
 .ring-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.91rem; color: var(--g1); line-height: 1; transition: color 0.4s; }
 .ring-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
@@ -554,7 +548,7 @@ header {
   background: var(--g1); color: #050805; border: none; border-radius: 30px;
   padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1.19rem;
   letter-spacing: 2px; cursor: pointer; z-index: 400; display: none;
-  box-shadow: 0 4px 20px var(--logo-glow); align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(168,230,58,0.4); align-items: center; gap: 8px;
 }
 #startPointer.show { display: flex; animation: pointerBounce 1.4s ease-in-out infinite; }
 #startPointer .arrow { font-size: 1.23rem; animation: arrowBob 1.4s ease-in-out infinite; }
