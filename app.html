@@ -61,19 +61,19 @@ header {
 .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
 /* LEFT */
-.left { border-right: 1px solid var(--border); padding: 22px 18px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; overflow-x: hidden; }
-.ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.ring-outer { position: relative; width: 160px; height: 160px; }
+.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+.ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.ring-outer { position: relative; width: 110px; height: 110px; }
 .ring-outer svg { transform: rotate(-90deg); }
-.ring-track { fill: none; stroke: var(--surface2); stroke-width: 11; }
-.ring-arc { fill: none; stroke: var(--g1); stroke-width: 11; stroke-linecap: round; stroke-dasharray: 452; stroke-dashoffset: 452; transition: stroke-dashoffset 0.9s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s; filter: drop-shadow(0 0 7px rgba(79,70,229,0.35)); }
+.ring-arc { fill: none; stroke: var(--g1); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 302; stroke-dashoffset: 302; transition: stroke-dashoffset 0.9s cubic-bezier(0.34,1.56,0.64,1), stroke 0.4s; filter: drop-shadow(0 0 5px rgba(79,70,229,0.35)); }
+.ring-track { fill: none; stroke: var(--surface2); stroke-width: 9; }
 .ring-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
-.ring-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.91rem; color: var(--g1); line-height: 1; transition: color 0.4s; }
+.ring-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.02rem; color: var(--g1); line-height: 1; transition: color 0.4s; }
 .ring-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
 .total-label { font-family: 'Space Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; color: var(--muted2); }
 .daily-met { display: flex; align-items: center; gap: 5px; background: rgba(79,70,229,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
 .daily-met.show { opacity: 1; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 15px; overflow: hidden; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
 .card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; position: relative; z-index: 2; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; }
@@ -651,9 +651,9 @@ header {
   <div class="left">
     <div class="ring-wrap">
       <div class="ring-outer">
-        <svg width="160" height="160" viewBox="0 0 160 160">
-          <circle class="ring-track" cx="80" cy="80" r="72"/>
-          <circle class="ring-arc" id="ringArc" cx="80" cy="80" r="72"/>
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle class="ring-track" cx="55" cy="55" r="48"/>
+          <circle class="ring-arc" id="ringArc" cx="55" cy="55" r="48"/>
         </svg>
         <div class="ring-inner">
           <div class="ring-g" id="ringG">0</div>
@@ -1036,7 +1036,13 @@ function renderSlots() {
     const hasSome=total>0;
     const cat=state.slotCats[si];
     const mps=getMpsState(entries);
-    const mpsColors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
+    const slotColors=['#4f46e5','#16a34a','#d97706','#9333ea'];
+    const mpsColors={
+      idle: 'var(--surface2)',
+      active: slotColors[si],
+      ending: '#d97706',
+      ended: 'var(--border2)'
+    };
     let cls='';
     if(isOver)cls='over';
     else if(isMet)cls='met';
@@ -1517,7 +1523,7 @@ function updateUI(){
   const total=Math.round(dayTotal());
   const goal=state.goal;
   const pct=Math.min(100,total/goal);
-  const circ=452;
+  const circ=302;
   document.getElementById('ringArc').style.strokeDashoffset=circ-circ*pct;
   document.getElementById('ringArc').style.stroke=pct>=1?'var(--amber)':'var(--g1)';
   document.getElementById('ringG').textContent=total;
@@ -1577,7 +1583,8 @@ function tickMps(){
     const text=document.getElementById('mps-text-'+si);
     const badge=document.getElementById('mps-badge-'+si);
     if(!fill)return;
-    const colors={idle:'#1e2820',active:'#a8e63a',ending:'#f0a840',ended:'#2d6622'};
+    const slotAccents=['#4f46e5','#16a34a','#d97706','#9333ea'];
+    const colors={idle:'var(--surface2)',active:slotAccents[si],ending:'#d97706',ended:'var(--border2)'};
     fill.style.width=mps.pct+'%';
     const c=colors[mps.status];
     fill.style.background='repeating-linear-gradient(90deg,'+c+' 0px,'+c+' 8px,transparent 8px,transparent 12px)';
