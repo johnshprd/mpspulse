@@ -61,7 +61,7 @@ header {
 .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
 /* LEFT */
-.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; background: var(--surface2); }
 .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
 .overview-row { display: flex; align-items: center; gap: 14px; }
 .overview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; min-width: 0; }
@@ -105,7 +105,7 @@ header {
 .wday.today { color:var(--g1); }
 
 /* RIGHT */
-.right { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; overflow-x: hidden; }
+.right { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
 .sci-banner { background: var(--surface); border: 1px solid var(--border2); border-left: 3px solid var(--g1); border-radius: 0 8px 8px 0; padding: 8px 12px; display: flex; align-items: flex-start; gap: 8px; }
 .sci-text { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--text); line-height: 1.5; }
 .sci-text strong { color: var(--g1); }
@@ -113,14 +113,14 @@ header {
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
 .slot-card * { max-width: 100%; box-sizing: border-box; }
 /* Per-slot distinct backgrounds - strong contrast */
-/* BREAKFAST — Blue */
-.slot-card.slot-0 { background: #ffffff; border: 1px solid #e0e4f0; border-left: 5px solid #4f46e5; box-shadow: 0 2px 12px rgba(79,70,229,0.08); }
+/* BREAKFAST — Indigo/Blue */
+.slot-card.slot-0 { background: #ffffff; border: 1px solid #e0e4f0; border-left: 5px solid #4f46e5; box-shadow: 0 3px 16px rgba(79,70,229,0.12); }
 /* LUNCH — Green */
-.slot-card.slot-1 { background: #ffffff; border: 1px solid #e0ede4; border-left: 5px solid #16a34a; box-shadow: 0 2px 12px rgba(22,163,74,0.08); }
+.slot-card.slot-1 { background: #ffffff; border: 1px solid #e0ede4; border-left: 5px solid #16a34a; box-shadow: 0 3px 16px rgba(22,163,74,0.12); }
 /* DINNER — Amber */
-.slot-card.slot-2 { background: #ffffff; border: 1px solid #ede8d8; border-left: 5px solid #d97706; box-shadow: 0 2px 12px rgba(217,119,6,0.08); }
+.slot-card.slot-2 { background: #ffffff; border: 1px solid #ede8d8; border-left: 5px solid #d97706; box-shadow: 0 3px 16px rgba(217,119,6,0.12); }
 /* EVENING — Purple */
-.slot-card.slot-3 { background: #ffffff; border: 1px solid #ede0f0; border-left: 5px solid #9333ea; box-shadow: 0 2px 12px rgba(147,51,234,0.08); }
+.slot-card.slot-3 { background: #ffffff; border: 1px solid #ede0f0; border-left: 5px solid #9333ea; box-shadow: 0 3px 16px rgba(147,51,234,0.12); }
 [data-theme="dark"] .slot-card.slot-0 { background: #1a1a2e; border-color: #2e2b4e; border-left-color: #818cf8; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 [data-theme="dark"] .slot-card.slot-1 { background: #0f1f16; border-color: #1a3024; border-left-color: #4ade80; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 [data-theme="dark"] .slot-card.slot-2 { background: #1f1a0e; border-color: #302810; border-left-color: #fbbf24; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
@@ -577,13 +577,14 @@ header {
 
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
-  .left { border-right: none; border-bottom: 1px solid var(--border); }
+  .left { border-right: none; border-bottom: 2px solid var(--border); }
   .slots-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   header { padding: 12px 16px; }
   .user-email { display: none; }
-  .left, .right { padding: 16px; }
+  .left { padding: 12px 14px; gap: 8px; }
+  .right { padding: 12px 14px; gap: 12px; }
   .slots-grid { grid-template-columns: 1fr; }
 }
 </style>
