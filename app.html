@@ -5,18 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MPS Pulse — App</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0a100c">
+<meta name="theme-color" content="#f4f6f2">
 <link rel="icon" href="/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/icons/icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
+  --bg: #f4f6f2; --surface: #ffffff; --surface2: #e8ede4;
+  --border: #d0d8c8; --border2: #c0ccb4;
+  --g1: #4a9e1a; --g2: #3a8010; --g3: #2a6008;
+  --amber: #c07800; --red: #cc2020; --blue: #1880b8;
+  --text: #1a2414; --muted: #7a9068; --muted2: #5a7048;
+}
+[data-theme="dark"] {
   --bg: #080c0a; --surface: #0e1410; --surface2: #141c16;
   --border: #1e2820; --border2: #263020;
   --g1: #a8e63a; --g2: #5fb33a; --g3: #2d6622;
   --amber: #f0a840; --red: #e84040; --blue: #40b4e8;
   --text: #e8f0e0; --muted: #4a6040; --muted2: #7a9470;
+}
+* { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
@@ -613,6 +622,7 @@ header {
       <div class="tip-btn" data-tip="Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly." onclick="showTooltip(this)">?</div>
     </div>
     <span class="user-email" id="userEmail"></span>
+    <button class="signout-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
     <button class="signout-btn" onclick="signOut()">SIGN OUT</button>
   </div>
 </header>
@@ -1625,6 +1635,28 @@ function deleteCustomFood(id){
   updateUI();
 }
 
+function initTheme(){
+  const saved = localStorage.getItem('mps_theme');
+  if(saved === 'dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.textContent = '☀️';
+  }
+}
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const btn = document.getElementById('themeToggle');
+  if(isDark){
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('mps_theme','light');
+    if(btn) btn.textContent = '🌙';
+  } else {
+    document.documentElement.setAttribute('data-theme','dark');
+    localStorage.setItem('mps_theme','dark');
+    if(btn) btn.textContent = '☀️';
+  }
+}
+
 function showToast(msg,warn){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1710,6 +1742,7 @@ function goToFirstPulse(){
   if(ptr) ptr.classList.remove('show');
 }
 
+initTheme();
 init();
 checkOnboarding();
 
