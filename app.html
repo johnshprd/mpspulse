@@ -106,9 +106,9 @@ header {
 
 /* RIGHT */
 .right { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
-.sci-banner { background: var(--surface); border: 1px solid var(--border2); border-left: 3px solid var(--g1); border-radius: 0 8px 8px 0; padding: 8px 12px; display: flex; align-items: flex-start; gap: 8px; }
-.sci-text { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--text); line-height: 1.5; }
-.sci-text strong { color: var(--g1); }
+.sci-banner { background: var(--surface); border: 1px solid var(--border2); border-left: 5px solid var(--g1); border-radius: 0 12px 12px 0; padding: 16px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 3px 16px rgba(79,70,229,0.08); }
+.sci-text { font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text); line-height: 1.6; }
+.sci-text strong { color: var(--g1); font-size: 1.05rem; }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
 .slot-card * { max-width: 100%; box-sizing: border-box; }
@@ -693,7 +693,7 @@ header {
 
   <div class="right">
     <div class="sci-banner" id="coachBanner">
-      <span style="font-size:1.1rem;flex-shrink:0" id="coachIcon">💪</span>
+      <span style="font-size:1.8rem;flex-shrink:0;line-height:1" id="coachIcon">💪</span>
       <div class="sci-text" id="coachText">Loading your coaching tip...</div>
     </div>
     <div class="slots-grid" id="slotsGrid"></div>
