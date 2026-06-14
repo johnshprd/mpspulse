@@ -49,6 +49,7 @@ header {
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-email { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; }
 .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.74rem; letter-spacing: 1px; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+#themeToggle { font-size: 1rem; padding: 5px 10px; letter-spacing: 0; border-color: var(--border2); }
 .signout-btn:hover { border-color: var(--red); color: var(--red); }
 .goal-pill { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px; }
 .goal-pill label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
@@ -107,25 +108,37 @@ header {
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
 .slot-card * { max-width: 100%; box-sizing: border-box; }
 /* Per-slot distinct backgrounds - strong contrast */
-.slot-card.slot-0 { background: #0e1f28; border-color: #1a4060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(60,140,200,0.1); }
-.slot-card.slot-1 { background: #1a2010; border-color: #4a6020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
-.slot-card.slot-2 { background: #201c10; border-color: #605020; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,160,40,0.1); }
-.slot-card.slot-3 { background: #1e1028; border-color: #503060; border-width: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(160,80,200,0.1); }
+.slot-card.slot-0 { background: var(--slot0-bg,#f0f7fc); border-color: var(--slot0-border,#b0d4ee); border-width: 2px; box-shadow: 0 2px 12px rgba(0,100,180,0.08), inset 0 1px 0 rgba(60,140,200,0.1); }
+.slot-card.slot-1 { background: var(--slot1-bg,#f2f8ee); border-color: var(--slot1-border,#b8d8a0); border-width: 2px; box-shadow: 0 2px 12px rgba(60,140,0,0.08), inset 0 1px 0 rgba(140,210,40,0.1); }
+.slot-card.slot-2 { background: var(--slot2-bg,#fdf8ee); border-color: var(--slot2-border,#e8d090); border-width: 2px; box-shadow: 0 2px 12px rgba(180,120,0,0.08), inset 0 1px 0 rgba(200,160,40,0.1); }
+.slot-card.slot-3 { background: var(--slot3-bg,#f8f0fc); border-color: var(--slot3-border,#d0a8e8); border-width: 2px; box-shadow: 0 2px 12px rgba(120,40,180,0.08), inset 0 1px 0 rgba(160,80,200,0.1); }
+[data-theme="dark"] .slot-card.slot-0 { background: #0e1f28; border-color: #1a4060; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(60,140,200,0.1); }
+[data-theme="dark"] .slot-card.slot-1 { background: #1a2010; border-color: #4a6020; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(140,210,40,0.1); }
+[data-theme="dark"] .slot-card.slot-2 { background: #201c10; border-color: #605020; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,160,40,0.1); }
+[data-theme="dark"] .slot-card.slot-3 { background: #1e1028; border-color: #503060; box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(160,80,200,0.1); }
 /* Slot accent top bar - removed */
 .slot-card.slot-0::before { background: transparent; }
 .slot-card.slot-1::before { background: transparent; }
 .slot-card.slot-2::before { background: transparent; }
 .slot-card.slot-3::before { background: transparent; }
 /* Slot name colours */
-.slot-card.slot-0 .slot-name { color: #60b0e0; }
-.slot-card.slot-1 .slot-name { color: #a8e63a; }
-.slot-card.slot-2 .slot-name { color: #e0c060; }
-.slot-card.slot-3 .slot-name { color: #c080e0; }
+.slot-card.slot-0 .slot-name { color: #1a6090; }
+.slot-card.slot-1 .slot-name { color: #3a7010; }
+.slot-card.slot-2 .slot-name { color: #906010; }
+.slot-card.slot-3 .slot-name { color: #6030a0; }
 /* Slot number label colours */
-.slot-card.slot-0 .slot-num { color: #306080; }
-.slot-card.slot-1 .slot-num { color: #5a9030; }
-.slot-card.slot-2 .slot-num { color: #806030; }
-.slot-card.slot-3 .slot-num { color: #703090; }
+.slot-card.slot-0 .slot-num { color: #2080b0; }
+.slot-card.slot-1 .slot-num { color: #4a9020; }
+.slot-card.slot-2 .slot-num { color: #a07020; }
+.slot-card.slot-3 .slot-num { color: #7040b0; }
+[data-theme="dark"] .slot-card.slot-0 .slot-name { color: #60b0e0; }
+[data-theme="dark"] .slot-card.slot-1 .slot-name { color: #a8e63a; }
+[data-theme="dark"] .slot-card.slot-2 .slot-name { color: #e0c060; }
+[data-theme="dark"] .slot-card.slot-3 .slot-name { color: #c080e0; }
+[data-theme="dark"] .slot-card.slot-0 .slot-num { color: #306080; }
+[data-theme="dark"] .slot-card.slot-1 .slot-num { color: #5a9030; }
+[data-theme="dark"] .slot-card.slot-2 .slot-num { color: #806030; }
+[data-theme="dark"] .slot-card.slot-3 .slot-num { color: #703090; }
 .slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:0; background:transparent; }
 .slot-card.has-entries::before { background: transparent; }
 .slot-card.met::before { background: transparent; }
@@ -665,9 +678,9 @@ header {
   </div>
 
   <div class="right">
-    <div class="sci-banner">
-      <span style="font-size:1.25rem;flex-shrink:0">🔬</span>
-      <div class="sci-text">MPS peaks <strong>~30–90 min post-meal</strong> and lasts <strong>~2–3 hrs</strong>. Beyond <strong>~40–55g per pulse</strong>, excess protein is oxidised. Space 3–4 pulses evenly for maximum synthesis time.</div>
+    <div class="sci-banner" id="coachBanner">
+      <span style="font-size:1.25rem;flex-shrink:0" id="coachIcon">💪</span>
+      <div class="sci-text" id="coachText">Loading your coaching tip...</div>
     </div>
     <div class="slots-grid" id="slotsGrid"></div>
   </div>
@@ -1427,6 +1440,72 @@ function calcDistScore(){
 }
 
 // ── MAIN UI UPDATE ────────────────────────────────
+function updateCoach(){
+  const icon = document.getElementById('coachIcon');
+  const text = document.getElementById('coachText');
+  if(!icon||!text) return;
+
+  const slotTotals = state.slots.map((_,i)=>slotTotal(i));
+  const total = slotTotals.reduce((a,b)=>a+b,0);
+  const goal = state.goal;
+  const loggedSlots = slotTotals.filter(v=>v>0).length;
+  const overCeiling = slotTotals.filter(v=>v>55).length;
+  const metTargets = slotTotals.filter((v,i)=>v>=state.slotTargets[i]&&v>0).length;
+  const now = new Date();
+  const hour = now.getHours();
+
+  // Work out spacing — find slots with entries and check gaps
+  const slotTimes = state.slots.map(sl=>{
+    if(!sl.length) return null;
+    // parse earliest entry time in this slot
+    const t = sl[0].time;
+    if(!t) return null;
+    const [h,m] = t.split(':').map(Number);
+    return h*60+m;
+  });
+  const filledTimes = slotTimes.filter(t=>t!==null);
+  let tooClose = false;
+  for(let i=1;i<filledTimes.length;i++){
+    if(filledTimes[i]-filledTimes[i-1]<90) tooClose=true;
+  }
+
+  let msg, ico;
+
+  if(loggedSlots===0){
+    // Nothing logged yet
+    if(hour<10){
+      ico='🌅'; msg='<strong>Morning is the perfect time to start.</strong> Log your breakfast pulse now — aiming for <strong>'+Math.round(state.slotTargets[0])+'g protein</strong> to kick off muscle protein synthesis for the day.';
+    } else if(hour<13){
+      ico='⏰'; msg='<strong>Don\'t forget breakfast!</strong> Logging your first pulse now still counts. Aim for <strong>'+Math.round(state.slotTargets[0])+'g protein</strong> — even a quick entry gets the clock ticking.';
+    } else {
+      ico='💪'; msg='<strong>No pulses logged yet today.</strong> It\'s not too late — log what you\'ve eaten so far and spread the rest across your remaining meals. Every pulse counts.';
+    }
+  } else if(overCeiling>0){
+    ico='⚠️'; msg='<strong>One of your pulses is over 55g</strong> — your muscles can only use ~40–55g per meal. The excess gets oxidised for energy instead. Try spreading that protein across two pulses next time.';
+  } else if(tooClose && loggedSlots>=2){
+    ico='⏱️'; msg='<strong>Your pulses are quite close together.</strong> MPS lasts ~2–3 hours per meal — spacing pulses further apart means more total synthesis time throughout the day.';
+  } else if(loggedSlots===1 && metTargets===1){
+    ico='✅'; msg='<strong>Great start — Pulse 1 target hit!</strong> Keep going. Aim for your next meal in <strong>3–4 hours</strong> to maximise the time your muscles spend in synthesis mode.';
+  } else if(loggedSlots===2 && metTargets===2){
+    ico='🔥'; msg='<strong>Two pulses nailed — you\'re on track!</strong> Keep the spacing even. Your next pulse target is <strong>'+Math.round(state.slotTargets[2])+'g</strong> — stay consistent and you\'ll hit your goal.';
+  } else if(loggedSlots===3 && metTargets===3){
+    ico='🚀'; msg='<strong>Three pulses done and all targets met — brilliant!</strong> One more to go. An evening pulse of <strong>'+Math.round(state.slotTargets[3])+'g protein</strong> will round out a perfect day.';
+  } else if(total>=goal){
+    ico='🏆'; msg='<strong>Daily goal reached — outstanding effort!</strong> You\'ve given your muscles the best chance to grow today. Rest up and do it again tomorrow.';
+  } else if(metTargets>0 && metTargets<loggedSlots){
+    ico='📈'; msg='<strong>Some pulses are below target.</strong> Try to hit <strong>'+Math.round(state.slotTargets[loggedSlots])+'g</strong> next pulse — it doesn\'t have to be one food, combine a few sources to reach your target.';
+  } else if(loggedSlots>0 && hour>=20 && total<goal*0.75){
+    ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+Math.round(total)+'g</strong> today with <strong>'+(goal-Math.round(total))+'g</strong> still to go. A protein-rich evening meal or shake can close the gap before bed.';
+  } else if(loggedSlots>0){
+    ico='👍'; msg='<strong>Looking good — keep it up!</strong> You\'ve logged <strong>'+Math.round(total)+'g</strong> so far. Space your remaining pulses evenly through the day for maximum muscle protein synthesis.';
+  } else {
+    ico='💪'; msg='<strong>You\'re doing great.</strong> Keep logging your meals — consistent protein timing is what separates serious results from average ones.';
+  }
+
+  icon.textContent = ico;
+  text.innerHTML = msg;
+}
+
 function updateUI(){
   const total=Math.round(dayTotal());
   const goal=state.goal;
@@ -1466,6 +1545,7 @@ function updateUI(){
   state.weekHistory[6]=total;
   renderWeekBars();
   renderSlots();
+  updateCoach();
   saveUserData();
 }
 
