@@ -49,7 +49,7 @@ header {
   position: sticky; top: 0; z-index: 100; padding: 10px 16px;
 }
 .header-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-.coach-card { display: flex; align-items: flex-start; gap: 10px; background: #4f46e5; border-radius: 10px; padding: 12px 14px; position: sticky; top: 0; z-index: 90; box-shadow: 0 3px 12px rgba(79,70,229,0.3); }
+.coach-card { display: flex; align-items: flex-start; gap: 10px; background: #4f46e5; border-radius: 10px; padding: 12px 14px; position: sticky; top: 62px; z-index: 90; box-shadow: 0 3px 12px rgba(79,70,229,0.3); }
 .coach-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
 .coach-text { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: #ffffff; line-height: 1.5; flex: 1; min-width: 0; }
 .coach-text strong { color: #e0dfff; font-weight: 700; }
@@ -66,7 +66,7 @@ header {
 .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
 /* LEFT */
-.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; background: var(--surface2); }
+.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; background: var(--surface2); }
 .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
 .overview-row { display: flex; align-items: center; gap: 14px; }
 .overview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; min-width: 0; }
@@ -111,7 +111,7 @@ header {
 .wday.today { color:var(--g1); }
 
 /* RIGHT */
-.right { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
+.right { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; overflow-x: hidden; background: var(--bg); }
 .sci-banner { background: var(--surface); border-bottom: 3px solid var(--g1); border-left: none; border-radius: 0; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); position: fixed; top: 61px; left: 0; right: 0; z-index: 90; }
 .sci-text { font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text); line-height: 1.6; }
 .sci-text strong { color: var(--g1); font-size: 1.05rem; }
