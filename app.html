@@ -1565,6 +1565,7 @@ function updateCoach(){
   const icon = document.getElementById('coachIcon');
   const text = document.getElementById('coachText');
   if(!icon||!text) return;
+  if(!state||!state.slots){ icon.textContent='💪'; text.innerHTML='<strong>Ready to log!</strong> Add your first meal to get personalised coaching.'; return; }
   try {
 
   const slotTotals = state.slots.map((_,i)=>slotTotal(i));
@@ -1578,11 +1579,12 @@ function updateCoach(){
 
   // Work out spacing — find slots with entries and check gaps
   const slotTimes = state.slots.map(sl=>{
-    if(!sl.length) return null;
-    // parse earliest entry time in this slot
-    const t = sl[0].time;
+    if(!sl||!sl.length) return null;
+    const t = sl[0] && sl[0].time;
     if(!t) return null;
-    const [h,m] = t.split(':').map(Number);
+    const parts = t.split(':');
+    if(parts.length < 2) return null;
+    const [h,m] = parts.map(Number);
     return h*60+m;
   });
   const filledTimes = slotTimes.filter(t=>t!==null);
