@@ -43,13 +43,13 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 @keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
 header {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; flex-direction: column;
   border-bottom: 1px solid var(--border);
   background: var(--surface); backdrop-filter: blur(12px);
-  position: sticky; top: 0; z-index: 100; padding: 10px 16px;
+  position: sticky; top: 0; z-index: 100;
 }
-.header-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-.coach-card { display: flex; align-items: flex-start; gap: 10px; background: #4f46e5; padding: 10px 14px; position: fixed; top: 55px; left: 0; right: 0; z-index: 95; box-shadow: 0 3px 12px rgba(79,70,229,0.3); }
+.header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+.coach-card { display: flex; align-items: center; gap: 10px; background: #4f46e5; padding: 9px 14px; width: 100%; box-sizing: border-box; }
 .coach-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
 .coach-text { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: #ffffff; line-height: 1.5; flex: 1; min-width: 0; }
 .coach-text strong { color: #e0dfff; font-weight: 700; }
@@ -63,7 +63,7 @@ header {
 .goal-pill label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
 .goal-pill input { background: none; border: none; color: var(--g1); font-family: 'Bebas Neue', sans-serif; font-size: 1.34rem; width: 48px; outline: none; text-align: right; }
 
-.app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); padding-top: 50px; }
+.app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
 /* LEFT */
 .left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; background: var(--surface2); }
@@ -558,7 +558,7 @@ header {
 #onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
 
 #startPointer {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
   background: var(--g1); color: #ffffff; border: none; border-radius: 30px;
   padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1.19rem;
   letter-spacing: 2px; cursor: pointer; z-index: 400; display: none;
@@ -688,6 +688,10 @@ header {
       <button class="signout-btn" onclick="openSettings()" title="Settings" style="font-size:1.1rem;padding:5px 10px;letter-spacing:0">⚙️</button>
     </div>
   </div>
+  <div class="coach-card" id="coachCard">
+    <span class="coach-icon" id="coachIcon">💪</span>
+    <div class="coach-text" id="coachText">Add your first meal to get personalised coaching.</div>
+  </div>
 </header>
 
 <div class="app" id="appContent" style="display:none">
@@ -727,10 +731,6 @@ header {
   </div>
 
   <div class="right">
-    <div class="coach-card" id="coachCard">
-      <span class="coach-icon" id="coachIcon">💪</span>
-      <div class="coach-text" id="coachText">Add your first meal to get personalised coaching.</div>
-    </div>
     <div class="slots-grid" id="slotsGrid"></div>
   </div>
 </div>
@@ -1007,8 +1007,8 @@ async function init() {
   renderSlots();
   updateUI();
   updateCoach();
-  // Belt and braces — call again after render settles
-  setTimeout(updateCoach, 500);
+  setTimeout(updateCoach, 1000);
+  setTimeout(updateCoach, 3000);
   setInterval(tickMps, 60000);
   setInterval(checkMidnight, 60000);
 }
@@ -1985,6 +1985,8 @@ function checkOnboarding() {
 function showStartPointer(){
   const ptr = document.getElementById('startPointer');
   if(!ptr) return;
+  // Only show if nothing logged yet today
+  if(dayTotal() > 0) return;
   ptr.classList.add('show');
   const hideOnScroll = () => { ptr.classList.remove('show'); window.removeEventListener('scroll', hideOnScroll); };
   window.addEventListener('scroll', hideOnScroll, { passive: true });
