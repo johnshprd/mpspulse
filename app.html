@@ -1376,6 +1376,7 @@ function addToSlot(si){
   else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
   else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
   updateUI();
+  setTimeout(updateCoach,100);
 }
 
 function deleteEntry(si,ei){
@@ -1567,7 +1568,6 @@ function updateCoach(){
   const icon = document.getElementById('coachIcon');
   const text = document.getElementById('coachText');
   if(!icon||!text) return;
-
   try {
     const total = Math.round(dayTotal());
     const goal = state.goal || 150;
@@ -1575,30 +1575,33 @@ function updateCoach(){
     const loggedSlots = state.slots.filter(s=>s&&s.length>0).length;
     const slotTotals = [0,1,2,3].map(i=>slotTotal(i));
     const overCeiling = slotTotals.filter(v=>v>55).length;
-    const metTargets = slotTotals.filter((v,i)=>v>0&&v>=state.slotTargets[i]).length;
-
-    let ico, msg;
-
-    if(total >= goal){
-      ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding effort — you\'ve given your muscles the best chance to grow today.';
+    const metTargets = slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
+    const ringVal = parseInt(document.getElementById('ringG')?.textContent||'0');
+    if(total===0 && ringVal>0){ setTimeout(updateCoach,300); return; }
+    let ico,msg;
+    if(total>=goal){
+      ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
     } else if(overCeiling>0){
-      ico='⚠️'; msg='<strong>One pulse is over 55g</strong> — your muscles can only absorb ~40–55g per meal. Try spreading that protein across two pulses next time.';
+      ico='⚠️'; msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading protein across two pulses next time.';
     } else if(loggedSlots===0){
-      ico = hour<12 ? '🌅' : hour<17 ? '⏰' : '🌙';
-      msg='<strong>Nothing logged yet today.</strong> Log your first meal to start your MPS window — aim for <strong>'+Math.round(state.slotTargets[0])+'g</strong> for Pulse 1.';
-    } else if(metTargets===loggedSlots && metTargets>0){
-      ico='🔥'; msg='<strong>'+metTargets+' pulse'+(metTargets>1?'s':'')+' on target!</strong> Keep the spacing even. You\'ve logged <strong>'+total+'g</strong> so far — '+Math.max(0,goal-total)+'g to go.';
-    } else if(hour>=20 && total<goal*0.75){
-      ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> still to go. A protein-rich meal or shake can close the gap.';
+      ico=hour<12?'🌅':hour<17?'⏰':'🌙';
+      msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1.';
+    } else if(metTargets>=3){
+      ico='🚀'; msg='<strong>'+metTargets+' pulses on target!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse to finish strong.';
+    } else if(metTargets===2){
+      ico='🔥'; msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.';
+    } else if(metTargets===1){
+      ico='✅'; msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining.';
+    } else if(loggedSlots>0&&hour>=20&&total<goal*0.75){
+      ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake can close the gap.';
     } else {
-      ico='👍'; msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today. Space your remaining pulses evenly for maximum muscle protein synthesis.';
+      ico='👍'; msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space pulses evenly for max MPS.';
     }
-
-    icon.textContent = ico;
-    text.innerHTML = msg;
-  } catch(e) {
-    icon.textContent = '💪';
-    text.textContent = 'Log a meal to get coaching tips.';
+    icon.textContent=ico;
+    text.innerHTML=msg;
+  } catch(e){
+    icon.textContent='💪';
+    text.textContent='Log a meal to get coaching tips.';
   }
 }
 
