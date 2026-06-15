@@ -1551,12 +1551,16 @@ function updateUI(){
   document.getElementById('pctDisp').textContent=Math.round(pct*100)+'%';
   const slotTotals=state.slots.map((_,i)=>slotTotal(i));
   const distMax=Math.max(...slotTotals,1);
+  const slotBarColors=['#e11d48','#16a34a','#d97706','#9333ea'];
   document.getElementById('distBars').innerHTML=slotTotals.map((v,i)=>{
     const h=Math.round((v/distMax)*70);
     const met=v>=state.slotTargets[i]&&v>0;
     const over=v>55;
-    const cls=over?'over':met?'met':v>0?'filled':'';
-    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar '+cls+'" style="height:'+Math.max(3,h)+'px"></div></div><div class="dist-g">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
+    const col = slotBarColors[i];
+    const opacity = v===0 ? '0.15' : over ? '1' : met ? '1' : '0.55';
+    const barStyle = 'height:'+Math.max(3,h)+'px;background:'+col+';opacity:'+opacity+(over?';box-shadow:0 0 6px rgba(217,119,6,0.4)':'');
+    const gStyle = 'color:'+(v===0?'var(--muted)':col);
+    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar" style="'+barStyle+'"></div></div><div class="dist-g" style="'+gStyle+'">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
   }).join('');
   const ds=calcDistScore();
   if(ds.score!==null){
