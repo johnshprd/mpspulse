@@ -49,10 +49,10 @@ header {
   position: sticky; top: 0; z-index: 100;
 }
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
-.header-coach { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #4f46e5; border-top: 1px solid rgba(0,0,0,0.1); min-height: 44px; }
+.header-coach { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: var(--g1); border-top: 1px solid var(--border); min-height: 44px; }
 .header-coach-icon { font-size: 1.2rem; flex-shrink: 0; line-height: 1; }
 .header-coach-text { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: #ffffff; line-height: 1.4; flex: 1; min-width: 0; }
-.header-coach-text strong { color: #e0dfff; font-weight: 700; }
+.header-coach-text strong { color: #ffffff; font-weight: 700; }
 .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 5px; color: var(--g1); line-height: 1; }
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-email { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; }
@@ -1006,9 +1006,6 @@ async function init() {
   document.getElementById('goalInput').value = state.goal;
   renderSlots();
   updateUI();
-  updateCoach();
-  // Belt and braces — call again after render settles
-  setTimeout(updateCoach, 500);
   setInterval(tickMps, 60000);
   setInterval(checkMidnight, 60000);
 }
@@ -1567,8 +1564,6 @@ function updateCoach(){
   const icon = document.getElementById('coachIcon');
   const text = document.getElementById('coachText');
   if(!icon||!text) return;
-  if(!state||!state.slots){ icon.textContent='💪'; text.innerHTML='<strong>Ready to log!</strong> Add your first meal to get personalised coaching.'; return; }
-  try {
 
   const slotTotals = state.slots.map((_,i)=>slotTotal(i));
   const total = slotTotals.reduce((a,b)=>a+b,0);
@@ -1581,12 +1576,11 @@ function updateCoach(){
 
   // Work out spacing — find slots with entries and check gaps
   const slotTimes = state.slots.map(sl=>{
-    if(!sl||!sl.length) return null;
-    const t = sl[0] && sl[0].time;
+    if(!sl.length) return null;
+    // parse earliest entry time in this slot
+    const t = sl[0].time;
     if(!t) return null;
-    const parts = t.split(':');
-    if(parts.length < 2) return null;
-    const [h,m] = parts.map(Number);
+    const [h,m] = t.split(':').map(Number);
     return h*60+m;
   });
   const filledTimes = slotTimes.filter(t=>t!==null);
@@ -1630,10 +1624,6 @@ function updateCoach(){
 
   icon.textContent = ico;
   text.innerHTML = msg;
-  } catch(e) {
-    icon.textContent = '💪';
-    text.innerHTML = '<strong>Ready to log!</strong> Add your first meal to get personalised coaching.';
-  }
 }
 
 function updateUI(){
