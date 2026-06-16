@@ -236,7 +236,10 @@ header {
 .mf-del:hover { transform: scale(1.15); }
 .mf-restore { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--g2); letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 8px; text-align: center; }
 .mf-restore:hover { color: var(--g1); }
-.slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.94rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1 1 100%; min-width: 0; max-width: 100%; transition: border-color 0.2s; }
+.slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1 1 100%; min-width: 0; max-width: 100%; transition: border-color 0.2s; }
+.food-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; margin-bottom: 4px; }
+.food-legend-item { display: flex; align-items: center; gap: 3px; font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--muted); letter-spacing: 0.5px; }
+.food-legend-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .slot-food-select:focus { border-color: var(--g1); }
 .slot-food-select option { background: var(--surface); }
 .srv-wrap { display: flex; flex-direction: column; gap: 2px; }
@@ -640,27 +643,21 @@ header {
       <div class="ob-dot active" id="od0"></div>
       <div class="ob-dot" id="od1"></div>
       <div class="ob-dot" id="od2"></div>
-      <div class="ob-dot" id="od3"></div>
     </div>
     <div class="ob-step active" id="obs0">
-      <div class="ob-icon">🎯</div>
-      <div class="ob-title">Welcome to MPS Pulse</div>
-      <div class="ob-text">MPS Pulse helps you build more muscle by timing your protein correctly — not just hitting a daily total.</div>
+      <div class="ob-icon">⚡</div>
+      <div class="ob-title">Protein Timing Matters</div>
+      <div class="ob-text">Most apps just count daily totals. MPS Pulse tracks <strong>when</strong> you eat protein — because timing is what actually builds muscle.</div>
     </div>
     <div class="ob-step" id="obs1">
-      <div class="ob-icon">⚡</div>
-      <div class="ob-title">Set Your Goal</div>
-      <div class="ob-text">Set your daily protein goal at the top. A good target is 1.6–2.2g per kg of bodyweight. Your 4 pulse targets will be distributed automatically.</div>
+      <div class="ob-icon">🕐</div>
+      <div class="ob-title">Space 4 Pulses</div>
+      <div class="ob-text">Aim for 4 protein meals spaced <strong>3–4 hours apart</strong>. Each one triggers a fresh muscle-building window. Too close together and you waste the effect.</div>
     </div>
     <div class="ob-step" id="obs2">
-      <div class="ob-icon">🕐</div>
-      <div class="ob-title">Space Your Pulses</div>
-      <div class="ob-text">Each meal triggers a Muscle Protein Synthesis window lasting ~2–3 hours. Space your 4 pulses at least 3 hours apart for best results.</div>
-    </div>
-    <div class="ob-step" id="obs3">
-      <div class="ob-icon">💪</div>
-      <div class="ob-title">Hit Every Pulse</div>
-      <div class="ob-text">Aim for 30–50g per pulse. Going over doesn't help — your body can only use so much per meal. Consistency across all 4 pulses is what drives results.</div>
+      <div class="ob-icon">🎯</div>
+      <div class="ob-title">Hit 30–50g Per Pulse</div>
+      <div class="ob-text">Your coach at the top guides you in real time. Log each meal, hit your pulse target, and let the app tell you what to eat next. Ready?</div>
     </div>
     <button class="ob-btn" id="obBtn" onclick="obNext()">NEXT →</button>
     <div class="ob-skip" onclick="closeOnboarding()">SKIP</div>
@@ -1109,29 +1106,29 @@ function getMpsState(entries) {
 }
 
 // ── FOOD OPTIONS ──────────────────────────────────
+// Colour coding per category
+const CAT_COLORS = {legumes:'#16a34a',meat:'#e11d48',dairy:'#2563eb',veg:'#15803d',nuts:'#92400e',custom:'#7c3aed'};
 const CAT_LABELS = {legumes:'Legumes',meat:'Meat & Eggs',dairy:'Dairy',veg:'Vegetables',nuts:'Nuts & Seeds'};
 
 function foodOptionsHtml(si) {
-  let html = '<option value="">Select a food...</option>';
+  // Build one flat alphabetical list with colour dot indicator
+  const allItems = [];
   for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    const items = FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id));
-    if(!items.length) continue;
-    html += '<optgroup label="'+CAT_LABELS[cat]+'">';
-    html += items.map(f=>{
-      const def=smartDefault(f.id);
-      const hint=servingHint(f.id);
-      return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g ('+hint+')</option>';
-    }).join('');
-    html += '</optgroup>';
+    FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
+      allItems.push({...f, cat});
+    });
   }
-  if(state.customFoods && state.customFoods.length){
-    html += '<optgroup label="My Foods">';
-    html += state.customFoods.map(f=>{
-      const def=smartDefault(f.id)||f.typical||100;
-      return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g</option>';
-    }).join('');
-    html += '</optgroup>';
-  }
+  (state.customFoods||[]).filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
+    allItems.push({...f, cat:'custom'});
+  });
+  // Sort alphabetically by name
+  allItems.sort((a,b)=>a.name.localeCompare(b.name));
+  let html = '<option value="">Select a food...</option>';
+  html += allItems.map(f=>{
+    const def=smartDefault(f.id);
+    const hint=servingHint(f.id);
+    return '<option value="'+f.id+'" data-cat="'+f.cat+'">'+f.icon+' '+f.name+' · '+def+'g'+(hint?' ('+hint+')':'')+'</option>';
+  }).join('');
   return html;
 }
 
@@ -1251,6 +1248,14 @@ function renderSlots() {
         '<div class="step-lbl">OR PICK FROM THE LIST&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;THEN CHECK GRAMS &amp; ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(si)+'</select>'+
+        '<div class="food-legend">'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#e11d48"></span>MEAT & EGGS</span>'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#2563eb"></span>DAIRY</span>'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#16a34a"></span>LEGUMES</span>'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#15803d"></span>VEG</span>'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#92400e"></span>NUTS</span>'+
+        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#7c3aed"></span>MY FOODS</span>'+
+        '</div>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
@@ -1979,7 +1984,7 @@ document.addEventListener('click', function(e) {
 
 // === ONBOARDING ===
 let obStep = 0;
-const OB_TOTAL = 4;
+const OB_TOTAL = 3;
 function obNext() {
   obStep++;
   if(obStep >= OB_TOTAL) { closeOnboarding(); return; }
