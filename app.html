@@ -1090,7 +1090,7 @@ function recordServing(foodId, grams) {
 
 function smartDefault(foodId) {
   const hist = state.servingHistory[foodId];
-  if (!hist || hist.length < 2) { const f=getFood(foodId); return f?f.typical:100; }
+  if (!hist || hist.length < 1) { const f=getFood(foodId); return f?f.typical:100; }
   const rounded = hist.map(g=>Math.round(g/5)*5);
   const freq={};let maxC=0,best=rounded[rounded.length-1];
   for(const v of rounded){freq[v]=(freq[v]||0)+1;if(freq[v]>maxC){maxC=freq[v];best=v;}}
@@ -1100,7 +1100,7 @@ function smartDefault(foodId) {
 function servingHint(foodId) {
   const hist=state.servingHistory[foodId];
   const f=getFood(foodId);
-  if(!hist||hist.length<2) return f?f.typicalLabel:'';
+  if(!hist||hist.length<1) return f?f.typicalLabel:'';
   return 'your usual';
 }
 
