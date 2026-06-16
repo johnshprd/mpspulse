@@ -28,7 +28,7 @@
   --text: #e8e7f8; --muted: #6b67a0; --muted2: #9490b8;
   --g1: #818cf8; --g2: #6366f1; --g3: #4f46e5;
 }
-* { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+* { transition: background-color 0.2s, color 0.2s; }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
@@ -43,11 +43,16 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 @keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
 header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 28px; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  border-bottom: 1px solid var(--border);
   background: var(--surface); backdrop-filter: blur(12px);
   position: sticky; top: 0; z-index: 100;
 }
+.header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+.coach-card { display: flex; align-items: center; gap: 10px; background: #4f46e5; padding: 9px 14px; width: 100%; box-sizing: border-box; }
+.coach-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
+.coach-text { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: #ffffff; line-height: 1.5; flex: 1; min-width: 0; }
+.coach-text strong { color: #e0dfff; font-weight: 700; }
 .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 5px; color: var(--g1); line-height: 1; }
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-email { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; }
@@ -61,7 +66,7 @@ header {
 .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
 /* LEFT */
-.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; background: var(--surface2); }
+.left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; background: var(--surface2); }
 .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
 .overview-row { display: flex; align-items: center; gap: 14px; }
 .overview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; min-width: 0; }
@@ -81,11 +86,12 @@ header {
 .daily-met { display: flex; align-items: center; gap: 5px; background: rgba(79,70,229,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
 .daily-met.show { opacity: 1; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
-.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; position: relative; z-index: 2; }
+.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; position: relative; z-index: 2; background: var(--surface); padding-bottom: 4px; }
+.slot-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; }
 /* old stat cards removed */
-.dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 54px; margin-top: 4px; }
+.dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 80px; margin-top: 8px; overflow: visible; }
 .dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.dist-bar-wrap { width: 100%; height: 44px; display: flex; align-items: flex-end; }
+.dist-bar-wrap { width: 100%; height: 70px; display: flex; align-items: flex-end; }
 .dist-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border2); min-height: 3px; transition: height 0.5s ease, background 0.3s; }
 .dist-bar.filled { background: var(--g2); }
 .dist-bar.met { background: var(--g1); box-shadow: 0 0 7px rgba(79,70,229,0.2); }
@@ -105,8 +111,8 @@ header {
 .wday.today { color:var(--g1); }
 
 /* RIGHT */
-.right { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
-.sci-banner { background: var(--surface); border: 1px solid var(--border2); border-left: 5px solid var(--g1); border-radius: 0 12px 12px 0; padding: 16px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 3px 16px rgba(79,70,229,0.08); }
+.right { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; overflow-x: hidden; background: var(--bg); }
+.sci-banner { background: var(--surface); border-bottom: 3px solid var(--g1); border-left: none; border-radius: 0; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); position: fixed; top: 61px; left: 0; right: 0; z-index: 90; }
 .sci-text { font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text); line-height: 1.6; }
 .sci-text strong { color: var(--g1); font-size: 1.05rem; }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
@@ -152,9 +158,8 @@ header {
 .slot-card.has-entries::before { background: transparent; }
 .slot-card.met::before { background: transparent; }
 .slot-card.over::before { background: transparent; }
-.slot-card.active-mps { border-color: rgba(79,70,229,0.15); }
+.slot-card.active-mps { border-right-color: rgba(79,70,229,0.15); border-top-color: rgba(79,70,229,0.15); border-bottom-color: rgba(79,70,229,0.15); }
 .slot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.slot-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 3px; }
 .slot-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.62rem; letter-spacing: 3px; color: var(--text); }
 .slot-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.02rem; color: var(--muted2); line-height: 1; transition: color 0.3s; }
 .slot-card.has-entries .slot-g { color: var(--g2); }
@@ -546,14 +551,14 @@ header {
 
 /* === UX IMPROVEMENTS === */
 .tip-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.88rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; font-family: 'Space Mono', monospace; flex-shrink: 0; user-select: none; }
-.global-tooltip { position: fixed; display: none; background: #1a2a1a; border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text); width: 210px; line-height: 1.6; z-index: 1000; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
+.global-tooltip { position: fixed; display: none; background: #1e1b4b; border: 1px solid #3730a3; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: #ffffff; width: 220px; line-height: 1.6; z-index: 1000; box-shadow: 0 6px 24px rgba(0,0,0,0.35); font-family: 'DM Sans', sans-serif; }
 
 .spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
 
 #onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
 
 #startPointer {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
   background: var(--g1); color: #ffffff; border: none; border-radius: 30px;
   padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1.19rem;
   letter-spacing: 2px; cursor: pointer; z-index: 400; display: none;
@@ -575,13 +580,47 @@ header {
 .ob-btn { background: var(--g1); color: var(--bg); font-family: 'Space Mono', monospace; font-size: 0.9rem; letter-spacing: 2px; border: none; border-radius: 8px; padding: 13px 24px; cursor: pointer; width: 100%; font-weight: 700; }
 .ob-skip { text-align: center; margin-top: 10px; font-size: 0.88rem; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; letter-spacing: 1px; }
 
+/* SETTINGS PANEL */
+.settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.settings-overlay.open { opacity: 1; pointer-events: all; }
+.settings-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(340px,92vw); background: var(--surface); border-left: 1px solid var(--border); z-index: 201; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow: hidden; }
+.settings-panel.open { transform: translateX(0); }
+.settings-hdr { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.settings-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 3px; color: var(--text); }
+.settings-close { background: none; border: 1px solid var(--border); color: var(--muted2); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+.settings-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 20px; }
+.settings-sec { display: flex; flex-direction: column; gap: 8px; }
+.settings-sec-title { font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; gap: 10px; }
+.settings-row-lbl { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text); }
+.settings-row-sub { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted); margin-top: 2px; }
+.settings-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 1px; padding: 7px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.settings-btn:hover { border-color: var(--g1); color: var(--g1); }
+.settings-btn.danger { color: var(--red,#dc2626); }
+.settings-btn.danger:hover { border-color: var(--red,#dc2626); background: rgba(220,38,38,0.08); }
+.settings-goal-row { display: flex; align-items: center; gap: 10px; }
+.settings-goal-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; width: 80px; text-align: center; border-radius: 6px; padding: 5px 8px; outline: none; }
+.settings-goal-input:focus { border-color: var(--g1); }
+.settings-history { display: flex; align-items: flex-end; gap: 5px; height: 60px; }
+.s-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
+.s-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border); min-height: 3px; transition: height 0.5s ease; }
+.s-bar.today { background: var(--g1); }
+.s-bar-lbl { font-family: 'Space Mono', monospace; font-size: 0.45rem; color: var(--muted); text-transform: uppercase; }
+.smf-list { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
+.smf-group { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; padding: 8px 0 2px; }
+.smf-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 4px; border-bottom: 1px solid var(--surface2); font-size: 0.82rem; }
+.smf-del { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.9rem; padding: 2px 6px; }
+.smf-restore { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--g2); cursor: pointer; text-align: center; padding: 8px 0; }
+.smf-restore:hover { color: var(--g1); }
+
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
   .left { border-right: none; border-bottom: 2px solid var(--border); }
   .slots-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
-  header { padding: 12px 16px; }
+  header { padding: 0; }
+  .header-top { padding: 10px 14px; }
   .user-email { display: none; }
   .left { padding: 12px 14px; gap: 8px; }
   .right { padding: 12px 14px; gap: 12px; }
@@ -636,17 +675,22 @@ header {
 </div>
 
 <header>
-  <div class="logo">PULSE</div>
-  <div class="header-right">
-    <div class="goal-pill">
-      <label>GOAL</label>
-      <input type="number" id="goalInput" value="150" min="40" max="400">
-      <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted)">G</span>
-      <div class="tip-btn" data-tip="Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly." onclick="showTooltip(this)">?</div>
+  <div class="header-top">
+    <div class="logo">PULSE</div>
+    <div class="header-right">
+      <div class="goal-pill">
+        <label>GOAL</label>
+        <input type="number" id="goalInput" value="150" min="40" max="400">
+        <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted)">G</span>
+        <div class="tip-btn" data-tip="Set your daily protein goal. Recommended: 1.6–2.2g × your bodyweight in kg. Your 4 pulse targets will auto-distribute evenly." onclick="showTooltip(this)">?</div>
+      </div>
+      <span class="user-email" id="userEmail"></span>
+      <button class="signout-btn" onclick="openSettings()" title="Settings" style="font-size:1.1rem;padding:5px 10px;letter-spacing:0">⚙️</button>
     </div>
-    <span class="user-email" id="userEmail"></span>
-    <button class="signout-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
-    <button class="signout-btn" onclick="signOut()">SIGN OUT</button>
+  </div>
+  <div class="coach-card" id="coachCard">
+    <span class="coach-icon" id="coachIcon">💪</span>
+    <div class="coach-text" id="coachText">Add your first meal to get personalised coaching.</div>
   </div>
 </header>
 
@@ -684,7 +728,7 @@ header {
       </div>
       <div class="score-warn" id="scoreWarn"></div>
     </div>
-    <!-- 7-day history (compact) -->
+    <!-- 7-day history -->
     <div class="card">
       <div class="card-title">7-DAY HISTORY</div>
       <div class="week-bars" id="weekBars"></div>
@@ -692,10 +736,6 @@ header {
   </div>
 
   <div class="right">
-    <div class="sci-banner" id="coachBanner">
-      <span style="font-size:1.8rem;flex-shrink:0;line-height:1" id="coachIcon">💪</span>
-      <div class="sci-text" id="coachText">Loading your coaching tip...</div>
-    </div>
     <div class="slots-grid" id="slotsGrid"></div>
   </div>
 </div>
@@ -769,6 +809,73 @@ header {
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-hdr">
+    <div class="settings-title">SETTINGS</div>
+    <button class="settings-close" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="settings-body">
+
+    <!-- GOAL -->
+    <div class="settings-sec">
+      <div class="settings-sec-title">Daily Protein Goal</div>
+      <div class="settings-goal-row">
+        <input class="settings-goal-input" type="number" id="settingsGoal" min="40" max="400" placeholder="150">
+        <span style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--muted)">G / DAY</span>
+        <button class="settings-btn" onclick="applySettingsGoal()">SAVE</button>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--muted)">Recommended: 1.6–2.2g × bodyweight in kg</div>
+    </div>
+
+    <!-- THEME -->
+    <div class="settings-sec">
+      <div class="settings-sec-title">Appearance</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-lbl">Theme</div>
+          <div class="settings-row-sub">Light or dark mode</div>
+        </div>
+        <button class="settings-btn" id="settingsThemeBtn" onclick="toggleTheme()">🌙 DARK</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="settings-sec">
+      <div class="settings-sec-title">7-Day History</div>
+      <div class="settings-history" id="settingsHistory"></div>
+    </div>
+
+    <!-- MANAGE FOODS -->
+    <div class="settings-sec">
+      <div class="settings-sec-title">Manage Foods</div>
+      <button class="settings-btn" onclick="openCustomFood();closeSettings();" style="margin-bottom:6px;width:100%;text-align:center">+ ADD NEW FOOD</button>
+      <div class="smf-list" id="settingsManageFoods"></div>
+    </div>
+
+    <!-- RESET + SIGN OUT -->
+    <div class="settings-sec">
+      <div class="settings-sec-title">Account</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-lbl">Reset Today</div>
+          <div class="settings-row-sub">Clear all of today's log entries</div>
+        </div>
+        <button class="settings-btn danger" onclick="resetToday()">RESET</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-lbl">Sign Out</div>
+          <div class="settings-row-sub" id="settingsEmail"></div>
+        </div>
+        <button class="settings-btn danger" onclick="signOut()">SIGN OUT</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://xcfxizkflleeahjguviq.supabase.co';
@@ -904,6 +1011,9 @@ async function init() {
   document.getElementById('goalInput').value = state.goal;
   renderSlots();
   updateUI();
+  updateCoach();
+  setTimeout(updateCoach, 1000);
+  setTimeout(updateCoach, 3000);
   setInterval(tickMps, 60000);
   setInterval(checkMidnight, 60000);
 }
@@ -1145,9 +1255,7 @@ function renderSlots() {
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
         '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-        '</div>'+
-        '<div class="browse-toggle" id="manage-toggle-'+si+'" onclick="toggleManageFoods('+si+')">'+(manageOpen[si]?'▾':'▸')+' MANAGE FOODS</div>'+
-        '<div class="manage-foods-panel" id="manage-panel-'+si+'" style="display:'+(manageOpen[si]?'block':'none')+'">'+renderManageFoodsPanel(si)+'</div>'
+        '</div>'
       )+
       '</div>';
     grid.appendChild(card);
@@ -1273,6 +1381,7 @@ function addToSlot(si){
   else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
   else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
   updateUI();
+  setTimeout(updateCoach,100);
 }
 
 function deleteEntry(si,ei){
@@ -1464,66 +1573,40 @@ function updateCoach(){
   const icon = document.getElementById('coachIcon');
   const text = document.getElementById('coachText');
   if(!icon||!text) return;
-
-  const slotTotals = state.slots.map((_,i)=>slotTotal(i));
-  const total = slotTotals.reduce((a,b)=>a+b,0);
-  const goal = state.goal;
-  const loggedSlots = slotTotals.filter(v=>v>0).length;
-  const overCeiling = slotTotals.filter(v=>v>55).length;
-  const metTargets = slotTotals.filter((v,i)=>v>=state.slotTargets[i]&&v>0).length;
-  const now = new Date();
-  const hour = now.getHours();
-
-  // Work out spacing — find slots with entries and check gaps
-  const slotTimes = state.slots.map(sl=>{
-    if(!sl.length) return null;
-    // parse earliest entry time in this slot
-    const t = sl[0].time;
-    if(!t) return null;
-    const [h,m] = t.split(':').map(Number);
-    return h*60+m;
-  });
-  const filledTimes = slotTimes.filter(t=>t!==null);
-  let tooClose = false;
-  for(let i=1;i<filledTimes.length;i++){
-    if(filledTimes[i]-filledTimes[i-1]<90) tooClose=true;
-  }
-
-  let msg, ico;
-
-  if(loggedSlots===0){
-    // Nothing logged yet
-    if(hour<10){
-      ico='🌅'; msg='<strong>Morning is the perfect time to start.</strong> Log your breakfast pulse now — aiming for <strong>'+Math.round(state.slotTargets[0])+'g protein</strong> to kick off muscle protein synthesis for the day.';
-    } else if(hour<13){
-      ico='⏰'; msg='<strong>Don\'t forget breakfast!</strong> Logging your first pulse now still counts. Aim for <strong>'+Math.round(state.slotTargets[0])+'g protein</strong> — even a quick entry gets the clock ticking.';
+  try {
+    const total = Math.round(dayTotal());
+    const goal = state.goal || 150;
+    const hour = new Date().getHours();
+    const loggedSlots = state.slots.filter(s=>s&&s.length>0).length;
+    const slotTotals = [0,1,2,3].map(i=>slotTotal(i));
+    const overCeiling = slotTotals.filter(v=>v>55).length;
+    const metTargets = slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
+    const ringVal = parseInt(document.getElementById('ringG')?.textContent||'0');
+    let ico,msg;
+    if(total>=goal){
+      ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
+    } else if(overCeiling>0){
+      ico='⚠️'; msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading protein across two pulses next time.';
+    } else if(loggedSlots===0){
+      ico=hour<12?'🌅':hour<17?'⏰':'🌙';
+      msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1.';
+    } else if(metTargets>=3){
+      ico='🚀'; msg='<strong>'+metTargets+' pulses on target!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse to finish strong.';
+    } else if(metTargets===2){
+      ico='🔥'; msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.';
+    } else if(metTargets===1){
+      ico='✅'; msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining.';
+    } else if(loggedSlots>0&&hour>=20&&total<goal*0.75){
+      ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake can close the gap.';
     } else {
-      ico='💪'; msg='<strong>No pulses logged yet today.</strong> It\'s not too late — log what you\'ve eaten so far and spread the rest across your remaining meals. Every pulse counts.';
+      ico='👍'; msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space pulses evenly for max MPS.';
     }
-  } else if(overCeiling>0){
-    ico='⚠️'; msg='<strong>One of your pulses is over 55g</strong> — your muscles can only use ~40–55g per meal. The excess gets oxidised for energy instead. Try spreading that protein across two pulses next time.';
-  } else if(tooClose && loggedSlots>=2){
-    ico='⏱️'; msg='<strong>Your pulses are quite close together.</strong> MPS lasts ~2–3 hours per meal — spacing pulses further apart means more total synthesis time throughout the day.';
-  } else if(loggedSlots===1 && metTargets===1){
-    ico='✅'; msg='<strong>Great start — Pulse 1 target hit!</strong> Keep going. Aim for your next meal in <strong>3–4 hours</strong> to maximise the time your muscles spend in synthesis mode.';
-  } else if(loggedSlots===2 && metTargets===2){
-    ico='🔥'; msg='<strong>Two pulses nailed — you\'re on track!</strong> Keep the spacing even. Your next pulse target is <strong>'+Math.round(state.slotTargets[2])+'g</strong> — stay consistent and you\'ll hit your goal.';
-  } else if(loggedSlots===3 && metTargets===3){
-    ico='🚀'; msg='<strong>Three pulses done and all targets met — brilliant!</strong> One more to go. An evening pulse of <strong>'+Math.round(state.slotTargets[3])+'g protein</strong> will round out a perfect day.';
-  } else if(total>=goal){
-    ico='🏆'; msg='<strong>Daily goal reached — outstanding effort!</strong> You\'ve given your muscles the best chance to grow today. Rest up and do it again tomorrow.';
-  } else if(metTargets>0 && metTargets<loggedSlots){
-    ico='📈'; msg='<strong>Some pulses are below target.</strong> Try to hit <strong>'+Math.round(state.slotTargets[loggedSlots])+'g</strong> next pulse — it doesn\'t have to be one food, combine a few sources to reach your target.';
-  } else if(loggedSlots>0 && hour>=20 && total<goal*0.75){
-    ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+Math.round(total)+'g</strong> today with <strong>'+(goal-Math.round(total))+'g</strong> still to go. A protein-rich evening meal or shake can close the gap before bed.';
-  } else if(loggedSlots>0){
-    ico='👍'; msg='<strong>Looking good — keep it up!</strong> You\'ve logged <strong>'+Math.round(total)+'g</strong> so far. Space your remaining pulses evenly through the day for maximum muscle protein synthesis.';
-  } else {
-    ico='💪'; msg='<strong>You\'re doing great.</strong> Keep logging your meals — consistent protein timing is what separates serious results from average ones.';
+    icon.textContent=ico;
+    text.innerHTML=msg;
+  } catch(e){
+    icon.textContent='💪';
+    text.textContent='Log a meal to get coaching tips.';
   }
-
-  icon.textContent = ico;
-  text.innerHTML = msg;
 }
 
 function updateUI(){
@@ -1542,13 +1625,17 @@ function updateUI(){
   document.getElementById('entriesDisp').textContent=state.slots.reduce((s,sl)=>s+sl.length,0);
   document.getElementById('pctDisp').textContent=Math.round(pct*100)+'%';
   const slotTotals=state.slots.map((_,i)=>slotTotal(i));
-  const distMax=Math.max(...slotTotals,goal/4,1);
+  const distMax=Math.max(...slotTotals,1);
+  const slotBarColors=['#e11d48','#16a34a','#d97706','#9333ea'];
   document.getElementById('distBars').innerHTML=slotTotals.map((v,i)=>{
-    const h=Math.round((v/distMax)*44);
+    const h=Math.round((v/distMax)*70);
     const met=v>=state.slotTargets[i]&&v>0;
     const over=v>55;
-    const cls=over?'over':met?'met':v>0?'filled':'';
-    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar '+cls+'" style="height:'+Math.max(3,h)+'px"></div></div><div class="dist-g">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
+    const col = slotBarColors[i];
+    const opacity = v===0 ? '0.15' : over ? '1' : met ? '1' : '0.55';
+    const barStyle = 'height:'+Math.max(3,h)+'px;background:'+col+';opacity:'+opacity+(over?';box-shadow:0 0 6px rgba(217,119,6,0.4)':'');
+    const gStyle = 'color:'+(v===0?'var(--muted)':col);
+    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar" style="'+barStyle+'"></div></div><div class="dist-g" style="'+gStyle+'">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
   }).join('');
   const ds=calcDistScore();
   if(ds.score!==null){
@@ -1736,6 +1823,80 @@ function deleteCustomFood(id){
   updateUI();
 }
 
+function openSettings(){
+  const panel = document.getElementById('settingsPanel');
+  const overlay = document.getElementById('settingsOverlay');
+  panel.classList.add('open');
+  overlay.classList.add('open');
+  // Populate goal
+  document.getElementById('settingsGoal').value = state.goal;
+  // Populate email
+  const emailEl = document.getElementById('settingsEmail');
+  if(emailEl) emailEl.textContent = document.getElementById('userEmail').textContent;
+  // Populate theme button
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  document.getElementById('settingsThemeBtn').textContent = isDark ? '☀️ LIGHT' : '🌙 DARK';
+  // Render history
+  renderSettingsHistory();
+  // Render manage foods
+  renderSettingsManageFoods();
+}
+
+function closeSettings(){
+  document.getElementById('settingsPanel').classList.remove('open');
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+
+function applySettingsGoal(){
+  const v = parseInt(document.getElementById('settingsGoal').value);
+  if(!v||v<40||v>400){ showToast('Enter a goal between 40–400g', true); return; }
+  state.goal = v;
+  document.getElementById('goalInput').value = v;
+  distributeGoal(v);
+  updateUI();
+  showToast('✓ Goal updated to '+v+'g');
+}
+
+function resetToday(){
+  if(!confirm('Clear all of today\'s log entries?')) return;
+  state.slots = [[],[],[],[]];
+  updateUI();
+  closeSettings();
+  showToast('Today\'s log cleared');
+}
+
+function renderSettingsHistory(){
+  const el = document.getElementById('settingsHistory');
+  if(!el) return;
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const max = Math.max(...state.weekHistory, 1);
+  el.innerHTML = state.weekHistory.map((v,i)=>{
+    const h = Math.max(3, Math.round((v/max)*56));
+    const isToday = i===6;
+    return '<div class="s-bar-wrap"><div class="s-bar'+(isToday?' today':'')+'" style="height:'+h+'px"></div><div class="s-bar-lbl">'+days[i]+'</div></div>';
+  }).join('');
+}
+
+function renderSettingsManageFoods(){
+  const el = document.getElementById('settingsManageFoods');
+  if(!el) return;
+  let html = '';
+  for(const cat of ['legumes','meat','dairy','veg','nuts']){
+    const items = FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id));
+    if(!items.length) continue;
+    html += '<div class="smf-group">'+CAT_LABELS[cat]+'</div>';
+    html += items.map(f=>'<div class="smf-row"><span>'+f.icon+' '+f.name+'</span><button class="smf-del" onclick="hideFood(\''+f.id+'\');renderSettingsManageFoods()">🗑</button></div>').join('');
+  }
+  if(state.customFoods && state.customFoods.length){
+    html += '<div class="smf-group">MY FOODS</div>';
+    html += state.customFoods.map(f=>'<div class="smf-row"><span>'+f.icon+' '+f.name+'</span><button class="smf-del" onclick="hideFood(\''+f.id+'\');renderSettingsManageFoods()">🗑</button></div>').join('');
+  }
+  if(state.hiddenFoods && state.hiddenFoods.length){
+    html += '<div class="smf-restore" onclick="restoreHiddenFoods();renderSettingsManageFoods()">↺ RESTORE '+state.hiddenFoods.length+' HIDDEN FOOD'+(state.hiddenFoods.length>1?'S':'')+'</div>';
+  }
+  el.innerHTML = html || '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--muted);padding:8px 0">No foods to show</div>';
+}
+
 function initTheme(){
   const saved = localStorage.getItem('mps_theme');
   if(saved === 'dark'){
@@ -1746,15 +1907,15 @@ function initTheme(){
 }
 function toggleTheme(){
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const btn = document.getElementById('themeToggle');
+  const btn = document.getElementById('settingsThemeBtn');
   if(isDark){
     document.documentElement.removeAttribute('data-theme');
     localStorage.setItem('mps_theme','light');
-    if(btn) btn.textContent = '🌙';
+    if(btn) btn.textContent = '🌙 DARK';
   } else {
     document.documentElement.setAttribute('data-theme','dark');
     localStorage.setItem('mps_theme','dark');
-    if(btn) btn.textContent = '☀️';
+    if(btn) btn.textContent = '☀️ LIGHT';
   }
 }
 
@@ -1831,6 +1992,8 @@ function checkOnboarding() {
 function showStartPointer(){
   const ptr = document.getElementById('startPointer');
   if(!ptr) return;
+  // Only show if nothing logged yet today
+  if(dayTotal() > 0) return;
   ptr.classList.add('show');
   const hideOnScroll = () => { ptr.classList.remove('show'); window.removeEventListener('scroll', hideOnScroll); };
   window.addEventListener('scroll', hideOnScroll, { passive: true });
