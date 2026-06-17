@@ -88,6 +88,12 @@ header {
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
 .card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; position: relative; z-index: 2; background: var(--surface); padding-bottom: 4px; }
 .slot-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; }
+.pulse-wave { display: inline-block; font-size: 0.7rem; opacity: 0; margin-left: 4px; }
+.pulse-wave.active { opacity: 1; animation: waveAnim 1.2s ease-in-out infinite; }
+@keyframes waveAnim {
+  0%,100% { transform: scaleY(1); opacity: 0.6; }
+  50% { transform: scaleY(1.6); opacity: 1; }
+}
 /* old stat cards removed */
 .dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 80px; margin-top: 8px; overflow: visible; }
 .dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -1213,7 +1219,7 @@ function renderSlots() {
 
     card.innerHTML=
       '<div class="slot-header">'+
-      '<div><div class="slot-num">PULSE '+(si+1)+' · '+SLOT_ICONS[si]+'</div>'+
+      '<div><div class="slot-num">PULSE '+(si+1)+' · '+SLOT_ICONS[si]+'<span class="pulse-wave'+(mps.status==='active'||mps.status==='ending'?' active':'')+'" style="color:'+(mps.status==='active'?slotColors[si]:mps.status==='ending'?'#d97706':'transparent')+'">〜〜〜</span></div>'+
       '<div class="slot-name">'+SLOT_NAMES[si]+'</div></div>'+
       '<div style="text-align:right"><div class="slot-g">'+total+'</div>'+
       '<div class="slot-g-lbl">G PROTEIN</div>'+
