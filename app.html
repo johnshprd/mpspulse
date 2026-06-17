@@ -1251,11 +1251,10 @@ function renderSlots() {
         '</div>'
       :
         '<div class="food-search-wrap">'+
-        '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
+        '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food (e.g. eggs, chicken, almonds...)" oninput="searchFood('+si+',this.value)" autocomplete="off">'+
         '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
         '</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-        '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(si)+'</select>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
@@ -1333,15 +1332,25 @@ document.addEventListener('click', function(e){
 });
 
 function searchFood(si, query){
-  if(!query || query.length < 2) return;
+  if(!query || query.length < 1) return;
   const match = getVisibleFoods().find(f => f.name.toLowerCase() === query.trim().toLowerCase());
-  if(!match) return; // only act on an exact match (user picked from suggestions)
-  const sel = document.getElementById('sel-'+si);
-  if(sel){ sel.value = match.id; onFoodChange(si); }
-  const srv = document.getElementById('srv-'+si);
-  if(srv){ srv.focus(); srv.select(); }
+  if(!match) return;
+  // Store selected food on search input element
   const searchEl = document.getElementById('food-search-'+si);
-  if(searchEl) searchEl.value = '';
+  if(searchEl) searchEl.dataset.selectedId = match.id;
+  // Auto-fill grams
+  const srvEl = document.getElementById('srv-'+si);
+  const lblEl = document.getElementById('srv-lbl-'+si);
+  const btnEl = document.getElementById('add-btn-'+si);
+  if(srvEl){
+    const def = smartDefault(match.id);
+    const hint = servingHint(match.id);
+    srvEl.value = def;
+    if(lblEl) lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
+    srvEl.focus(); srvEl.select();
+  }
+  if(btnEl){ btnEl.disabled = false; }
+  if(searchEl) searchEl.classList.remove('pulse-glow');
 }
 
 function setSlotMode(si,mode){
@@ -1436,16 +1445,24 @@ function onFoodChange(si){
 }
 
 function addToSlot(si){
-  const sel=document.getElementById('sel-'+si);
-  const srvEl=document.getElementById('srv-'+si);
-  if(!sel||!srvEl)return;
-  if(!sel.value){showToast('Select a food first',true);return;}
-  const food=getFood(sel.value);if(!food)return;
+  const searchEl = document.getElementById('food-search-'+si);
+  const srvEl = document.getElementById('srv-'+si);
+  if(!searchEl||!srvEl)return;
+  const foodId = searchEl.dataset.selectedId;
+  if(!foodId){showToast('Search and select a food first',true);return;}
+  const food=getFood(foodId);if(!food)return;
   const serving=parseFloat(srvEl.value)||smartDefault(food.id)||100;
   const protein=(food.p100/100)*serving;
   const wasOver=slotTotal(si)>55;
   recordServing(food.id,serving);
   state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+  // Reset search
+  searchEl.value='';
+  delete searchEl.dataset.selectedId;
+  srvEl.value='';
+  const btnEl=document.getElementById('add-btn-'+si);
+  if(btnEl) btnEl.disabled=true;
+  searchEl.classList.add('pulse-glow');
   const newTotal=slotTotal(si);
   if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
   else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
