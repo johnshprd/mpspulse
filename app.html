@@ -813,19 +813,19 @@ header {
       <div class="custom-label">FOOD NAME</div>
       <input class="custom-input" id="cfName" type="text" placeholder="e.g. Protein Bar, Greek Yoghurt">
     </div>
-    <div class="custom-row">
-      <div class="custom-field" style="flex:0 0 80px">
+    <div style="display:flex;gap:10px">
+      <div class="custom-field" style="flex:0 0 70px">
         <div class="custom-label">EMOJI</div>
         <input class="custom-input" id="cfIcon" type="text" placeholder="🍽️" maxlength="2">
       </div>
       <div class="custom-field" style="flex:1">
-        <div class="custom-label">PROTEIN (G)</div>
-        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 35" min="0" max="300">
+        <div class="custom-label">PROTEIN PER 100G</div>
+        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 25" min="0" max="100">
       </div>
-      <div class="custom-field" style="flex:1">
-        <div class="custom-label">TYPICAL SERVING (G)</div>
-        <input class="custom-input" id="cfTypical" type="number" placeholder="e.g. 150" min="1">
-      </div>
+    </div>
+    <div class="custom-field">
+      <div class="custom-label">TYPICAL SERVING (G)</div>
+      <input class="custom-input" id="cfTypical" type="number" placeholder="e.g. 150" min="1">
     </div>
     <button class="custom-save-btn" onclick="saveCustomFood()">SAVE FOOD</button>
   </div>
