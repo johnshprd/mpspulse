@@ -210,6 +210,8 @@ header {
 .del-btn:hover { color: var(--red); }
 .slot-add { display: flex; gap: 5px; align-items: flex-end; flex-wrap: wrap; max-width: 100%; min-width: 0; }
 .food-search-wrap { margin-bottom: 6px; width: 100%; min-width: 0; max-width: 100%; }
+.add-to-db-btn { width: 100%; background: none; border: 1px dashed var(--g2); color: var(--g2); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; padding: 7px 12px; border-radius: 6px; cursor: pointer; text-align: left; margin-bottom: 5px; transition: all 0.15s; }
+.add-to-db-btn:hover { background: rgba(79,70,229,0.06); border-color: var(--g1); color: var(--g1); }
 .food-search { width: 100%; background: var(--bg); border: 1px solid var(--g2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.94rem; padding: 9px 12px; border-radius: 7px; outline: none; box-sizing: border-box; }
 .food-search:focus { border-color: var(--g1); box-shadow: 0 0 0 2px rgba(79,70,229,0.12); }
 .step-lbl { font-family: 'Space Mono', monospace; font-size: 0.61rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; max-width: 100%; white-space: normal; word-wrap: break-word; }
@@ -1239,28 +1241,19 @@ function renderSlots() {
       '<div class="slot-progress-track"><div class="slot-progress-fill" style="width:'+pct+'%;background:'+(isMet?'var(--g1)':isOver?'var(--amber)':'var(--g2)')+'"></div></div>'+
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
-      '<div class="cat-tabs" style="margin-bottom:6px">'+modeTabsHtml+'</div>'+
-      (cat==='quick' ?
-        '<div class="step-lbl">TYPE MEAL NAME &amp; PROTEIN, THEN ADD</div>'+
-        '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-        '<input class="slot-food-select pulse-glow" id="quick-name-'+si+'" type="text" placeholder="Meal name e.g. 3 egg omelette" style="flex:2;min-width:120px" oninput="checkQuickReady('+si+')">'+
-        '<div class="srv-wrap"><div class="srv-lbl">PROTEIN G</div>'+
-        '<input class="slot-serving" type="number" id="quick-p-'+si+'" placeholder="35" min="1" max="300" style="width:70px" oninput="checkQuickReady('+si+')"></div>'+
-        '<button class="slot-add-btn pulse-glow" id="quick-add-btn-'+si+'" onclick="addQuickMeal('+si+')" disabled>+ADD</button>'+
-        '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-        '</div>'
-      :
-        '<div class="food-search-wrap">'+
-        '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food (e.g. eggs, chicken, almonds...)" oninput="searchFood('+si+',this.value)" autocomplete="off">'+
-        '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
-        '</div>'+
-        '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
-        '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
-        '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
-        '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
-        '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-        '</div>'
-      )+
+      '<div class="food-search-wrap">'+
+      '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food or type a meal name..." oninput="searchFood('+si+',this.value)" autocomplete="off">'+
+      '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
+      '</div>'+
+      '<div id="add-to-db-'+si+'" style="display:none">'+
+      '<button class="add-to-db-btn" id="add-to-db-btn-'+si+'" onclick="promptAddToDb('+si+')">＋ Add "<span id="add-to-db-name-'+si+'"></span>" to My Foods</button>'+
+      '</div>'+
+      '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap;margin-top:5px">'+
+      '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
+      '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
+      '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
+      '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
+      '</div>'+
       '</div>';
     grid.appendChild(card);
   });
@@ -1332,25 +1325,41 @@ document.addEventListener('click', function(e){
 });
 
 function searchFood(si, query){
-  if(!query || query.length < 1) return;
-  const match = getVisibleFoods().find(f => f.name.toLowerCase() === query.trim().toLowerCase());
-  if(!match) return;
-  // Store selected food on search input element
-  const searchEl = document.getElementById('food-search-'+si);
-  if(searchEl) searchEl.dataset.selectedId = match.id;
-  // Auto-fill grams
-  const srvEl = document.getElementById('srv-'+si);
-  const lblEl = document.getElementById('srv-lbl-'+si);
+  const addToDbEl = document.getElementById('add-to-db-'+si);
+  const addToDbName = document.getElementById('add-to-db-name-'+si);
   const btnEl = document.getElementById('add-btn-'+si);
-  if(srvEl){
-    const def = smartDefault(match.id);
-    const hint = servingHint(match.id);
-    srvEl.value = def;
-    if(lblEl) lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
-    srvEl.focus(); srvEl.select();
+  const searchEl = document.getElementById('food-search-'+si);
+  if(!query || query.length < 1){
+    if(addToDbEl) addToDbEl.style.display='none';
+    return;
   }
-  if(btnEl){ btnEl.disabled = false; }
-  if(searchEl) searchEl.classList.remove('pulse-glow');
+  const match = getVisibleFoods().find(f => f.name.toLowerCase() === query.trim().toLowerCase());
+  if(match){
+    if(addToDbEl) addToDbEl.style.display='none';
+    if(searchEl) searchEl.dataset.selectedId = match.id;
+    const srvEl = document.getElementById('srv-'+si);
+    const lblEl = document.getElementById('srv-lbl-'+si);
+    if(srvEl){
+      const def = smartDefault(match.id);
+      const hint = servingHint(match.id);
+      srvEl.value = def;
+      if(lblEl) lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
+      srvEl.focus(); srvEl.select();
+    }
+    if(btnEl) btnEl.disabled = false;
+    if(searchEl) searchEl.classList.remove('pulse-glow');
+  } else {
+    if(searchEl) delete searchEl.dataset.selectedId;
+    if(btnEl) btnEl.disabled = true;
+    if(searchEl) searchEl.classList.add('pulse-glow');
+    const partialMatch = getVisibleFoods().some(f=>f.name.toLowerCase().startsWith(query.toLowerCase()));
+    if(query.length >= 2 && !partialMatch){
+      if(addToDbEl) addToDbEl.style.display='block';
+      if(addToDbName) addToDbName.textContent = query.trim();
+    } else {
+      if(addToDbEl) addToDbEl.style.display='none';
+    }
+  }
 }
 
 function setSlotMode(si,mode){
@@ -1891,6 +1900,19 @@ function quickAdd(si, foodId){
 }
 
 // ── CUSTOM FOOD ────────────────────────────────────
+function promptAddToDb(si){
+  const searchEl = document.getElementById('food-search-'+si);
+  const name = searchEl ? searchEl.value.trim() : '';
+  // Pre-fill the custom food modal with the typed name
+  document.getElementById('cfName').value = name;
+  document.getElementById('cfIcon').value = '🍽️';
+  document.getElementById('cfProtein').value = '';
+  document.getElementById('cfTypical').value = '';
+  document.getElementById('customModal').classList.add('open');
+  // After saving, focus back on this slot
+  window._lastAddSlot = si;
+}
+
 function openCustomFood(){
   document.getElementById('customModal').classList.add('open');
   document.getElementById('cfName').value='';
