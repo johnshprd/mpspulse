@@ -1254,16 +1254,8 @@ function renderSlots() {
         '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search any food (e.g. eggs, chicken, tofu...)" oninput="searchFood('+si+',this.value)">'+
         '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
         '</div>'+
-        '<div class="step-lbl">OR PICK FROM THE LIST&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;THEN CHECK GRAMS &amp; ADD</div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap">'+
         '<select class="slot-food-select" id="sel-'+si+'" onchange="onFoodChange('+si+')">'+foodOptionsHtml(si)+'</select>'+
-        '<div class="food-legend">'+
-        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#e11d48"></span>MEAT</span>'+
-        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#2563eb"></span>DAIRY</span>'+
-        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#16a34a"></span>LEGUMES</span>'+
-        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#15803d"></span>VEG</span>'+
-        '<span class="food-legend-item"><span class="food-legend-dot" style="background:#92400e"></span>NUTS</span>'+
-        '</div>'+
         '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
         '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
         '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
