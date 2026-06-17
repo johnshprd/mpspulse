@@ -2087,7 +2087,10 @@ function renderSettingsManageFoods(){
     '<span style="width:7px;height:7px;border-radius:50%;background:'+CAT_COLORS[f.cat]+';flex-shrink:0;display:inline-block"></span>'+
     f.icon+' '+f.name+
     '</span>'+
+    '<span style="display:flex;gap:4px">'+
+    '<button class="smf-del" style="color:var(--accent)" onclick="editFood(\''+f.id+'\')">✏️</button>'+
     '<button class="smf-del" onclick="hideFood(\''+f.id+'\');renderSettingsManageFoods()">🗑</button>'+
+    '</span>'+
     '</div>'
   ).join('');
   if(state.hiddenFoods && state.hiddenFoods.length){
