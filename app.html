@@ -808,7 +808,7 @@ header {
 <div class="custom-modal" id="customModal">
   <div class="custom-inner">
     <button class="custom-close" onclick="closeCustomFood()">✕</button>
-    <div class="custom-title">ADD CUSTOM FOOD</div>
+    <div class="custom-title" id="customModalTitle">ADD CUSTOM FOOD</div>
     <div class="custom-field">
       <div class="custom-label">FOOD NAME</div>
       <input class="custom-input" id="cfName" type="text" placeholder="e.g. Protein Bar, Greek Yoghurt">
@@ -1945,7 +1945,22 @@ function promptAddToDb(si){
   window._lastAddSlot = si;
 }
 
+function editFood(id){
+  const food = getAllFoods().find(f=>f.id===id);
+  if(!food) return;
+  // Pre-fill modal
+  document.getElementById('cfName').value = food.name;
+  document.getElementById('cfIcon').value = food.icon || '🍽️';
+  document.getElementById('cfProtein').value = Math.round(food.p100) || '';
+  document.getElementById('cfTypical').value = food.typical || 100;
+  // Store the id being edited
+  document.getElementById('customModalTitle').textContent = 'EDIT FOOD';
+  document.getElementById('customModal').dataset.editId = id;
+  document.getElementById('customModal').classList.add('open');
+}
+
 function openCustomFood(){
+  document.getElementById('customModalTitle').textContent = 'ADD CUSTOM FOOD';
   document.getElementById('customModal').classList.add('open');
   document.getElementById('cfName').value='';
   document.getElementById('cfIcon').value='';
@@ -1955,6 +1970,7 @@ function openCustomFood(){
 
 function closeCustomFood(){
   document.getElementById('customModal').classList.remove('open');
+  delete document.getElementById('customModal').dataset.editId;
 }
 
 function saveCustomFood(){
@@ -1963,13 +1979,33 @@ function saveCustomFood(){
   const protein=parseFloat(document.getElementById('cfProtein').value);
   const typical=parseFloat(document.getElementById('cfTypical').value)||100;
   if(!name||isNaN(protein)||protein<=0){showToast('Fill in name and protein',true);return;}
-  const id='custom_'+Date.now();
-  // Store as direct protein — p100 is set so that at typical serving it gives the right amount
   const p100=(protein/typical)*100;
-  state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
+  const editId = document.getElementById('customModal').dataset.editId;
+
+  if(editId){
+    // Editing existing food — check if it's a built-in or custom
+    const customIdx = state.customFoods.findIndex(f=>f.id===editId);
+    if(customIdx>=0){
+      // Update custom food
+      state.customFoods[customIdx] = {...state.customFoods[customIdx], name, icon, p100, typical, protein, typicalLabel:'typical serving'};
+    } else {
+      // Built-in food — add as custom override, hide original
+      if(!state.hiddenFoods) state.hiddenFoods=[];
+      state.hiddenFoods.push(editId);
+      const id='custom_'+Date.now();
+      state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
+    }
+    delete document.getElementById('customModal').dataset.editId;
+    showToast('✓ '+name+' updated');
+  } else {
+    // New food
+    const id='custom_'+Date.now();
+    state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
+    showToast('✓ '+name+' added to My Foods');
+  }
   closeCustomFood();
-  showToast('✓ '+name+' added to My Foods');
   updateUI();
+  renderSettingsManageFoods();
 }
 
 function deleteCustomFood(id){
