@@ -1646,21 +1646,41 @@ function logScannedMeal() {
 function calcDistScore(){
   const totals=state.slots.map((_,i)=>slotTotal(i));
   const day=totals.reduce((s,v)=>s+v,0);
+  const loggedSlots=totals.filter(v=>v>0).length;
   if(day===0)return{score:null,warn:''};
+
+  // Only score based on pulses logged so far
   const mean=day/4;
   const variance=totals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/4;
   const cv=mean>0?Math.sqrt(variance)/mean:0;
   const score=Math.max(0,Math.round(100-cv*100));
+
   let warn='';
   const max=Math.max(...totals);
   const maxIdx=totals.indexOf(max);
-  if(max>55)warn='⚠ Pulse '+(maxIdx+1)+' ('+Math.round(max)+'g) exceeds the MPS ceiling — excess will be oxidised.';
-  else if(cv>0.5)warn='↕ Uneven spread — aim for 3–4 equal pulses of 30–50g.';
+  if(max>55) warn='⚠ Pulse '+(maxIdx+1)+' ('+Math.round(max)+'g) exceeds the MPS ceiling — excess will be oxidised.';
+
+  // Label is contextual — don't penalise early in the day
   let label,color;
-  if(score>=85){label='OPTIMAL';color='var(--g1)';}
-  else if(score>=60){label='GOOD';color='var(--g2)';}
-  else if(score>=35){label='UNEVEN';color='var(--amber)';}
-  else{label='POOR';color='var(--red)';}
+  if(loggedSlots===1){
+    label='IN PROGRESS'; color='var(--g2)';
+    warn = warn || ''; // no uneven warning with just 1 pulse
+  } else if(loggedSlots===2){
+    label=score>=60?'GOOD START':'KEEP GOING'; color=score>=60?'var(--g2)':'var(--amber)';
+    if(!warn && cv>0.6) warn='↕ Try to keep pulses closer in size for best results.';
+  } else if(loggedSlots===3){
+    if(score>=75){label='GOOD';color='var(--g2)';}
+    else if(score>=50){label='NEARLY THERE';color='var(--amber)';}
+    else{label='UNEVEN';color='var(--amber)';}
+    if(!warn && cv>0.5) warn='↕ Aim to keep your final pulse similar in size to the others.';
+  } else {
+    // All 4 logged — now give the full verdict
+    if(score>=85){label='OPTIMAL';color='var(--g1)';}
+    else if(score>=60){label='GOOD';color='var(--g2)';}
+    else if(score>=35){label='UNEVEN';color='var(--amber)';}
+    else{label='POOR';color='var(--red)';}
+    if(!warn && cv>0.5) warn='↕ Uneven spread — aim for 3–4 equal pulses of 30–50g.';
+  }
   return{score,label,color,warn};
 }
 
