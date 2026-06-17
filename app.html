@@ -2143,11 +2143,11 @@ function checkOnboarding() {
 function showStartPointer(){
   const ptr = document.getElementById('startPointer');
   if(!ptr) return;
-  // Only show if nothing logged yet today
-  if(dayTotal() > 0) return;
   ptr.classList.add('show');
   const hideOnScroll = () => { ptr.classList.remove('show'); window.removeEventListener('scroll', hideOnScroll); };
   window.addEventListener('scroll', hideOnScroll, { passive: true });
+  // Auto-hide after 4 seconds if user doesn't scroll
+  setTimeout(()=>ptr.classList.remove('show'), 4000);
 }
 
 function goToFirstPulse(){
