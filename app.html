@@ -845,7 +845,7 @@ function renderSlots() {
       '<div class="slot-entries" id="entries-'+si+'">'+entriesHtml+'</div>'+
       '<div class="slot-add" id="slot-add-'+si+'" style="flex-direction:column">'+
       '<div class="food-search-wrap">'+
-      '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food or type a meal name..." oninput="searchFood('+si+',this.value)" autocomplete="off">'+
+      '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food or type a meal name..." oninput="searchFood('+si+',this.value)" onchange="searchFood('+si+',this.value)" autocomplete="off">'+
       '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
       '</div>'+
       '<div id="add-to-db-'+si+'" style="display:none">'+
@@ -924,10 +924,12 @@ function addToSlot(si){
   const foodId = searchEl.dataset.selectedId;
   if(!foodId){showToast('Search and select a food first',true);return;}
   const food=getFood(foodId);if(!food)return;
-  const serving=parseFloat(srvEl.value)||smartDefault(food.id)||100;
+  const typicalDefault=smartDefault(food.id);
+  const serving=parseFloat(srvEl.value)||typicalDefault||100;
   const protein=(food.p100/100)*serving;
   const wasOver=slotTotal(si)>55;
-  recordServing(food.id,serving);
+  // Only record serving history if user explicitly changed the value
+  if(parseFloat(srvEl.value) && parseFloat(srvEl.value)!==typicalDefault) recordServing(food.id,serving);
   state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
   searchEl.value=''; delete searchEl.dataset.selectedId; srvEl.value='';
   const btnEl=document.getElementById('add-btn-'+si);
