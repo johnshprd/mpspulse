@@ -73,22 +73,23 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
 .card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
 
-/* 7-DAY HISTORY TILES */
-.week-tiles { display: flex; gap: 4px; }
-.wtile { flex: 1; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); padding: 6px 4px 5px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: background 0.3s, border-color 0.3s; }
-.wtile.hit { background: var(--g1); border-color: var(--g1); }
-.wtile.partial { background: rgba(217,119,6,0.15); border-color: var(--amber); }
-.wtile.today-ring { box-shadow: 0 0 0 2px var(--g1); }
-.wtile.hit.today-ring { box-shadow: 0 0 0 2px var(--accent2); }
-.wtile-day { font-family: 'Space Mono', monospace; font-size: 0.52rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
-.wtile.hit .wtile-day { color: rgba(255,255,255,0.8); }
-.wtile.partial .wtile-day { color: var(--amber); }
-.wtile-g { font-family: 'Bebas Neue', sans-serif; font-size: 0.94rem; color: var(--muted2); line-height: 1; }
-.wtile.hit .wtile-g { color: #fff; }
-.wtile.partial .wtile-g { color: var(--amber); }
-.wtile-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); }
-.wtile.hit .wtile-dot { background: rgba(255,255,255,0.6); }
-.wtile.partial .wtile-dot { background: var(--amber); }
+/* 7-DAY HISTORY BARS */
+.week-chart { position: relative; height: 64px; margin-bottom: 2px; }
+.week-goal-line { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--border2); z-index: 1; pointer-events: none; }
+.week-bars { display: flex; align-items: flex-end; gap: 4px; height: 56px; position: relative; z-index: 2; }
+.wbar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0; height: 100%; justify-content: flex-end; position: relative; }
+.wbar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border2); min-height: 3px; transition: height 0.5s ease, background 0.3s; }
+.wbar.hit { background: #16a34a; }
+.wbar.partial { background: var(--amber); }
+.wbar.today { outline: 2px solid var(--g1); outline-offset: 1px; }
+.wbar-val { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-family: 'Bebas Neue', sans-serif; font-size: 0.72rem; white-space: nowrap; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+.wbar-wrap:hover .wbar-val { opacity: 1; }
+.week-days { display: flex; gap: 4px; margin-top: 4px; }
+.wday { flex: 1; font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--muted); letter-spacing: 1px; text-align: center; text-transform: uppercase; }
+.wday.today { color: var(--g1); font-weight: 700; }
+.week-legend { display: flex; gap: 10px; margin-top: 6px; }
+.wleg { display: flex; align-items: center; gap: 4px; font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted); letter-spacing: 0.5px; }
+.wleg-dot { width: 6px; height: 6px; border-radius: 2px; flex-shrink: 0; }
 
 .slot-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; }
 .dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 80px; margin-top: 8px; overflow: visible; }
@@ -421,7 +422,16 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
     </div>
     <div class="card">
       <div class="card-title">7-DAY HISTORY</div>
-      <div class="week-tiles" id="weekBars"></div>
+      <div class="week-chart">
+        <div class="week-goal-line" id="weekGoalLine"></div>
+        <div class="week-bars" id="weekBars"></div>
+      </div>
+      <div class="week-days" id="weekDays"></div>
+      <div class="week-legend">
+        <div class="wleg"><div class="wleg-dot" style="background:#16a34a"></div>GOAL HIT</div>
+        <div class="wleg"><div class="wleg-dot" style="background:var(--amber)"></div>PARTIAL</div>
+        <div class="wleg"><div class="wleg-dot" style="background:var(--border2)"></div>NONE</div>
+      </div>
     </div>
   </div>
   <div class="right">
@@ -1145,20 +1155,30 @@ function renderWeekBars(){
   const tod=new Date().getDay();
   const off=tod===0?6:tod-1;
   const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
+  const mx=Math.max(...reord.map(d=>d.val),state.goal,1);
+  const goalPct=(state.goal/mx)*100;
+  // Position goal line (it sits inside .week-chart height 64px, bars are 56px tall)
+  const goalLineTop=Math.round(64-(goalPct/100)*56)-1;
+  const goalLineEl=document.getElementById('weekGoalLine');
+  if(goalLineEl) goalLineEl.style.top=goalLineTop+'px';
   document.getElementById('weekBars').innerHTML=reord.map((d,i)=>{
     const isToday=i===6;
     const hit=d.val>=state.goal&&d.val>0;
     const partial=!hit&&d.val>=state.goal*0.5&&d.val>0;
-    let cls='wtile';
+    const h=d.val>0?Math.max(3,Math.round((d.val/mx)*56)):3;
+    let cls='wbar';
     if(hit)cls+=' hit';
     else if(partial)cls+=' partial';
-    if(isToday)cls+=' today-ring';
-    return '<div class="'+cls+'" title="'+d.label+': '+d.val+'g">'+
-      '<div class="wtile-day">'+d.label+'</div>'+
-      '<div class="wtile-g">'+(d.val===0?'—':d.val+'g')+'</div>'+
-      '<div class="wtile-dot"></div>'+
+    if(isToday)cls+=' today';
+    const valColor=hit?'#16a34a':partial?'var(--amber)':'var(--muted)';
+    return '<div class="wbar-wrap">'+
+      '<div class="wbar-val" style="color:'+valColor+'">'+(d.val>0?d.val+'g':'')+'</div>'+
+      '<div class="'+cls+'" style="height:'+h+'px"></div>'+
       '</div>';
   }).join('');
+  document.getElementById('weekDays').innerHTML=reord.map((d,i)=>
+    '<div class="wday'+(i===6?' today':'')+'">'+d.label+'</div>'
+  ).join('');
 }
 
 function tickMps(){
@@ -1285,18 +1305,23 @@ function renderSettingsHistory(){
   const tod=new Date().getDay();
   const off=tod===0?6:tod-1;
   const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
-  el.innerHTML=reord.map((d,i)=>{
-    const isToday=i===6;
-    const hit=d.val>=state.goal&&d.val>0;
-    const partial=!hit&&d.val>=state.goal*0.5&&d.val>0;
-    let cls='wtile';
-    if(hit)cls+=' hit'; else if(partial)cls+=' partial';
-    if(isToday)cls+=' today-ring';
-    return '<div class="'+cls+'" style="flex:1">'+
-      '<div class="wtile-day">'+d.label+'</div>'+
-      '<div class="wtile-g">'+(d.val===0?'—':d.val+'g')+'</div>'+
-      '<div class="wtile-dot"></div></div>';
-  }).join('');
+  const mx=Math.max(...reord.map(d=>d.val),state.goal,1);
+  el.style.cssText='display:flex;flex-direction:column;gap:4px';
+  const barsHtml='<div style="display:flex;gap:4px;height:50px;align-items:flex-end;position:relative">'+
+    reord.map((d,i)=>{
+      const isToday=i===6;
+      const hit=d.val>=state.goal&&d.val>0;
+      const partial=!hit&&d.val>=state.goal*0.5&&d.val>0;
+      const h=d.val>0?Math.max(3,Math.round((d.val/mx)*46)):3;
+      const bg=hit?'#16a34a':partial?'var(--amber)':'var(--border2)';
+      const outline=isToday?'outline:2px solid var(--g1);outline-offset:1px;':'';
+      return '<div style="flex:1;border-radius:3px 3px 0 0;height:'+h+'px;background:'+bg+';'+outline+'"></div>';
+    }).join('')+
+    '</div>';
+  const daysHtml='<div style="display:flex;gap:4px">'+
+    reord.map((d,i)=>'<div style="flex:1;font-family:Space Mono,monospace;font-size:0.48rem;color:'+(i===6?'var(--g1)':'var(--muted)')+';text-align:center;letter-spacing:0.5px">'+d.label+'</div>').join('')+
+    '</div>';
+  el.innerHTML=barsHtml+daysHtml;
 }
 
 function renderSettingsManageFoods(){
