@@ -17,7 +17,6 @@
   --accent: #4f46e5; --accent2: #3730a3; --accent3: #e0e0f8;
   --amber: #d97706; --red: #dc2626; --blue: #2563eb;
   --text: #1e1b4b; --muted: #9490b8; --muted2: #6b67a0;
-  /* keep g1/g2/g3 aliases pointing to accent for minimal refactoring */
   --g1: #4f46e5; --g2: #3730a3; --g3: #312e81;
 }
 [data-theme="dark"] {
@@ -28,26 +27,15 @@
   --text: #e8e7f8; --muted: #6b67a0; --muted2: #9490b8;
   --g1: #818cf8; --g2: #6366f1; --g3: #4f46e5;
 }
-* { transition: background-color 0.2s, color 0.2s; }
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { transition: background-color 0.2s, color 0.2s; box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
-#loading {
-  position: fixed; inset: 0; background: var(--bg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-  z-index: 999;
-}
+#loading { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 999; }
 .loading-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 6px; color: var(--g1); filter: drop-shadow(0 0 14px rgba(79,70,229,0.3)); }
 .loading-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g1); animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
-header {
-  display: flex; flex-direction: column;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface); backdrop-filter: blur(12px);
-  position: sticky; top: 0; z-index: 100;
-}
+header { display: flex; flex-direction: column; border-bottom: 1px solid var(--border); background: var(--surface); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; }
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
 .coach-card { display: flex; align-items: center; gap: 10px; background: #4f46e5; padding: 9px 14px; width: 100%; box-sizing: border-box; }
 .coach-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
@@ -57,7 +45,6 @@ header {
 .header-right { display: flex; align-items: center; gap: 16px; }
 .user-email { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; }
 .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.74rem; letter-spacing: 1px; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
-#themeToggle { font-size: 1rem; padding: 5px 10px; letter-spacing: 0; border-color: var(--border2); }
 .signout-btn:hover { border-color: var(--red); color: var(--red); }
 .goal-pill { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px; }
 .goal-pill label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
@@ -65,7 +52,6 @@ header {
 
 .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
 
-/* LEFT */
 .left { border-right: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; background: var(--surface2); }
 .ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
 .overview-row { display: flex; align-items: center; gap: 14px; }
@@ -82,72 +68,60 @@ header {
 .ring-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
 .ring-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.02rem; color: var(--g1); line-height: 1; transition: color 0.4s; }
 .ring-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
-.total-label { font-family: 'Space Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; color: var(--muted2); }
 .daily-met { display: flex; align-items: center; gap: 5px; background: rgba(79,70,229,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
 .daily-met.show { opacity: 1; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
-.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; position: relative; z-index: 2; background: var(--surface); padding-bottom: 4px; }
+.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+
+/* 7-DAY HISTORY TILES */
+.week-tiles { display: flex; gap: 4px; }
+.wtile { flex: 1; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); padding: 6px 4px 5px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: background 0.3s, border-color 0.3s; }
+.wtile.hit { background: var(--g1); border-color: var(--g1); }
+.wtile.partial { background: rgba(217,119,6,0.15); border-color: var(--amber); }
+.wtile.today-ring { box-shadow: 0 0 0 2px var(--g1); }
+.wtile.hit.today-ring { box-shadow: 0 0 0 2px var(--accent2); }
+.wtile-day { font-family: 'Space Mono', monospace; font-size: 0.52rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.wtile.hit .wtile-day { color: rgba(255,255,255,0.8); }
+.wtile.partial .wtile-day { color: var(--amber); }
+.wtile-g { font-family: 'Bebas Neue', sans-serif; font-size: 0.94rem; color: var(--muted2); line-height: 1; }
+.wtile.hit .wtile-g { color: #fff; }
+.wtile.partial .wtile-g { color: var(--amber); }
+.wtile-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); }
+.wtile.hit .wtile-dot { background: rgba(255,255,255,0.6); }
+.wtile.partial .wtile-dot { background: var(--amber); }
+
 .slot-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; }
-.pulse-wave { display: inline-block; font-size: 0.7rem; opacity: 0; margin-left: 4px; }
-.pulse-wave.active { opacity: 1; animation: waveAnim 1.2s ease-in-out infinite; }
-@keyframes waveAnim {
-  0%,100% { transform: scaleY(1); opacity: 0.6; }
-  50% { transform: scaleY(1.6); opacity: 1; }
-}
-/* old stat cards removed */
 .dist-bars { display: flex; align-items: flex-end; gap: 7px; height: 80px; margin-top: 8px; overflow: visible; }
 .dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .dist-bar-wrap { width: 100%; height: 70px; display: flex; align-items: flex-end; }
 .dist-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border2); min-height: 3px; transition: height 0.5s ease, background 0.3s; }
-.dist-bar.filled { background: var(--g2); }
-.dist-bar.met { background: var(--g1); box-shadow: 0 0 7px rgba(79,70,229,0.2); }
-.dist-bar.over { background: var(--amber); }
 .dist-g { font-family: 'Bebas Neue', sans-serif; font-size: 0.98rem; color: var(--muted2); }
 .dist-label { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted); letter-spacing: 1px; }
 .dist-score-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .dist-score-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.57rem; }
 .dist-score-lbl { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted2); letter-spacing: 1px; text-align: right; line-height: 1.5; }
 .score-warn { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--amber); margin-top: 6px; line-height: 1.6; }
-.week-bars { display: flex; align-items: flex-end; gap: 5px; height: 50px; }
-.wbar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
-.wbar { width:100%; border-radius:2px 2px 0 0; background:var(--border2); min-height:3px; transition:height 0.5s ease; }
-.wbar.today { background:var(--g1); box-shadow:0 0 8px rgba(79,70,229,0.2); }
-.wbar.hit { background:var(--g3); }
-.wday { font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:1px; }
-.wday.today { color:var(--g1); }
 
-/* RIGHT */
 .right { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; overflow-x: hidden; background: var(--bg); }
-.sci-banner { background: var(--surface); border-bottom: 3px solid var(--g1); border-left: none; border-radius: 0; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); position: fixed; top: 61px; left: 0; right: 0; z-index: 90; }
-.sci-text { font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text); line-height: 1.6; }
-.sci-text strong { color: var(--g1); font-size: 1.05rem; }
 .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: border-color 0.2s; }
 .slot-card * { max-width: 100%; box-sizing: border-box; }
-/* Per-slot distinct backgrounds - strong contrast */
-/* BREAKFAST — Red/Coral */
 .slot-card.slot-0 { background: #ffffff; border: 1px solid #fde0e0; border-left: 5px solid #e11d48; box-shadow: 0 3px 16px rgba(225,29,72,0.12); }
-/* LUNCH — Green */
 .slot-card.slot-1 { background: #ffffff; border: 1px solid #e0ede4; border-left: 5px solid #16a34a; box-shadow: 0 3px 16px rgba(22,163,74,0.12); }
-/* DINNER — Amber */
 .slot-card.slot-2 { background: #ffffff; border: 1px solid #ede8d8; border-left: 5px solid #d97706; box-shadow: 0 3px 16px rgba(217,119,6,0.12); }
-/* EVENING — Purple */
 .slot-card.slot-3 { background: #ffffff; border: 1px solid #ede0f0; border-left: 5px solid #9333ea; box-shadow: 0 3px 16px rgba(147,51,234,0.12); }
 [data-theme="dark"] .slot-card.slot-0 { background: #2a0f14; border-color: #4e1a22; border-left-color: #fb7185; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 [data-theme="dark"] .slot-card.slot-1 { background: #0f1f16; border-color: #1a3024; border-left-color: #4ade80; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 [data-theme="dark"] .slot-card.slot-2 { background: #1f1a0e; border-color: #302810; border-left-color: #fbbf24; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 [data-theme="dark"] .slot-card.slot-3 { background: #1a0f2e; border-color: #2e1840; border-left-color: #d8b4fe; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-/* Slot accent top bar - removed */
-.slot-card.slot-0::before { background: transparent; }
-.slot-card.slot-1::before { background: transparent; }
-.slot-card.slot-2::before { background: transparent; }
-.slot-card.slot-3::before { background: transparent; }
-/* Slot name colours */
+.slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:0; background:transparent; }
+.slot-card.active-mps { border-right-color: rgba(79,70,229,0.15); border-top-color: rgba(79,70,229,0.15); border-bottom-color: rgba(79,70,229,0.15); }
+.slot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.slot-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.62rem; letter-spacing: 3px; }
 .slot-card.slot-0 .slot-name { color: #e11d48; }
 .slot-card.slot-1 .slot-name { color: #16a34a; }
 .slot-card.slot-2 .slot-name { color: #d97706; }
 .slot-card.slot-3 .slot-name { color: #9333ea; }
-/* Slot number label colours */
 .slot-card.slot-0 .slot-num { color: #fb7185; }
 .slot-card.slot-1 .slot-num { color: #4ade80; }
 .slot-card.slot-2 .slot-num { color: #fbbf24; }
@@ -160,37 +134,14 @@ header {
 [data-theme="dark"] .slot-card.slot-1 .slot-num { color: #16a34a; }
 [data-theme="dark"] .slot-card.slot-2 .slot-num { color: #d97706; }
 [data-theme="dark"] .slot-card.slot-3 .slot-num { color: #9333ea; }
-.slot-card::before { content:''; position:absolute; top:0; left:0; right:0; height:0; background:transparent; }
-.slot-card.has-entries::before { background: transparent; }
-.slot-card.met::before { background: transparent; }
-.slot-card.over::before { background: transparent; }
-.slot-card.active-mps { border-right-color: rgba(79,70,229,0.15); border-top-color: rgba(79,70,229,0.15); border-bottom-color: rgba(79,70,229,0.15); }
-.slot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.slot-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.62rem; letter-spacing: 3px; color: var(--text); }
 .slot-g { font-family: 'Bebas Neue', sans-serif; font-size: 2.02rem; color: var(--muted2); line-height: 1; transition: color 0.3s; }
 .slot-card.has-entries .slot-g { color: var(--g2); }
 .slot-card.met .slot-g { color: var(--g1); text-shadow: 0 0 14px rgba(79,70,229,0.3); }
 .slot-card.over .slot-g { color: var(--amber); }
 .slot-g-lbl { font-family: 'Space Mono', monospace; font-size: 0.64rem; color: var(--muted); letter-spacing: 2px; }
 .target-met { display: inline-block; color: #ffffff; background: var(--g1); font-weight: 700; font-size: 0.84rem; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 4px; margin-top: 4px; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
-.mps-track { 
-  height: 6px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--surface2) 0px, var(--surface2) 8px,
-    transparent 8px, transparent 12px
-  );
-  border-radius: 2px;
-  margin-bottom: 3px;
-  overflow: hidden;
-  opacity: 0.7;
-}
-.mps-fill { 
-  height: 100%;
-  border-radius: 2px;
-  width: 0%; 
-  transition: width 1s ease;
-}
+.mps-track { height: 6px; background: repeating-linear-gradient(90deg, var(--surface2) 0px, var(--surface2) 8px, transparent 8px, transparent 12px); border-radius: 2px; margin-bottom: 3px; overflow: hidden; opacity: 0.7; }
+.mps-fill { height: 100%; border-radius: 2px; width: 0%; transition: width 1s ease; }
 .mps-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .mps-text { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted2); letter-spacing: 1px; }
 .mps-badge { font-family: 'Space Mono', monospace; font-size: 0.64rem; letter-spacing: 1px; padding: 2px 5px; border-radius: 3px; }
@@ -220,48 +171,6 @@ header {
 .add-to-db-btn:hover { background: rgba(79,70,229,0.06); border-color: var(--g1); color: var(--g1); }
 .food-search { width: 100%; background: var(--bg); border: 1px solid var(--g2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.94rem; padding: 9px 12px; border-radius: 7px; outline: none; box-sizing: border-box; }
 .food-search:focus { border-color: var(--g1); box-shadow: 0 0 0 2px rgba(79,70,229,0.12); }
-.step-lbl { font-family: 'Space Mono', monospace; font-size: 0.61rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; max-width: 100%; white-space: normal; word-wrap: break-word; }
-.browse-toggle { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-bottom: 6px; user-select: none; }
-.browse-toggle:hover { color: var(--g2); }
-.cat-tabs { display: flex; gap: 1px; background: var(--surface2); border-radius: 5px; padding: 2px; flex-wrap: wrap; width: 100%; min-width: 0; max-width: 100%; }
-
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(79,70,229,0); }
-}
-.pulse-glow:not(:disabled) { animation: pulseGlow 1.8s ease-out infinite; }
-.pulse-glow:focus { animation: none; }
-.pulse-glow:disabled { animation: none; }
-.slot-add-btn.pulse-glow:not(:disabled) { animation: pulseGlow 1.4s ease-out infinite; }
-.cat-tab { background: none; border: none; color: var(--muted2); font-family: 'Space Mono', monospace; font-size: 0.61rem; letter-spacing: 1px; padding: 6px 10px; border-radius: 3px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; flex: 1 1 0; min-width: 0; white-space: normal; text-align: center; }
-.cat-tab.active { background: var(--bg); color: var(--g1); }
-.manage-foods-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; margin-top: 4px; max-height: 220px; overflow-y: auto; }
-.mf-group-label { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; margin: 8px 0 3px; }
-.mf-group-label:first-child { margin-top: 0; }
-.mf-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px; font-size: 0.78rem; border-bottom: 1px solid var(--surface2); }
-.mf-row:last-of-type { border-bottom: none; }
-.mf-del { background: none; border: none; color: #e05a5a; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; }
-.mf-del:hover { transform: scale(1.15); }
-.mf-restore { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--g2); letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 8px; text-align: center; }
-.mf-restore:hover { color: var(--g1); }
-.slot-food-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; padding: 6px 8px; border-radius: 5px; outline: none; flex: 1 1 100%; min-width: 0; max-width: 100%; transition: border-color 0.2s; }
-.food-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; margin-bottom: 4px; }
-.food-legend-item { display: flex; align-items: center; gap: 3px; font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--muted); letter-spacing: 0.5px; }
-.food-legend-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.food-picker-wrap { position: relative; width: 100%; }
-.food-picker-btn { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; padding: 7px 10px; border-radius: 5px; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.food-picker-btn:focus { border-color: var(--g1); outline: none; }
-.food-picker-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,0.15); z-index: 300; max-height: 220px; overflow-y: auto; display: none; }
-.food-picker-dropdown.open { display: block; }
-.food-picker-search { width: 100%; border: none; border-bottom: 1px solid var(--border); padding: 8px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
-.food-picker-item { display: flex; align-items: center; gap: 7px; padding: 7px 10px; font-size: 0.78rem; cursor: pointer; border-bottom: 1px solid var(--surface2); transition: background 0.1s; }
-.food-picker-item:hover { background: var(--surface2); }
-.food-picker-item:last-child { border-bottom: none; }
-.fp-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.fp-name { flex: 1; color: var(--text); }
-.fp-detail { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--muted); }
-.slot-food-select:focus { border-color: var(--g1); }
-.slot-food-select option { background: var(--surface); }
 .srv-wrap { display: flex; flex-direction: column; gap: 2px; }
 .srv-lbl { font-family: 'Space Mono', monospace; font-size: 0.64rem; color: var(--muted2); letter-spacing: 2px; }
 .slot-serving { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.94rem; padding: 6px 8px; border-radius: 5px; outline: none; width: 62px; }
@@ -270,243 +179,63 @@ header {
 .slot-add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .slot-add-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; box-shadow: none; }
 .slot-add-btn:disabled:hover { filter: none; transform: none; }
-
-/* CAMERA BUTTON */
-.scan-btn {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--muted2);
-  border-radius: 5px;
-  padding: 6px 10px;
-  font-size: 1.12rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  align-self: flex-end;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 1px;
-  white-space: nowrap;
-}
+.scan-btn { background: none; border: 1px solid var(--border2); color: var(--muted2); border-radius: 5px; padding: 6px 10px; cursor: pointer; transition: all 0.15s; align-self: flex-end; display: flex; align-items: center; gap: 4px; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; white-space: nowrap; }
 .scan-btn:hover { border-color: var(--g2); color: var(--g1); }
 
-/* SCAN MODAL */
-.scan-modal {
-  position: fixed; inset: 0;
-  background: rgba(4,8,4,0.92);
-  backdrop-filter: blur(12px);
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
-}
-.scan-modal.open { opacity: 1; pointer-events: all; }
-.scan-inner {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 24px;
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: relative;
-}
-.scan-inner::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--g1), var(--g2), transparent);
-  border-radius: 16px 16px 0 0;
-}
-.scan-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.46rem;
-  letter-spacing: 4px;
-  color: var(--g1);
-}
-.scan-subtitle {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--muted2);
-  letter-spacing: 1px;
-  line-height: 1.6;
-  margin-top: -8px;
-}
-.scan-close {
-  position: absolute; top: 16px; right: 16px;
-  background: none; border: none; color: var(--muted2);
-  cursor: pointer; font-size: 1.25rem;
-  transition: color 0.15s;
-}
-.scan-close:hover { color: var(--red); }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.4); } 50% { box-shadow: 0 0 0 6px rgba(79,70,229,0); } }
+.pulse-glow:not(:disabled) { animation: pulseGlow 1.8s ease-out infinite; }
+.pulse-glow:focus { animation: none; }
+.pulse-glow:disabled { animation: none; }
 
-/* Image drop zone */
-.drop-zone {
-  border: 2px dashed var(--border2);
-  border-radius: 10px;
-  padding: 32px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-.drop-zone:hover { border-color: var(--g2); background: rgba(168,230,58,0.03); }
+.spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
+
+/* SCAN MODAL */
+.scan-modal { position: fixed; inset: 0; background: rgba(4,8,4,0.92); backdrop-filter: blur(12px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.scan-modal.open { opacity: 1; pointer-events: all; }
+.scan-inner { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+.scan-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--g1), var(--g2), transparent); border-radius: 16px 16px 0 0; }
+.scan-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.46rem; letter-spacing: 4px; color: var(--g1); }
+.scan-subtitle { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 1px; line-height: 1.6; margin-top: -8px; }
+.scan-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 1.25rem; transition: color 0.15s; }
+.scan-close:hover { color: var(--red); }
+.drop-zone { border: 2px dashed var(--border2); border-radius: 10px; padding: 32px 16px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.drop-zone:hover { border-color: var(--g2); }
 .drop-zone.has-image { padding: 0; border-color: var(--g2); }
-.drop-zone img {
-  width: 100%; max-height: 240px;
-  object-fit: cover; border-radius: 8px;
-  display: block;
-}
+.drop-zone img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 8px; display: block; }
 .drop-icon { font-size: 2.24rem; margin-bottom: 8px; }
 .drop-label { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 2px; }
 .drop-sub { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
 #fileInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-/* Scan actions */
 .scan-actions { display: flex; gap: 8px; }
-.scan-analyse-btn {
-  flex: 1;
-  background: var(--g1);
-  color: #050805;
-  border: none;
-  border-radius: 6px;
-  padding: 10px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.25rem;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
+.scan-analyse-btn { flex: 1; background: var(--g1); color: #050805; border: none; border-radius: 6px; padding: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 3px; cursor: pointer; transition: all 0.15s; }
 .scan-analyse-btn:hover { filter: brightness(1.1); }
 .scan-analyse-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
-.scan-cancel-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted2);
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.74rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
+.scan-cancel-btn { background: none; border: 1px solid var(--border); color: var(--muted2); border-radius: 6px; padding: 10px 16px; font-family: 'Space Mono', monospace; font-size: 0.74rem; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
 .scan-cancel-btn:hover { border-color: var(--red); color: var(--red); }
-
-/* Analysing state */
-.scan-loading {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 0;
-}
+.scan-loading { display: none; flex-direction: column; align-items: center; gap: 10px; padding: 20px 0; }
 .scan-loading.show { display: flex; }
-.scan-loading-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.74rem;
-  color: var(--g1);
-  letter-spacing: 2px;
-  animation: pulse-text 1.5s ease-in-out infinite;
-}
+.scan-loading-text { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--g1); letter-spacing: 2px; animation: pulse-text 1.5s ease-in-out infinite; }
 @keyframes pulse-text { 0%,100%{opacity:0.4} 50%{opacity:1} }
-.scan-spinner {
-  width: 32px; height: 32px;
-  border: 2px solid var(--border2);
-  border-top-color: var(--g1);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+.scan-spinner { width: 32px; height: 32px; border: 2px solid var(--border2); border-top-color: var(--g1); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* Results */
 .scan-results { display: none; flex-direction: column; gap: 10px; }
 .scan-results.show { display: flex; }
-.scan-results-title {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--muted2);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.scan-food-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  animation: pop 0.2s ease;
-}
+.scan-results-title { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; }
+.scan-food-item { display: flex; align-items: center; gap: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; animation: pop 0.2s ease; }
 .scan-food-icon { font-size: 1.34rem; flex-shrink: 0; }
 .scan-food-info { flex: 1; }
 .scan-food-name { font-size: 0.94rem; font-weight: 600; color: var(--text); }
 .scan-food-detail { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted2); margin-top: 2px; }
-.scan-food-protein {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.57rem;
-  color: var(--g1);
-  line-height: 1;
-}
+.scan-food-protein { font-family: 'Bebas Neue', sans-serif; font-size: 1.57rem; color: var(--g1); line-height: 1; }
 .scan-food-g { font-family: 'Space Mono', monospace; font-size: 0.61rem; color: var(--muted2); }
-.scan-food-check {
-  width: 20px; height: 20px;
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-  flex-shrink: 0;
-  font-size: 0.94rem;
-  color: transparent;
-}
-.scan-food-check.checked {
-  background: var(--g1);
-  border-color: var(--g1);
-  color: #050805;
-}
-.scan-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-top: 1px solid var(--border);
-}
+.scan-food-check { width: 20px; height: 20px; border: 1px solid var(--border2); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; font-size: 0.94rem; color: transparent; }
+.scan-food-check.checked { background: var(--g1); border-color: var(--g1); color: #050805; }
+.scan-total-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
 .scan-total-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
 .scan-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.79rem; color: var(--g1); }
-.scan-log-btn {
-  width: 100%;
-  background: var(--g1);
-  color: #050805;
-  border: none;
-  border-radius: 6px;
-  padding: 12px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.23rem;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
+.scan-log-btn { width: 100%; background: var(--g1); color: #050805; border: none; border-radius: 6px; padding: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1.23rem; letter-spacing: 3px; cursor: pointer; transition: all 0.15s; }
 .scan-log-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.scan-error {
-  display: none;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.74rem;
-  color: var(--red);
-  letter-spacing: 1px;
-  text-align: center;
-  padding: 12px;
-  background: rgba(232,64,64,0.08);
-  border: 1px solid rgba(232,64,64,0.2);
-  border-radius: 6px;
-  line-height: 1.6;
-}
+.scan-error { display: none; font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--red); letter-spacing: 1px; text-align: center; padding: 12px; background: rgba(232,64,64,0.08); border: 1px solid rgba(232,64,64,0.2); border-radius: 6px; line-height: 1.6; }
 .scan-error.show { display: block; }
 
 .toast { position: fixed; bottom: 22px; right: 22px; background: var(--g1); color: #050805; font-family: 'Space Mono', monospace; font-size: 0.88rem; padding: 9px 15px; border-radius: 6px; letter-spacing: 1px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; pointer-events: none; z-index: 999; }
@@ -514,79 +243,25 @@ header {
 .toast.warn { background: var(--amber); }
 
 /* CUSTOM FOOD MODAL */
-.custom-modal {
-  position: fixed; inset: 0;
-  background: rgba(4,8,4,0.92);
-  backdrop-filter: blur(12px);
-  z-index: 600;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
-}
+.custom-modal { position: fixed; inset: 0; background: rgba(4,8,4,0.92); backdrop-filter: blur(12px); z-index: 600; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .custom-modal.open { opacity: 1; pointer-events: all; }
-.custom-inner {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 24px;
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  position: relative;
-}
-.custom-inner::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--amber), transparent);
-  border-radius: 16px 16px 0 0;
-}
-.custom-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.34rem; letter-spacing: 4px; color: var(--amber);
-}
-.custom-close {
-  position: absolute; top: 16px; right: 16px;
-  background: none; border: none; color: var(--muted2);
-  cursor: pointer; font-size: 1.25rem; transition: color 0.15s;
-}
+.custom-inner { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; position: relative; }
+.custom-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--amber), transparent); border-radius: 16px 16px 0 0; }
+.custom-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.34rem; letter-spacing: 4px; color: var(--amber); }
+.custom-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 1.25rem; transition: color 0.15s; }
 .custom-close:hover { color: var(--red); }
 .custom-field { display: flex; flex-direction: column; gap: 5px; }
 .custom-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
-.custom-input {
-  background: var(--bg); border: 1px solid var(--border);
-  color: var(--text); font-family: 'DM Sans', sans-serif;
-  font-size: 1.06rem; padding: 8px 10px; border-radius: 6px; outline: none;
-}
+.custom-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 1.06rem; padding: 8px 10px; border-radius: 6px; outline: none; }
 .custom-input:focus { border-color: var(--amber); }
-.custom-row { display: flex; gap: 10px; }
-.custom-save-btn {
-  background: var(--amber); color: #050805;
-  border: none; border-radius: 6px; padding: 10px;
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem;
-  letter-spacing: 3px; cursor: pointer; transition: all 0.15s; width: 100%;
-}
+.custom-save-btn { background: var(--amber); color: #050805; border: none; border-radius: 6px; padding: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 3px; cursor: pointer; transition: all 0.15s; width: 100%; }
 .custom-save-btn:hover { filter: brightness(1.1); }
 
-
-
-/* === UX IMPROVEMENTS === */
 .tip-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.88rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; font-family: 'Space Mono', monospace; flex-shrink: 0; user-select: none; }
 .global-tooltip { position: fixed; display: none; background: #1e1b4b; border: 1px solid #3730a3; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: #ffffff; width: 220px; line-height: 1.6; z-index: 1000; box-shadow: 0 6px 24px rgba(0,0,0,0.35); font-family: 'DM Sans', sans-serif; }
 
-.spacing-warn { background: rgba(240,168,64,0.1); border: 1px solid rgba(240,168,64,0.3); border-radius: 6px; padding: 6px 10px; font-size: 0.88rem; color: var(--amber); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 8px; }
-
 #onboarding { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
-
-#startPointer {
-  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-  background: var(--g1); color: #ffffff; border: none; border-radius: 30px;
-  padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1.19rem;
-  letter-spacing: 2px; cursor: pointer; z-index: 400; display: none;
-  box-shadow: 0 4px 20px rgba(79,70,229,0.4); align-items: center; gap: 8px;
-}
+#startPointer { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--g1); color: #ffffff; border: none; border-radius: 30px; padding: 12px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1.19rem; letter-spacing: 2px; cursor: pointer; z-index: 400; display: none; box-shadow: 0 4px 20px rgba(79,70,229,0.4); align-items: center; gap: 8px; }
 #startPointer.show { display: flex; animation: pointerBounce 1.4s ease-in-out infinite; }
 #startPointer .arrow { font-size: 1.23rem; animation: arrowBob 1.4s ease-in-out infinite; }
 @keyframes pointerBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
@@ -624,13 +299,8 @@ header {
 .settings-goal-row { display: flex; align-items: center; gap: 10px; }
 .settings-goal-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; width: 80px; text-align: center; border-radius: 6px; padding: 5px 8px; outline: none; }
 .settings-goal-input:focus { border-color: var(--g1); }
-.settings-history { display: flex; align-items: flex-end; gap: 5px; height: 60px; }
-.s-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
-.s-bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--border); min-height: 3px; transition: height 0.5s ease; }
-.s-bar.today { background: var(--g1); }
-.s-bar-lbl { font-family: 'Space Mono', monospace; font-size: 0.45rem; color: var(--muted); text-transform: uppercase; }
+.settings-history { display: flex; gap: 4px; }
 .smf-list { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
-.smf-group { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--muted2); letter-spacing: 1px; text-transform: uppercase; padding: 8px 0 2px; }
 .smf-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 4px; border-bottom: 1px solid var(--surface2); font-size: 0.82rem; }
 .smf-del { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.9rem; padding: 2px 6px; }
 .smf-restore { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--g2); cursor: pointer; text-align: center; padding: 8px 0; }
@@ -719,7 +389,6 @@ header {
 
 <div class="app" id="appContent" style="display:none">
   <div class="left">
-    <!-- Compact top row: ring + stats side by side -->
     <div class="overview-row">
       <div class="ring-wrap">
         <div class="ring-outer">
@@ -741,7 +410,6 @@ header {
         <div class="ov-stat"><div class="ov-label">PROGRESS</div><div class="ov-val" id="pctDisp">0%</div></div>
       </div>
     </div>
-    <!-- Distribution (compact) -->
     <div class="card">
       <div class="card-title">PULSE DISTRIBUTION</div>
       <div class="dist-bars" id="distBars"></div>
@@ -751,13 +419,11 @@ header {
       </div>
       <div class="score-warn" id="scoreWarn"></div>
     </div>
-    <!-- 7-day history -->
     <div class="card">
       <div class="card-title">7-DAY HISTORY</div>
-      <div class="week-bars" id="weekBars"></div>
+      <div class="week-tiles" id="weekBars"></div>
     </div>
   </div>
-
   <div class="right">
     <div class="slots-grid" id="slotsGrid"></div>
   </div>
@@ -769,7 +435,6 @@ header {
     <button class="scan-close" onclick="closeScan()">✕</button>
     <div class="scan-title">SCAN MEAL</div>
     <div class="scan-subtitle">Take or upload a photo of your meal. AI will identify foods and estimate protein content.</div>
-
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="onFileSelect(event)">
       <div id="dropPlaceholder">
@@ -779,19 +444,15 @@ header {
       </div>
       <img id="previewImg" style="display:none">
     </div>
-
     <div class="scan-actions" id="scanActions">
       <button class="scan-analyse-btn" id="analyseBtn" onclick="analyseMeal()" disabled>ANALYSE MEAL</button>
       <button class="scan-cancel-btn" onclick="closeScan()">CANCEL</button>
     </div>
-
     <div class="scan-loading" id="scanLoading">
       <div class="scan-spinner"></div>
       <div class="scan-loading-text">ANALYSING MEAL...</div>
     </div>
-
     <div class="scan-error" id="scanError"></div>
-
     <div class="scan-results" id="scanResults">
       <div class="scan-results-title">DETECTED FOODS</div>
       <div id="scanFoodList"></div>
@@ -841,8 +502,6 @@ header {
     <button class="settings-close" onclick="closeSettings()">✕</button>
   </div>
   <div class="settings-body">
-
-    <!-- GOAL -->
     <div class="settings-sec">
       <div class="settings-sec-title">Daily Protein Goal</div>
       <div class="settings-goal-row">
@@ -852,8 +511,6 @@ header {
       </div>
       <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--muted)">Recommended: 1.6–2.2g × bodyweight in kg</div>
     </div>
-
-    <!-- THEME -->
     <div class="settings-sec">
       <div class="settings-sec-title">Appearance</div>
       <div class="settings-row">
@@ -864,21 +521,15 @@ header {
         <button class="settings-btn" id="settingsThemeBtn" onclick="toggleTheme()">🌙 DARK</button>
       </div>
     </div>
-
-    <!-- HISTORY -->
     <div class="settings-sec">
       <div class="settings-sec-title">7-Day History</div>
       <div class="settings-history" id="settingsHistory"></div>
     </div>
-
-    <!-- MANAGE FOODS -->
     <div class="settings-sec">
       <div class="settings-sec-title">Manage Foods</div>
       <button class="settings-btn" onclick="openCustomFood();closeSettings();" style="margin-bottom:6px;width:100%;text-align:center">+ ADD NEW FOOD</button>
       <div class="smf-list" id="settingsManageFoods"></div>
     </div>
-
-    <!-- RESET + SIGN OUT -->
     <div class="settings-sec">
       <div class="settings-sec-title">Account</div>
       <div class="settings-row">
@@ -896,7 +547,6 @@ header {
         <button class="settings-btn danger" onclick="signOut()">SIGN OUT</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -907,8 +557,6 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
 const MPS_DURATION_MS = 3 * 60 * 60 * 1000;
-
-// ── SCAN STATE ────────────────────────────────────
 let scanSlotIndex = null;
 let scanImageBase64 = null;
 let scanFoods = [];
@@ -977,13 +625,13 @@ const FOODS = {
   ]
 };
 
-const ALL_FOODS = [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts];
 function getAllFoods(){return [...FOODS.legumes,...FOODS.meat,...FOODS.dairy,...FOODS.veg,...FOODS.nuts,...(state.customFoods||[])];}
 function getVisibleFoods(){return getAllFoods().filter(f=>!(state.hiddenFoods||[]).includes(f.id));}
 function getFood(id){return getAllFoods().find(f=>f.id===id);}
 
 const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
 const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
+const CAT_COLORS = {legumes:'#16a34a',meat:'#e11d48',dairy:'#2563eb',veg:'#15803d',nuts:'#92400e',custom:'#7c3aed'};
 
 function distributeGoal(goal) {
   const base = Math.floor(goal / 4);
@@ -1002,19 +650,11 @@ let state = {
   hiddenFoods: [],
 };
 
-// ── AUTH ──────────────────────────────────────────
 async function checkSubscription(userId) {
-  const { data, error } = await db
-    .from('subscriptions')
-    .select('status, current_period_end')
-    .eq('user_id', userId)
-    .single();
+  const { data, error } = await db.from('subscriptions').select('status, current_period_end').eq('user_id', userId).single();
   if (error || !data) return false;
   if (data.status !== 'active') return false;
-  if (data.current_period_end) {
-    const expiry = new Date(data.current_period_end);
-    if (expiry < new Date()) return false;
-  }
+  if (data.current_period_end) { const expiry = new Date(data.current_period_end); if (expiry < new Date()) return false; }
   return true;
 }
 
@@ -1041,14 +681,9 @@ async function init() {
   setInterval(checkMidnight, 60000);
 }
 
-async function signOut() {
-  await db.auth.signOut();
-  window.location.href = 'auth.html';
-}
+async function signOut() { await db.auth.signOut(); window.location.href = 'auth.html'; }
 
-// ── DATA PERSISTENCE ──────────────────────────────
 async function loadUserData() {
-  // Use consistent ISO date format YYYY-MM-DD to avoid locale mismatch
   const today = new Date().toISOString().slice(0,10);
   const { data } = await db.from('user_data').select('*').eq('user_id', currentUser.id).single();
   if (data) {
@@ -1058,7 +693,6 @@ async function loadUserData() {
     state.servingHistory = data.serving_history || {};
     state.customFoods = data.custom_foods || [];
     state.hiddenFoods = data.hidden_foods || [];
-    // Normalise stored date — handle both old format and ISO format
     const storedDate = data.log_date ? new Date(data.log_date).toISOString().slice(0,10) : null;
     if (storedDate === today) {
       state.slots = data.slots || [[],[],[],[]];
@@ -1073,19 +707,12 @@ async function loadUserData() {
 
 async function saveUserData() {
   const today = new Date().toISOString().slice(0,10);
-  const payload = {
-    user_id: currentUser.id,
-    goal: state.goal,
-    slot_targets: state.slotTargets,
-    slots: state.slots,
-    log_date: today,
-    week_history: state.weekHistory,
-    custom_foods: state.customFoods,
-    hidden_foods: state.hiddenFoods,
-    serving_history: state.servingHistory,
-    updated_at: new Date().toISOString(),
-  };
-  await db.from('user_data').upsert(payload, { onConflict: 'user_id' });
+  await db.from('user_data').upsert({
+    user_id: currentUser.id, goal: state.goal, slot_targets: state.slotTargets,
+    slots: state.slots, log_date: today, week_history: state.weekHistory,
+    custom_foods: state.customFoods, hidden_foods: state.hiddenFoods,
+    serving_history: state.servingHistory, updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' });
 }
 
 function checkMidnight() {
@@ -1095,7 +722,6 @@ function checkMidnight() {
   localStorage.setItem('mps_date', today);
 }
 
-// ── SERVING HISTORY ───────────────────────────────
 function recordServing(foodId, grams) {
   if (!state.servingHistory[foodId]) state.servingHistory[foodId] = [];
   state.servingHistory[foodId].push(grams);
@@ -1118,7 +744,6 @@ function servingHint(foodId) {
   return 'your usual';
 }
 
-// ── MPS ───────────────────────────────────────────
 function getMpsState(entries) {
   if(!entries.length) return {status:'idle',pct:0,label:'Tap + ADD below to log your first meal and start your MPS window'};
   const latest=Math.max(...entries.map(e=>e.ts));
@@ -1127,37 +752,9 @@ function getMpsState(entries) {
   if(elapsed>MPS_DURATION_MS) return {status:'ended',pct:100,label:'MPS window closed'};
   const mins=Math.round((MPS_DURATION_MS-elapsed)/60000);
   const h=Math.floor(mins/60),m=mins%60;
-  const label=h>0?h+'h '+m+'m remaining':m+'m remaining';
-  return {status:pct<70?'active':'ending',pct,label};
+  return {status:pct<70?'active':'ending',pct,label:h>0?h+'h '+m+'m remaining':m+'m remaining'};
 }
 
-// ── FOOD OPTIONS ──────────────────────────────────
-// Colour coding per category
-const CAT_COLORS = {legumes:'#16a34a',meat:'#e11d48',dairy:'#2563eb',veg:'#15803d',nuts:'#92400e',custom:'#7c3aed'};
-const CAT_LABELS = {legumes:'Legumes',meat:'Meat & Eggs',dairy:'Dairy',veg:'Vegetables',nuts:'Nuts & Seeds'};
-
-function foodOptionsHtml(si) {
-  const allItems = [];
-  for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
-      allItems.push({...f, cat});
-    });
-  }
-  (state.customFoods||[]).filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
-    allItems.push({...f, cat:'custom'});
-  });
-  allItems.sort((a,b)=>a.name.localeCompare(b.name));
-  let html = '<option value="">Select a food...</option>';
-  html += allItems.map(f=>{
-    const def=smartDefault(f.id);
-    return '<option value="'+f.id+'">'+f.icon+' '+f.name+' · '+def+'g</option>';
-  }).join('');
-  return html;
-}
-
-
-
-// ── RENDER SLOTS ──────────────────────────────────
 function slotTotal(si){return state.slots[si].reduce((s,e)=>s+e.protein,0);}
 function dayTotal(){return state.slots.reduce((s,_,i)=>s+slotTotal(i),0);}
 
@@ -1171,15 +768,9 @@ function renderSlots() {
     const isMet=total>=target&&target>0;
     const isOver=total>55;
     const hasSome=total>0;
-    const cat=state.slotCats[si];
     const mps=getMpsState(entries);
     const slotColors=['#e11d48','#16a34a','#d97706','#9333ea'];
-    const mpsColors={
-      idle: 'var(--surface2)',
-      active: slotColors[si],
-      ending: '#d97706',
-      ended: 'var(--border2)'
-    };
+    const mpsColors={idle:'var(--surface2)',active:slotColors[si],ending:'#d97706',ended:'var(--border2)'};
     let cls='';
     if(isOver)cls='over';
     else if(isMet)cls='met';
@@ -1190,23 +781,12 @@ function renderSlots() {
       '<div class="slot-entry">'+
       '<span class="entry-icon">'+e.icon+'</span>'+
       '<div class="entry-info"><div class="entry-name">'+e.name+'</div>'+
-      '<div class="entry-meta">'+
-        (e.serving?e.serving+'g':'')+'&nbsp;·&nbsp;'+e.time+
-      '</div></div>'+
+      '<div class="entry-meta">'+(e.serving?e.serving+'g':'')+'&nbsp;·&nbsp;'+e.time+'</div></div>'+
       '<div class="entry-g">'+Math.round(e.protein)+'</div>'+
       '<button class="del-btn" onclick="deleteEntry('+si+','+ei+')">✕</button>'+
       '</div>'
     ).join('');
 
-    const modeTabsHtml=['db','quick'].map(m=>
-      '<button class="cat-tab '+(cat===m?'active':'')+'" onclick="setSlotMode('+si+',\''+m+'\')">'+(m==='db'?'FOOD DATABASE':'QUICK ENTRY')+'</button>'
-    ).join('');
-
-    const card=document.createElement('div');
-    card.className='slot-card slot-'+si+' '+cls;
-    card.id='slot-'+si;
-
-    // Pulse spacing warning
     let spacingWarn = '';
     if(si > 0) {
       const prevEntries = state.slots[si-1];
@@ -1217,12 +797,14 @@ function renderSlots() {
         const [fh,fm] = firstTime.split(':').map(Number);
         const diffMins = (fh*60+fm) - (ph*60+pm);
         if(diffMins > 0 && diffMins < 180) {
-          const hrs = (diffMins/60).toFixed(1);
-          spacingWarn = '<div class="spacing-warn">⚠ Only '+hrs+'h since last pulse — aim for 3h+ between pulses for best MPS</div>';
+          spacingWarn = '<div class="spacing-warn">⚠ Only '+(diffMins/60).toFixed(1)+'h since last pulse — aim for 3h+ between pulses for best MPS</div>';
         }
       }
     }
 
+    const card=document.createElement('div');
+    card.className='slot-card slot-'+si+' '+cls;
+    card.id='slot-'+si;
     card.innerHTML=
       '<div class="slot-header">'+
       '<div><div class="slot-num">PULSE '+(si+1)+' · '+SLOT_ICONS[si]+'</div>'+
@@ -1230,20 +812,19 @@ function renderSlots() {
       '<div style="text-align:right"><div class="slot-g">'+total+'</div>'+
       '<div class="slot-g-lbl">G PROTEIN</div>'+
       (isMet?'<div class="target-met">✓ TARGET MET</div>':'')+
-      '</div>'+
-      '</div>'+
+      '</div></div>'+
       spacingWarn+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
       '<div class="mps-track" style="flex:1"><div class="mps-fill" id="mps-fill-'+si+'" style="width:'+mps.pct+'%;background:repeating-linear-gradient(90deg,'+mpsColors[mps.status]+' 0px,'+mpsColors[mps.status]+' 8px,transparent 8px,transparent 12px)"></div></div>'+
-      '<span style="font-family:Space Mono,monospace;font-size:0.61rem;color:var(--muted);letter-spacing:1px;margin-right:2px">MPS</span><div class="tip-btn" style="width:18px;height:18px;font-size:0.81rem" data-tip="Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress." onclick="showTooltip(this)">?</div>'+
+      '<span style="font-family:Space Mono,monospace;font-size:0.61rem;color:var(--muted);letter-spacing:1px;margin-right:2px">MPS</span>'+
+      '<div class="tip-btn" style="width:18px;height:18px;font-size:0.81rem" data-tip="Muscle Protein Synthesis window. Triggered when you eat protein, lasts ~2–3 hours. Dashed bar shows active window progress." onclick="showTooltip(this)">?</div>'+
       '</div>'+
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
       (entries.length?'<input type="time" class="edit-time-input" value="'+entries[0].time+'" onchange="setSlotTime('+si+',this.value)" title="Edit pulse time">':'')+
       '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
-      '</div>'+
-      '</div>'+
+      '</div></div>'+
       '<div class="slot-target-row">'+
       '<label>TARGET</label>'+
       '<input type="number" value="'+target+'" min="10" max="100" onchange="setSlotTarget('+si+',this.value)">'+
@@ -1258,93 +839,24 @@ function renderSlots() {
       '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
       '</div>'+
       '<div id="add-to-db-'+si+'" style="display:none">'+
-      '<button class="add-to-db-btn" id="add-to-db-btn-'+si+'" onclick="promptAddToDb('+si+')">＋ Add "<span id="add-to-db-name-'+si+'"></span>" to My Foods</button>'+
+      '<button class="add-to-db-btn" onclick="promptAddToDb('+si+')">＋ Add "<span id="add-to-db-name-'+si+'"></span>" to My Foods</button>'+
       '</div>'+
       '<div style="display:flex;gap:5px;align-items:flex-end;flex-wrap:wrap;margin-top:5px">'+
       '<div class="srv-wrap"><div class="srv-lbl" id="srv-lbl-'+si+'">GRAMS</div>'+
       '<input class="slot-serving" type="number" id="srv-'+si+'" value="" min="10" max="1000" placeholder="g" onfocus="this.select()"></div>'+
       '<button class="slot-add-btn pulse-glow" id="add-btn-'+si+'" onclick="addToSlot('+si+')" disabled>+ADD</button>'+
       '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
-      '</div>'+
-      '</div>';
+      '</div></div>';
     grid.appendChild(card);
   });
 }
-
-function buildFoodPickerItems(si, filter=''){
-  const allItems = [];
-  for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>allItems.push({...f,cat}));
-  }
-  (state.customFoods||[]).filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>allItems.push({...f,cat:'custom'}));
-  allItems.sort((a,b)=>a.name.localeCompare(b.name));
-  const filtered = filter ? allItems.filter(f=>f.name.toLowerCase().includes(filter.toLowerCase())) : allItems;
-  return filtered.map(f=>{
-    const def=smartDefault(f.id);
-    return '<div class="food-picker-item" onclick="selectFoodFromPicker('+si+',\''+f.id+'\',\''+f.name.replace(/'/g,"\\'")+'\')" >'+
-      '<span class="fp-dot" style="background:'+CAT_COLORS[f.cat]+'"></span>'+
-      '<span class="fp-name">'+f.icon+' '+f.name+'</span>'+
-      '<span class="fp-detail">'+def+'g</span>'+
-      '</div>';
-  }).join('') || '<div style="padding:10px;font-size:0.75rem;color:var(--muted)">No foods found</div>';
-}
-
-function toggleFoodPicker(si){
-  const drop = document.getElementById('fp-drop-'+si);
-  const search = document.getElementById('fp-search-'+si);
-  const isOpen = drop.classList.contains('open');
-  // Close all other pickers
-  document.querySelectorAll('.food-picker-dropdown').forEach(d=>d.classList.remove('open'));
-  if(!isOpen){
-    drop.classList.add('open');
-    if(search){ search.value=''; search.focus(); }
-    document.getElementById('fp-list-'+si).innerHTML = buildFoodPickerItems(si);
-  }
-}
-
-function filterFoodPicker(si, val){
-  document.getElementById('fp-list-'+si).innerHTML = buildFoodPickerItems(si, val);
-}
-
-function selectFoodFromPicker(si, foodId, foodName){
-  const drop = document.getElementById('fp-drop-'+si);
-  const label = document.getElementById('fp-label-'+si);
-  const btn = document.getElementById('add-btn-'+si);
-  drop.classList.remove('open');
-  if(label) label.textContent = foodName;
-  // Store selected food id on the button/wrap for retrieval
-  const wrap = document.getElementById('fp-wrap-'+si);
-  if(wrap) wrap.dataset.selectedId = foodId;
-  // Update grams
-  const srvEl = document.getElementById('srv-'+si);
-  const lblEl = document.getElementById('srv-lbl-'+si);
-  const searchEl = document.getElementById('food-search-'+si);
-  if(srvEl){
-    const def = smartDefault(foodId);
-    const hint = servingHint(foodId);
-    srvEl.value = def;
-    if(lblEl) lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
-  }
-  if(btn) btn.disabled = false;
-  if(searchEl) searchEl.classList.remove('pulse-glow');
-}
-
-// Close picker when clicking outside
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.food-picker-wrap')){
-    document.querySelectorAll('.food-picker-dropdown').forEach(d=>d.classList.remove('open'));
-  }
-});
 
 function searchFood(si, query){
   const addToDbEl = document.getElementById('add-to-db-'+si);
   const addToDbName = document.getElementById('add-to-db-name-'+si);
   const btnEl = document.getElementById('add-btn-'+si);
   const searchEl = document.getElementById('food-search-'+si);
-  if(!query || query.length < 1){
-    if(addToDbEl) addToDbEl.style.display='none';
-    return;
-  }
+  if(!query || query.length < 1){ if(addToDbEl) addToDbEl.style.display='none'; return; }
   const match = getVisibleFoods().find(f => f.name.toLowerCase() === query.trim().toLowerCase());
   if(match){
     if(addToDbEl) addToDbEl.style.display='none';
@@ -1374,38 +886,9 @@ function searchFood(si, query){
   }
 }
 
-function setSlotMode(si,mode){
-  state.slotCats[si]=mode;
-  renderSlots();
-}
-
-let manageOpen = {};
-function toggleManageFoods(si){
-  manageOpen[si] = !manageOpen[si];
-  renderSlots();
-}
-
-function renderManageFoodsPanel(si){
-  let html = '';
-  for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    const items = FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id));
-    if(!items.length) continue;
-    html += '<div class="mf-group-label">'+CAT_LABELS[cat]+'</div>';
-    html += items.map(f=>
-      '<div class="mf-row"><span>'+f.icon+' '+f.name+'</span><button class="mf-del" onclick="hideFood(\''+f.id+'\')" title="Remove from database">🗑</button></div>'
-    ).join('');
-  }
-  if(state.customFoods && state.customFoods.length){
-    html += '<div class="mf-group-label">MY FOODS</div>';
-    html += state.customFoods.map(f=>
-      '<div class="mf-row"><span>'+f.icon+' '+f.name+'</span><button class="mf-del" onclick="hideFood(\''+f.id+'\')" title="Delete">🗑</button></div>'
-    ).join('');
-  }
-  if(state.hiddenFoods && state.hiddenFoods.length){
-    html += '<div class="mf-restore" onclick="restoreHiddenFoods()">↺ RESTORE '+state.hiddenFoods.length+' HIDDEN FOOD'+(state.hiddenFoods.length>1?'S':'')+'</div>';
-  }
-  html += '<button class="scan-btn" style="margin-top:8px;border-color:var(--amber);color:var(--amber)" onclick="openCustomFood()">+ ADD NEW FOOD</button>';
-  return html;
+function setSlotTarget(si,val){
+  const v=parseInt(val);
+  if(!isNaN(v)&&v>0){state.slotTargets[si]=v;updateUI();}
 }
 
 function hideFood(id){
@@ -1422,48 +905,7 @@ function hideFood(id){
   updateUI();
 }
 
-function restoreHiddenFoods(){
-  state.hiddenFoods=[];
-  showToast('↺ Hidden foods restored');
-  updateUI();
-}
-
-function setSlotTarget(si,val){
-  const v=parseInt(val);
-  if(!isNaN(v)&&v>0){state.slotTargets[si]=v;updateUI();}
-}
-
-function checkQuickReady(si){
-  const nameEl=document.getElementById('quick-name-'+si);
-  const pEl=document.getElementById('quick-p-'+si);
-  const btnEl=document.getElementById('quick-add-btn-'+si);
-  if(!nameEl||!pEl||!btnEl)return;
-  const ready = nameEl.value.trim().length>0 && pEl.value && parseFloat(pEl.value)>0;
-  btnEl.disabled = !ready;
-  nameEl.classList.toggle('pulse-glow', !ready && !nameEl.value.trim());
-  pEl.classList.toggle('pulse-glow', !ready && !!nameEl.value.trim() && !pEl.value);
-}
-
-function onFoodChange(si){
-  const sel=document.getElementById('sel-'+si);
-  const srvEl=document.getElementById('srv-'+si);
-  const lblEl=document.getElementById('srv-lbl-'+si);
-  const btnEl=document.getElementById('add-btn-'+si);
-  const searchEl=document.getElementById('food-search-'+si);
-  if(!sel||!srvEl)return;
-  const hasFood = !!sel.value;
-  if(btnEl) btnEl.disabled = !hasFood;
-  if(searchEl) searchEl.classList.toggle('pulse-glow', !hasFood);
-  if(!hasFood){
-    srvEl.value='';
-    if(lblEl)lblEl.textContent='GRAMS';
-    return;
-  }
-  const def=smartDefault(sel.value);
-  const hint=servingHint(sel.value);
-  srvEl.value=def;
-  if(lblEl)lblEl.innerHTML='GRAMS'+(hint?'<span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0"> · '+hint+', tap to edit</span>':'');
-}
+function restoreHiddenFoods(){ state.hiddenFoods=[]; showToast('↺ Hidden foods restored'); updateUI(); }
 
 function addToSlot(si){
   const searchEl = document.getElementById('food-search-'+si);
@@ -1477,10 +919,7 @@ function addToSlot(si){
   const wasOver=slotTotal(si)>55;
   recordServing(food.id,serving);
   state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
-  // Reset search
-  searchEl.value='';
-  delete searchEl.dataset.selectedId;
-  srvEl.value='';
+  searchEl.value=''; delete searchEl.dataset.selectedId; srvEl.value='';
   const btnEl=document.getElementById('add-btn-'+si);
   if(btnEl) btnEl.disabled=true;
   searchEl.classList.add('pulse-glow');
@@ -1492,18 +931,10 @@ function addToSlot(si){
   setTimeout(updateCoach,100);
 }
 
-function deleteEntry(si,ei){
-  state.slots[si].splice(ei,1);
-  updateUI();
-}
-
-// ── SCAN / AI MEAL ANALYSIS ───────────────────────
+function deleteEntry(si,ei){ state.slots[si].splice(ei,1); updateUI(); }
 
 function openScan(si) {
-  scanSlotIndex = si;
-  scanImageBase64 = null;
-  scanFoods = [];
-  // Reset modal state
+  scanSlotIndex = si; scanImageBase64 = null; scanFoods = [];
   document.getElementById('dropZone').classList.remove('has-image');
   document.getElementById('previewImg').style.display = 'none';
   document.getElementById('dropPlaceholder').style.display = 'block';
@@ -1518,13 +949,10 @@ function openScan(si) {
   document.getElementById('scanModal').classList.add('open');
 }
 
-function closeScan() {
-  document.getElementById('scanModal').classList.remove('open');
-}
+function closeScan() { document.getElementById('scanModal').classList.remove('open'); }
 
 function onFileSelect(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
     const dataUrl = e.target.result;
@@ -1540,44 +968,22 @@ function onFileSelect(event) {
 
 async function analyseMeal() {
   if (!scanImageBase64) return;
-
-  // Show loading
   document.getElementById('scanActions').style.display = 'none';
   document.getElementById('scanLoading').classList.add('show');
   document.getElementById('scanResults').classList.remove('show');
   document.getElementById('scanError').classList.remove('show');
-
   try {
-    const response = await fetch(
-      'https://xcfxizkflleeahjguviq.supabase.co/functions/v1/bright-endpoint',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON}`
-        },
-        body: JSON.stringify({
-          imageBase64: scanImageBase64,
-          mediaType: 'image/jpeg'
-        })
-      }
-    );
-
+    const response = await fetch('https://xcfxizkflleeahjguviq.supabase.co/functions/v1/bright-endpoint', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}`},
+      body: JSON.stringify({imageBase64: scanImageBase64, mediaType: 'image/jpeg'})
+    });
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Analysis failed');
-    }
-
+    if (!response.ok) throw new Error(data.error || 'Analysis failed');
     const foods = data.foods;
-
-    if (!Array.isArray(foods) || foods.length === 0) {
-      throw new Error('No protein-containing foods detected in this image. Try a clearer photo of your meal.');
-    }
-
+    if (!Array.isArray(foods) || foods.length === 0) throw new Error('No protein-containing foods detected. Try a clearer photo.');
     scanFoods = foods.map((f, i) => ({ ...f, selected: true, id: i }));
     renderScanResults();
-
   } catch(err) {
     document.getElementById('scanLoading').classList.remove('show');
     document.getElementById('scanActions').style.display = 'flex';
@@ -1591,163 +997,100 @@ async function analyseMeal() {
 function renderScanResults() {
   document.getElementById('scanLoading').classList.remove('show');
   document.getElementById('scanResults').classList.add('show');
-
-  const list = document.getElementById('scanFoodList');
-  list.innerHTML = scanFoods.map(f =>
+  document.getElementById('scanFoodList').innerHTML = scanFoods.map(f =>
     `<div class="scan-food-item">
       <span class="scan-food-icon">${f.icon}</span>
-      <div class="scan-food-info">
-        <div class="scan-food-name">${f.name}</div>
-        <div class="scan-food-detail">${f.detail} · ${f.confidence} confidence</div>
-      </div>
-      <div style="text-align:right">
-        <div class="scan-food-protein">${Math.round(f.proteinG)}</div>
-        <div class="scan-food-g">G PROTEIN</div>
-      </div>
-      <div class="scan-food-check ${f.selected ? 'checked' : ''}" onclick="toggleScanFood(${f.id})">${f.selected ? '✓' : ''}</div>
+      <div class="scan-food-info"><div class="scan-food-name">${f.name}</div>
+      <div class="scan-food-detail">${f.detail} · ${f.confidence} confidence</div></div>
+      <div style="text-align:right"><div class="scan-food-protein">${Math.round(f.proteinG)}</div><div class="scan-food-g">G PROTEIN</div></div>
+      <div class="scan-food-check ${f.selected?'checked':''}" onclick="toggleScanFood(${f.id})">${f.selected?'✓':''}</div>
     </div>`
   ).join('');
-
   updateScanTotal();
 }
 
 function toggleScanFood(id) {
   const food = scanFoods.find(f => f.id === id);
-  if (food) {
-    food.selected = !food.selected;
-    renderScanResults();
-  }
+  if (food) { food.selected = !food.selected; renderScanResults(); }
 }
 
 function updateScanTotal() {
-  const total = scanFoods.filter(f => f.selected).reduce((s, f) => s + f.proteinG, 0);
-  document.getElementById('scanTotal').textContent = Math.round(total);
+  document.getElementById('scanTotal').textContent = Math.round(scanFoods.filter(f=>f.selected).reduce((s,f)=>s+f.proteinG,0));
 }
 
 function logScannedMeal() {
   const selected = scanFoods.filter(f => f.selected);
   if (!selected.length) { showToast('Select at least one food', true); return; }
-
   const si = scanSlotIndex;
   const wasOver = slotTotal(si) > 55;
-
   selected.forEach(f => {
-    state.slots[si].push({
-      foodId: 'scan_' + f.name.toLowerCase().replace(/\s/g,'_'),
-      name: f.name,
-      icon: f.icon,
-      serving: f.portionG,
-      protein: f.proteinG,
-      ts: Date.now(),
-      time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})
-    });
+    state.slots[si].push({foodId:'scan_'+f.name.toLowerCase().replace(/\s/g,'_'),name:f.name,icon:f.icon,serving:f.portionG,protein:f.proteinG,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
   });
-
   const newTotal = slotTotal(si);
-  const totalProtein = selected.reduce((s, f) => s + f.proteinG, 0);
-
-  if (!wasOver && newTotal >= state.slotTargets[si]) showToast('✓ PULSE ' + (si+1) + ' TARGET MET');
-  else if (newTotal > 55) showToast('⚠ ' + Math.round(newTotal) + 'G EXCEEDS MPS CEILING', true);
-  else showToast('+' + Math.round(totalProtein) + 'G → PULSE ' + (si+1));
-
-  closeScan();
-  updateUI();
+  const totalProtein = selected.reduce((s,f)=>s+f.proteinG,0);
+  if (!wasOver && newTotal >= state.slotTargets[si]) showToast('✓ PULSE '+(si+1)+' TARGET MET');
+  else if (newTotal > 55) showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING', true);
+  else showToast('+'+Math.round(totalProtein)+'G → PULSE '+(si+1));
+  closeScan(); updateUI();
 }
 
-// ── DISTRIBUTION SCORE ────────────────────────────
 function calcDistScore(){
   const totals=state.slots.map((_,i)=>slotTotal(i));
   const day=totals.reduce((s,v)=>s+v,0);
   const loggedSlots=totals.filter(v=>v>0).length;
   if(day===0)return{score:null,warn:''};
-
-  // Only score based on pulses logged so far
   const mean=day/4;
   const variance=totals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/4;
   const cv=mean>0?Math.sqrt(variance)/mean:0;
   const score=Math.max(0,Math.round(100-cv*100));
-
   let warn='';
   const max=Math.max(...totals);
   const maxIdx=totals.indexOf(max);
   if(max>55) warn='⚠ Pulse '+(maxIdx+1)+' ('+Math.round(max)+'g) exceeds the MPS ceiling — excess will be oxidised.';
-
-  // Label is contextual — don't penalise early in the day
   let label,color;
-  if(loggedSlots===1){
-    label='IN PROGRESS'; color='var(--g2)';
-    warn = warn || ''; // no uneven warning with just 1 pulse
-  } else if(loggedSlots===2){
-    label=score>=60?'GOOD START':'KEEP GOING'; color=score>=60?'var(--g2)':'var(--amber)';
-    if(!warn && cv>0.6) warn='↕ Try to keep pulses closer in size for best results.';
+  if(loggedSlots===1){label='IN PROGRESS';color='var(--g2)';}
+  else if(loggedSlots===2){
+    label=score>=60?'GOOD START':'KEEP GOING';color=score>=60?'var(--g2)':'var(--amber)';
+    if(!warn&&cv>0.6)warn='↕ Try to keep pulses closer in size for best results.';
   } else if(loggedSlots===3){
-    if(score>=75){label='GOOD';color='var(--g2)';}
-    else if(score>=50){label='NEARLY THERE';color='var(--amber)';}
-    else{label='UNEVEN';color='var(--amber)';}
-    if(!warn && cv>0.5) warn='↕ Aim to keep your final pulse similar in size to the others.';
+    if(score>=75){label='GOOD';color='var(--g2)';}else if(score>=50){label='NEARLY THERE';color='var(--amber)';}else{label='UNEVEN';color='var(--amber)';}
+    if(!warn&&cv>0.5)warn='↕ Aim to keep your final pulse similar in size to the others.';
   } else {
-    // All 4 logged — now give the full verdict
-    if(score>=85){label='OPTIMAL';color='var(--g1)';}
-    else if(score>=60){label='GOOD';color='var(--g2)';}
-    else if(score>=35){label='UNEVEN';color='var(--amber)';}
-    else{label='POOR';color='var(--red)';}
-    if(!warn && cv>0.5) warn='↕ Uneven spread — aim for 3–4 equal pulses of 30–50g.';
+    if(score>=85){label='OPTIMAL';color='var(--g1)';}else if(score>=60){label='GOOD';color='var(--g2)';}else if(score>=35){label='UNEVEN';color='var(--amber)';}else{label='POOR';color='var(--red)';}
+    if(!warn&&cv>0.5)warn='↕ Uneven spread — aim for 3–4 equal pulses of 30–50g.';
   }
   return{score,label,color,warn};
 }
 
-// ── MAIN UI UPDATE ────────────────────────────────
 function updateCoach(){
-  const icon = document.getElementById('coachIcon');
-  const text = document.getElementById('coachText');
-  if(!icon||!text) return;
+  const icon=document.getElementById('coachIcon');
+  const text=document.getElementById('coachText');
+  if(!icon||!text)return;
   try {
-    const total = Math.round(dayTotal());
-    const goal = state.goal || 150;
-    const hour = new Date().getHours();
-    const loggedSlots = state.slots.filter(s=>s&&s.length>0).length;
-    const slotTotals = [0,1,2,3].map(i=>slotTotal(i));
-    const overCeiling = slotTotals.filter(v=>v>55).length;
-    const metTargets = slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
-    const ringVal = parseInt(document.getElementById('ringG')?.textContent||'0');
-
-    // Find the active/current pulse (first one with entries but not yet met)
-    const activeSlot = slotTotals.findIndex((v,i)=>v>0 && v<state.slotTargets[i]);
-    const activeSlotRemaining = activeSlot>=0 ? Math.round(state.slotTargets[activeSlot]-slotTotals[activeSlot]) : 0;
-    const nextEmptySlot = slotTotals.findIndex(v=>v===0);
-    const SLOT_NAMES_COACH = ['Breakfast','Lunch','Dinner','Evening'];
-
+    const total=Math.round(dayTotal());
+    const goal=state.goal||150;
+    const hour=new Date().getHours();
+    const loggedSlots=state.slots.filter(s=>s&&s.length>0).length;
+    const slotTotals=[0,1,2,3].map(i=>slotTotal(i));
+    const overCeiling=slotTotals.filter(v=>v>55).length;
+    const metTargets=slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
+    const activeSlot=slotTotals.findIndex((v,i)=>v>0&&v<state.slotTargets[i]);
+    const activeSlotRemaining=activeSlot>=0?Math.round(state.slotTargets[activeSlot]-slotTotals[activeSlot]):0;
+    const nextEmptySlot=slotTotals.findIndex(v=>v===0);
+    const SN=['Breakfast','Lunch','Dinner','Evening'];
     let ico,msg;
-    if(total>=goal){
-      ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
-    } else if(overCeiling>0){
-      ico='⚠️'; msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';
-    } else if(loggedSlots===0){
-      ico=hour<12?'🌅':hour<17?'⏰':'🌙';
-      msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';
-    } else if(activeSlot>=0 && activeSlotRemaining<=10){
-      // Nearly there on current pulse
-      ico='🎯'; msg='<strong>Almost there on '+SLOT_NAMES_COACH[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.';
-    } else if(activeSlot>=0){
-      // In progress on a pulse
-      ico='💪'; msg='<strong>'+SLOT_NAMES_COACH[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target. Keep adding to this pulse before moving on.';
-    } else if(metTargets>=3){
-      ico='🚀'; msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.';
-    } else if(metTargets===2){
-      ico='🔥'; msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go. Start your next pulse in 3–4 hours.';
-    } else if(metTargets===1){
-      ico='✅'; msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.';
-    } else if(loggedSlots>0&&hour>=20&&total<goal*0.75){
-      ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';
-    } else {
-      ico='👍'; msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';
-    }
-    icon.textContent=ico;
-    text.innerHTML=msg;
-  } catch(e){
-    icon.textContent='💪';
-    text.textContent='Log a meal to get coaching tips.';
-  }
+    if(total>=goal){ico='🏆';msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';}
+    else if(overCeiling>0){ico='⚠️';msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';}
+    else if(loggedSlots===0){ico=hour<12?'🌅':hour<17?'⏰':'🌙';msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';}
+    else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.';}
+    else if(activeSlot>=0){ico='💪';msg='<strong>'+SN[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target. Keep adding to this pulse before moving on.';}
+    else if(metTargets>=3){ico='🚀';msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.';}
+    else if(metTargets===2){ico='🔥';msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go. Start your next pulse in 3–4 hours.';}
+    else if(metTargets===1){ico='✅';msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.';}
+    else if(loggedSlots>0&&hour>=20&&total<goal*0.75){ico='🌙';msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';}
+    else{ico='👍';msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';}
+    icon.textContent=ico; text.innerHTML=msg;
+  } catch(e){ icon.textContent='💪'; text.textContent='Log a meal to get coaching tips.'; }
 }
 
 function updateUI(){
@@ -1772,11 +1115,11 @@ function updateUI(){
     const h=Math.round((v/distMax)*70);
     const met=v>=state.slotTargets[i]&&v>0;
     const over=v>55;
-    const col = slotBarColors[i];
-    const opacity = v===0 ? '0.15' : over ? '1' : met ? '1' : '0.55';
-    const barStyle = 'height:'+Math.max(3,h)+'px;background:'+col+';opacity:'+opacity+(over?';box-shadow:0 0 6px rgba(217,119,6,0.4)':'');
-    const gStyle = 'color:'+(v===0?'var(--muted)':col);
-    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar" style="'+barStyle+'"></div></div><div class="dist-g" style="'+gStyle+'">'+Math.round(v)+'</div><div class="dist-label">P'+(i+1)+'</div></div>';
+    const col=slotBarColors[i];
+    const opacity=v===0?'0.15':over?'1':met?'1':'0.55';
+    return '<div class="dist-col"><div class="dist-bar-wrap"><div class="dist-bar" style="height:'+Math.max(3,h)+'px;background:'+col+';opacity:'+opacity+(over?';box-shadow:0 0 6px rgba(217,119,6,0.4)':'')+'"></div></div>'+
+      '<div class="dist-g" style="color:'+(v===0?'var(--muted)':col)+'">'+Math.round(v)+'</div>'+
+      '<div class="dist-label">P'+(i+1)+'</div></div>';
   }).join('');
   const ds=calcDistScore();
   if(ds.score!==null){
@@ -1802,11 +1145,19 @@ function renderWeekBars(){
   const tod=new Date().getDay();
   const off=tod===0?6:tod-1;
   const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
-  const mx=Math.max(...reord.map(d=>d.val),state.goal,1);
   document.getElementById('weekBars').innerHTML=reord.map((d,i)=>{
-    const h=Math.max(3,Math.round((d.val/mx)*42));
     const isToday=i===6;
-    return '<div class="wbar-wrap"><div class="wbar '+(isToday?'today':d.val>=state.goal?'hit':'')+'" style="height:'+h+'px" title="'+d.val+'g"></div><div class="wday '+(isToday?'today':'')+'">'+(d.label)+'</div></div>';
+    const hit=d.val>=state.goal&&d.val>0;
+    const partial=!hit&&d.val>=state.goal*0.5&&d.val>0;
+    let cls='wtile';
+    if(hit)cls+=' hit';
+    else if(partial)cls+=' partial';
+    if(isToday)cls+=' today-ring';
+    return '<div class="'+cls+'" title="'+d.label+': '+d.val+'g">'+
+      '<div class="wtile-day">'+d.label+'</div>'+
+      '<div class="wtile-g">'+(d.val===0?'—':d.val+'g')+'</div>'+
+      '<div class="wtile-dot"></div>'+
+      '</div>';
   }).join('');
 }
 
@@ -1823,144 +1174,45 @@ function tickMps(){
     fill.style.width=mps.pct+'%';
     const c=colors[mps.status];
     fill.style.background='repeating-linear-gradient(90deg,'+c+' 0px,'+c+' 8px,transparent 8px,transparent 12px)';
-    text.textContent=mps.label;
-    badge.textContent=mps.status.toUpperCase();
-    badge.className='mps-badge '+mps.status;
+    text.textContent=mps.label; badge.textContent=mps.status.toUpperCase(); badge.className='mps-badge '+mps.status;
   });
 }
 
-function renderAllRecentFoods(){
-  for(let si=0;si<4;si++){
-    const el=document.getElementById('recent-'+si);
-    if(!el)continue;
-    const recent = getRecentFoodsForSlot(si);
-    if(recent.length===0){el.innerHTML='';continue;}
-    el.innerHTML=recent.map((r,ri)=>
-      '<div class="recent-chip" data-si="'+si+'" data-fi="'+r.foodId.replace(/"/g,"")+'" onclick="quickAddChip(this)">'+
-      r.icon+' '+r.name+
-      '<span class="recent-chip-protein">'+Math.round(r.protein)+'</span>'+
-      '<span style="font-family:Space Mono,monospace;font-size:0.58rem;color:var(--muted)">G</span>'+
-      '</div>'
-    ).join('');
-  }
-}
-
-// ── EDIT SLOT TIME ────────────────────────────────
 function setSlotTime(si, newTime){
-  const entries = state.slots[si];
-  if(!entries || !entries.length) return;
-  const match = newTime.match(/^(\d{1,2}):(\d{2})$/);
-  if(!match){showToast('Invalid time',true);return;}
-  const h=parseInt(match[1]), m=parseInt(match[2]);
-  const formatted = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-  const now = new Date();
-  const ts = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
-  state.slots[si].forEach(e => { e.time = formatted; e.ts = ts; });
-  showToast('Pulse '+(si+1)+' time set to '+formatted);
-  updateUI();
+  const entries=state.slots[si]; if(!entries||!entries.length)return;
+  const match=newTime.match(/^(\d{1,2}):(\d{2})$/); if(!match){showToast('Invalid time',true);return;}
+  const h=parseInt(match[1]),m=parseInt(match[2]);
+  const formatted=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  const now=new Date();
+  const ts=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
+  state.slots[si].forEach(e=>{e.time=formatted;e.ts=ts;});
+  showToast('Pulse '+(si+1)+' time set to '+formatted); updateUI();
 }
 
-// ── EDIT ENTRY TIME ──────────────────────────────
-function editEntryTime(si, ei){
-  const entry = state.slots[si][ei];
-  if(!entry) return;
-  // Show a time input prompt
-  const current = entry.time || '00:00';
-  const newTime = prompt('Edit meal time (HH:MM):', current);
-  if(!newTime) return;
-  // Validate format
-  const match = newTime.match(/^(\d{1,2}):(\d{2})$/);
-  if(!match){showToast('Invalid time format. Use HH:MM',true);return;}
-  const h=parseInt(match[1]), m=parseInt(match[2]);
-  if(h<0||h>23||m<0||m>59){showToast('Invalid time',true);return;}
-  // Update time and recalculate ts for MPS countdown
-  const formatted = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-  const now = new Date();
-  const ts = new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0).getTime();
-  state.slots[si][ei].time = formatted;
-  state.slots[si][ei].ts = ts;
-  showToast('Time updated to '+formatted);
-  updateUI();
-}
-
-// ── QUICK MEAL ENTRY ──────────────────────────────
-function addQuickMeal(si){
-  const nameEl=document.getElementById('quick-name-'+si);
-  const pEl=document.getElementById('quick-p-'+si);
-  if(!nameEl||!pEl)return;
-  const name=nameEl.value.trim();
-  const protein=parseFloat(pEl.value);
-  if(!name){showToast('Enter a meal name',true);return;}
-  if(isNaN(protein)||protein<=0){showToast('Enter protein amount',true);return;}
-  const wasOver=slotTotal(si)>55;
-  state.slots[si].push({
-    foodId:'quick_'+Date.now(),
-    name,
-    icon:'🍽️',
-    serving:0,
-    protein,
-    ts:Date.now(),
-    time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
-  });
-  nameEl.value='';
-  pEl.value='';
-  const newTotal=slotTotal(si);
-  if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
-  else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
-  else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
-  updateUI();
-}
-
-function quickAddChip(el){
-  const si=parseInt(el.dataset.si);
-  const foodId=el.dataset.fi;
-  quickAdd(si,foodId);
-}
-
-function quickAdd(si, foodId){
-  const food=getFood(foodId);if(!food)return;
-  const serving=smartDefault(foodId)||food.typical||100;
-  const protein=(food.p100/100)*serving;
-  const wasOver=slotTotal(si)>55;
-  recordServing(foodId,serving);
-  state.slots[si].push({foodId,name:food.name,icon:food.icon,serving,protein,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
-  const newTotal=slotTotal(si);
-  if(!wasOver&&newTotal>=state.slotTargets[si])showToast('✓ PULSE '+(si+1)+' TARGET MET');
-  else if(newTotal>55)showToast('⚠ '+Math.round(newTotal)+'G EXCEEDS MPS CEILING',true);
-  else showToast('+'+Math.round(protein)+'G → PULSE '+(si+1));
-  updateUI();
-}
-
-// ── CUSTOM FOOD ────────────────────────────────────
 function promptAddToDb(si){
-  const searchEl = document.getElementById('food-search-'+si);
-  const name = searchEl ? searchEl.value.trim() : '';
-  // Pre-fill the custom food modal with the typed name
-  document.getElementById('cfName').value = name;
-  document.getElementById('cfIcon').value = '🍽️';
-  document.getElementById('cfProtein').value = '';
-  document.getElementById('cfTypical').value = '';
+  const searchEl=document.getElementById('food-search-'+si);
+  const name=searchEl?searchEl.value.trim():'';
+  document.getElementById('cfName').value=name;
+  document.getElementById('cfIcon').value='🍽️';
+  document.getElementById('cfProtein').value='';
+  document.getElementById('cfTypical').value='';
   document.getElementById('customModal').classList.add('open');
-  // After saving, focus back on this slot
-  window._lastAddSlot = si;
+  window._lastAddSlot=si;
 }
 
 function editFood(id){
-  const food = getAllFoods().find(f=>f.id===id);
-  if(!food) return;
-  // Pre-fill modal
-  document.getElementById('cfName').value = food.name;
-  document.getElementById('cfIcon').value = food.icon || '🍽️';
-  document.getElementById('cfProtein').value = Math.round(food.p100) || '';
-  document.getElementById('cfTypical').value = food.typical || 100;
-  // Store the id being edited
-  document.getElementById('customModalTitle').textContent = 'EDIT FOOD';
-  document.getElementById('customModal').dataset.editId = id;
+  const food=getAllFoods().find(f=>f.id===id); if(!food)return;
+  document.getElementById('cfName').value=food.name;
+  document.getElementById('cfIcon').value=food.icon||'🍽️';
+  document.getElementById('cfProtein').value=Math.round(food.p100)||'';
+  document.getElementById('cfTypical').value=food.typical||100;
+  document.getElementById('customModalTitle').textContent='EDIT FOOD';
+  document.getElementById('customModal').dataset.editId=id;
   document.getElementById('customModal').classList.add('open');
 }
 
 function openCustomFood(){
-  document.getElementById('customModalTitle').textContent = 'ADD CUSTOM FOOD';
+  document.getElementById('customModalTitle').textContent='ADD CUSTOM FOOD';
   document.getElementById('customModal').classList.add('open');
   document.getElementById('cfName').value='';
   document.getElementById('cfIcon').value='';
@@ -1980,55 +1232,34 @@ function saveCustomFood(){
   const typical=parseFloat(document.getElementById('cfTypical').value)||100;
   if(!name||isNaN(protein)||protein<=0){showToast('Fill in name and protein',true);return;}
   const p100=(protein/typical)*100;
-  const editId = document.getElementById('customModal').dataset.editId;
-
+  const editId=document.getElementById('customModal').dataset.editId;
   if(editId){
-    // Editing existing food — check if it's a built-in or custom
-    const customIdx = state.customFoods.findIndex(f=>f.id===editId);
+    const customIdx=state.customFoods.findIndex(f=>f.id===editId);
     if(customIdx>=0){
-      // Update custom food
-      state.customFoods[customIdx] = {...state.customFoods[customIdx], name, icon, p100, typical, protein, typicalLabel:'typical serving'};
+      state.customFoods[customIdx]={...state.customFoods[customIdx],name,icon,p100,typical,protein,typicalLabel:'typical serving'};
     } else {
-      // Built-in food — add as custom override, hide original
-      if(!state.hiddenFoods) state.hiddenFoods=[];
+      if(!state.hiddenFoods)state.hiddenFoods=[];
       state.hiddenFoods.push(editId);
-      const id='custom_'+Date.now();
-      state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
+      state.customFoods.push({id:'custom_'+Date.now(),name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
     }
     delete document.getElementById('customModal').dataset.editId;
     showToast('✓ '+name+' updated');
   } else {
-    // New food
-    const id='custom_'+Date.now();
-    state.customFoods.push({id,name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
+    state.customFoods.push({id:'custom_'+Date.now(),name,icon,p100,typical,protein,typicalLabel:'typical serving',directProtein:true});
     showToast('✓ '+name+' added to My Foods');
   }
-  closeCustomFood();
-  updateUI();
-  renderSettingsManageFoods();
-}
-
-function deleteCustomFood(id){
-  state.customFoods=state.customFoods.filter(f=>f.id!==id);
-  updateUI();
+  closeCustomFood(); updateUI(); renderSettingsManageFoods();
 }
 
 function openSettings(){
-  const panel = document.getElementById('settingsPanel');
-  const overlay = document.getElementById('settingsOverlay');
-  panel.classList.add('open');
-  overlay.classList.add('open');
-  // Populate goal
-  document.getElementById('settingsGoal').value = state.goal;
-  // Populate email
-  const emailEl = document.getElementById('settingsEmail');
-  if(emailEl) emailEl.textContent = document.getElementById('userEmail').textContent;
-  // Populate theme button
-  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
-  document.getElementById('settingsThemeBtn').textContent = isDark ? '☀️ LIGHT' : '🌙 DARK';
-  // Render history
+  document.getElementById('settingsPanel').classList.add('open');
+  document.getElementById('settingsOverlay').classList.add('open');
+  document.getElementById('settingsGoal').value=state.goal;
+  const emailEl=document.getElementById('settingsEmail');
+  if(emailEl)emailEl.textContent=document.getElementById('userEmail').textContent;
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.getElementById('settingsThemeBtn').textContent=isDark?'☀️ LIGHT':'🌙 DARK';
   renderSettingsHistory();
-  // Render manage foods
   renderSettingsManageFoods();
 }
 
@@ -2038,184 +1269,134 @@ function closeSettings(){
 }
 
 function applySettingsGoal(){
-  const v = parseInt(document.getElementById('settingsGoal').value);
-  if(!v||v<40||v>400){ showToast('Enter a goal between 40–400g', true); return; }
-  state.goal = v;
-  document.getElementById('goalInput').value = v;
-  distributeGoal(v);
-  updateUI();
-  showToast('✓ Goal updated to '+v+'g');
+  const v=parseInt(document.getElementById('settingsGoal').value);
+  if(!v||v<40||v>400){showToast('Enter a goal between 40–400g',true);return;}
+  state.goal=v; document.getElementById('goalInput').value=v; distributeGoal(v); updateUI(); showToast('✓ Goal updated to '+v+'g');
 }
 
 function resetToday(){
-  if(!confirm('Clear all of today\'s log entries?')) return;
-  state.slots = [[],[],[],[]];
-  updateUI();
-  closeSettings();
-  showToast('Today\'s log cleared');
+  if(!confirm('Clear all of today\'s log entries?'))return;
+  state.slots=[[],[],[],[]]; updateUI(); closeSettings(); showToast('Today\'s log cleared');
 }
 
 function renderSettingsHistory(){
-  const el = document.getElementById('settingsHistory');
-  if(!el) return;
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const max = Math.max(...state.weekHistory, 1);
-  el.innerHTML = state.weekHistory.map((v,i)=>{
-    const h = Math.max(3, Math.round((v/max)*56));
-    const isToday = i===6;
-    return '<div class="s-bar-wrap"><div class="s-bar'+(isToday?' today':'')+'" style="height:'+h+'px"></div><div class="s-bar-lbl">'+days[i]+'</div></div>';
+  const el=document.getElementById('settingsHistory'); if(!el)return;
+  const days=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const tod=new Date().getDay();
+  const off=tod===0?6:tod-1;
+  const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
+  el.innerHTML=reord.map((d,i)=>{
+    const isToday=i===6;
+    const hit=d.val>=state.goal&&d.val>0;
+    const partial=!hit&&d.val>=state.goal*0.5&&d.val>0;
+    let cls='wtile';
+    if(hit)cls+=' hit'; else if(partial)cls+=' partial';
+    if(isToday)cls+=' today-ring';
+    return '<div class="'+cls+'" style="flex:1">'+
+      '<div class="wtile-day">'+d.label+'</div>'+
+      '<div class="wtile-g">'+(d.val===0?'—':d.val+'g')+'</div>'+
+      '<div class="wtile-dot"></div></div>';
   }).join('');
 }
 
 function renderSettingsManageFoods(){
-  const el = document.getElementById('settingsManageFoods');
-  if(!el) return;
-  // Build flat alphabetical list
-  const allItems = [];
+  const el=document.getElementById('settingsManageFoods'); if(!el)return;
+  const allItems=[];
   for(const cat of ['legumes','meat','dairy','veg','nuts']){
-    FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
-      allItems.push({...f, cat});
-    });
+    FOODS[cat].filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>allItems.push({...f,cat}));
   }
-  (state.customFoods||[]).filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>{
-    allItems.push({...f, cat:'custom'});
-  });
+  (state.customFoods||[]).filter(f=>!(state.hiddenFoods||[]).includes(f.id)).forEach(f=>allItems.push({...f,cat:'custom'}));
   allItems.sort((a,b)=>a.name.localeCompare(b.name));
-  let html = allItems.map(f=>
+  let html=allItems.map(f=>
     '<div class="smf-row">'+
     '<span style="display:flex;align-items:center;gap:6px">'+
     '<span style="width:7px;height:7px;border-radius:50%;background:'+CAT_COLORS[f.cat]+';flex-shrink:0;display:inline-block"></span>'+
-    f.icon+' '+f.name+
-    '</span>'+
+    f.icon+' '+f.name+'</span>'+
     '<span style="display:flex;gap:4px">'+
     '<button class="smf-del" style="color:var(--accent)" onclick="editFood(\''+f.id+'\')">✏️</button>'+
     '<button class="smf-del" onclick="hideFood(\''+f.id+'\');renderSettingsManageFoods()">🗑</button>'+
-    '</span>'+
-    '</div>'
+    '</span></div>'
   ).join('');
-  if(state.hiddenFoods && state.hiddenFoods.length){
-    html += '<div class="smf-restore" onclick="restoreHiddenFoods();renderSettingsManageFoods()">↺ RESTORE '+state.hiddenFoods.length+' HIDDEN FOOD'+(state.hiddenFoods.length>1?'S':'')+'</div>';
+  if(state.hiddenFoods&&state.hiddenFoods.length){
+    html+='<div class="smf-restore" onclick="restoreHiddenFoods();renderSettingsManageFoods()">↺ RESTORE '+state.hiddenFoods.length+' HIDDEN FOOD'+(state.hiddenFoods.length>1?'S':'')+'</div>';
   }
-  el.innerHTML = html || '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--muted);padding:8px 0">No foods to show</div>';
+  el.innerHTML=html||'<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--muted);padding:8px 0">No foods to show</div>';
 }
 
 function initTheme(){
-  const saved = localStorage.getItem('mps_theme');
-  if(saved === 'dark'){
-    document.documentElement.setAttribute('data-theme','dark');
-    const btn = document.getElementById('themeToggle');
-    if(btn) btn.textContent = '☀️';
-  }
+  const saved=localStorage.getItem('mps_theme');
+  if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); }
 }
+
 function toggleTheme(){
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const btn = document.getElementById('settingsThemeBtn');
-  if(isDark){
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('mps_theme','light');
-    if(btn) btn.textContent = '🌙 DARK';
-  } else {
-    document.documentElement.setAttribute('data-theme','dark');
-    localStorage.setItem('mps_theme','dark');
-    if(btn) btn.textContent = '☀️ LIGHT';
-  }
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const btn=document.getElementById('settingsThemeBtn');
+  if(isDark){ document.documentElement.removeAttribute('data-theme'); localStorage.setItem('mps_theme','light'); if(btn)btn.textContent='🌙 DARK'; }
+  else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('mps_theme','dark'); if(btn)btn.textContent='☀️ LIGHT'; }
 }
 
 function showToast(msg,warn){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast'+(warn?' warn':'')+' show';
+  t.textContent=msg; t.className='toast'+(warn?' warn':'')+' show';
   setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function showTooltip(btn){
+  const tip=document.getElementById('globalTooltip');
+  const isOpen=tip.style.display==='block'&&tip._activeBtn===btn;
+  if(isOpen){tip.style.display='none';tip._activeBtn=null;return;}
+  tip.textContent=btn.getAttribute('data-tip'); tip.style.display='block'; tip._activeBtn=btn;
+  const rect=btn.getBoundingClientRect(); const tipWidth=210;
+  let left=rect.left+rect.width/2-tipWidth/2;
+  if(left<8)left=8; if(left+tipWidth>window.innerWidth-8)left=window.innerWidth-tipWidth-8;
+  let top=rect.bottom+8;
+  if(top+90>window.innerHeight-8)top=rect.top-90-8;
+  tip.style.left=left+'px'; tip.style.top=top+'px';
 }
 
 document.getElementById('goalInput').addEventListener('input',function(){
   const v=parseInt(this.value);
   if(v>=40&&v<=400){state.goal=v;state.slotTargets=distributeGoal(v);saveUserData();updateUI();}
 });
-
-// Close modal on background click
-document.getElementById('scanModal').addEventListener('click', function(e) {
-  if (e.target === this) closeScan();
-});
-
-// === TOOLTIP ===
-function showTooltip(btn) {
-  const tip = document.getElementById('globalTooltip');
-  const isOpen = tip.style.display === 'block' && tip._activeBtn === btn;
-  if(isOpen) { tip.style.display = 'none'; tip._activeBtn = null; return; }
-  tip.textContent = btn.getAttribute('data-tip');
-  tip.style.display = 'block';
-  tip._activeBtn = btn;
-  const rect = btn.getBoundingClientRect();
-  const tipWidth = 210;
-  let left = rect.left + rect.width/2 - tipWidth/2;
-  if(left < 8) left = 8;
-  if(left + tipWidth > window.innerWidth - 8) left = window.innerWidth - tipWidth - 8;
-  let top = rect.bottom + 8;
-  // If not enough room below, show above
-  const estHeight = 90;
-  if(top + estHeight > window.innerHeight - 8) top = rect.top - estHeight - 8;
-  tip.style.left = left + 'px';
-  tip.style.top = top + 'px';
-}
-document.addEventListener('click', function(e) {
-  if(!e.target.classList.contains('tip-btn')) {
-    const tip = document.getElementById('globalTooltip');
-    tip.style.display = 'none';
-    tip._activeBtn = null;
+document.getElementById('scanModal').addEventListener('click',function(e){if(e.target===this)closeScan();});
+document.addEventListener('click',function(e){
+  if(!e.target.classList.contains('tip-btn')){
+    const tip=document.getElementById('globalTooltip'); tip.style.display='none'; tip._activeBtn=null;
   }
 });
 
-// === ONBOARDING ===
-let obStep = 0;
-const OB_TOTAL = 3;
-function obNext() {
-  obStep++;
-  if(obStep >= OB_TOTAL) { closeOnboarding(); return; }
+let obStep=0; const OB_TOTAL=3;
+function obNext(){
+  obStep++; if(obStep>=OB_TOTAL){closeOnboarding();return;}
   for(let i=0;i<OB_TOTAL;i++){
-    document.getElementById('obs'+i).classList.toggle('active', i===obStep);
-    document.getElementById('od'+i).classList.toggle('active', i===obStep);
+    document.getElementById('obs'+i).classList.toggle('active',i===obStep);
+    document.getElementById('od'+i).classList.toggle('active',i===obStep);
   }
-  document.getElementById('obBtn').textContent = obStep === OB_TOTAL-1 ? 'GET STARTED →' : 'NEXT →';
+  document.getElementById('obBtn').textContent=obStep===OB_TOTAL-1?'GET STARTED →':'NEXT →';
 }
-function closeOnboarding() {
-  document.getElementById('onboarding').style.display = 'none';
-  localStorage.setItem('mps_onboarded','1');
-  showStartPointer();
+function closeOnboarding(){ document.getElementById('onboarding').style.display='none'; localStorage.setItem('mps_onboarded','1'); showStartPointer(); }
+function checkOnboarding(){
+  if(!localStorage.getItem('mps_onboarded')){ setTimeout(()=>{document.getElementById('onboarding').style.display='flex';},900); }
+  else { setTimeout(showStartPointer,600); }
 }
-function checkOnboarding() {
-  if(!localStorage.getItem('mps_onboarded')) {
-    setTimeout(()=>{ document.getElementById('onboarding').style.display='flex'; }, 900);
-  } else {
-    setTimeout(showStartPointer, 600);
-  }
-}
-
 function showStartPointer(){
-  const ptr = document.getElementById('startPointer');
-  if(!ptr) return;
+  const ptr=document.getElementById('startPointer'); if(!ptr)return;
   ptr.classList.add('show');
-  const hideOnScroll = () => { ptr.classList.remove('show'); window.removeEventListener('scroll', hideOnScroll); };
-  window.addEventListener('scroll', hideOnScroll, { passive: true });
-  // Auto-hide after 4 seconds if user doesn't scroll
-  setTimeout(()=>ptr.classList.remove('show'), 4000);
+  const hide=()=>{ptr.classList.remove('show');window.removeEventListener('scroll',hide);};
+  window.addEventListener('scroll',hide,{passive:true});
+  setTimeout(()=>ptr.classList.remove('show'),4000);
 }
-
 function goToFirstPulse(){
-  const target = document.getElementById('slot-0');
-  if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  const ptr = document.getElementById('startPointer');
-  if(ptr) ptr.classList.remove('show');
+  const target=document.getElementById('slot-0');
+  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  const ptr=document.getElementById('startPointer'); if(ptr)ptr.classList.remove('show');
 }
 
-initTheme();
-init();
-checkOnboarding();
+initTheme(); init(); checkOnboarding();
 
-// Register service worker for PWA installability
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(err=>console.log('SW registration failed:',err));
   });
 }
 </script>
