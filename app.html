@@ -412,7 +412,7 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
       </div>
     </div>
     <div class="card">
-      <div class="card-title">PULSE DISTRIBUTION</div>
+      <div class="card-title">PULSE DISTRIBUTION <div class="tip-btn" data-tip="Shows how evenly your protein is spread across 4 pulses. Equal portions across all 4 meals maximises Muscle Protein Synthesis. Score of 85+ is optimal." onclick="showTooltip(this)">?</div></div>
       <div class="dist-bars" id="distBars"></div>
       <div class="dist-score-row">
         <div class="dist-score-val" id="distScoreVal" style="color:var(--muted2)">—</div>
@@ -421,7 +421,7 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
       <div class="score-warn" id="scoreWarn"></div>
     </div>
     <div class="card">
-      <div class="card-title">7-DAY HISTORY</div>
+      <div class="card-title">7-DAY HISTORY <div class="tip-btn" data-tip="Green = daily protein goal hit. Amber = 50–99% of goal. Grey = nothing logged. Dashed line shows your goal. Today's bar has an indigo outline." onclick="showTooltip(this)">?</div></div>
       <div class="week-chart">
         <div class="week-goal-line" id="weekGoalLine"></div>
         <div class="week-bars" id="weekBars"></div>
