@@ -70,8 +70,8 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
 .ring-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted2); letter-spacing: 2px; }
 .daily-met { display: flex; align-items: center; gap: 5px; background: rgba(79,70,229,0.08); border: 1px solid var(--g1); border-radius: 16px; padding: 3px 10px; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--g1); letter-spacing: 2px; opacity: 0; transition: opacity 0.4s; }
 .daily-met.show { opacity: 1; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
-.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; overflow: visible; }
+.card-title { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; overflow: visible; }
 
 /* 7-DAY HISTORY BARS */
 .week-chart { position: relative; height: 64px; margin-bottom: 2px; }
