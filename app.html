@@ -851,7 +851,7 @@ function renderSlots() {
       '<div class="mps-info">'+
       '<span class="mps-text" id="mps-text-'+si+'">'+mps.label+'</span>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
-      (entries.length?'<input type="time" class="edit-time-input" value="'+entries[0].time+'" onchange="setSlotTime('+si+',this.value)" title="Edit pulse time">':'')+
+      (entries.length?'<input type="time" class="edit-time-input" value="'+entries[entries.length-1].time+'" onchange="setSlotTime('+si+',this.value)" title="Edit latest entry time">':'')+
       '<span class="mps-badge '+mps.status+'" id="mps-badge-'+si+'">'+mps.status.toUpperCase()+'</span>'+
       '</div></div>'+
       '<div class="slot-target-row">'+
