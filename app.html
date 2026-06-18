@@ -706,6 +706,20 @@ async function loadUserData() {
     const storedDate = data.log_date ? new Date(data.log_date).toISOString().slice(0,10) : null;
     if (storedDate === today) {
       state.slots = data.slots || [[],[],[],[]];
+    // One-time cleanup: remove serving history entries of exactly 100
+    // where the food's typical serving is different (bad defaults from old bug)
+    let historyDirty = false;
+    for(const foodId of Object.keys(state.servingHistory)){
+      const f = getAllFoods().find(f=>f.id===foodId);
+      if(f && f.typical && f.typical !== 100){
+        const cleaned = state.servingHistory[foodId].filter(v=>v!==100);
+        if(cleaned.length !== state.servingHistory[foodId].length){
+          state.servingHistory[foodId] = cleaned;
+          historyDirty = true;
+        }
+      }
+    }
+    if(historyDirty) await saveUserData();
     } else {
       state.weekHistory.shift();
       state.weekHistory.push(0);
@@ -740,10 +754,15 @@ function recordServing(foodId, grams) {
 
 function smartDefault(foodId) {
   const hist = state.servingHistory[foodId];
-  if (!hist || hist.length < 1) { const f=getFood(foodId); return f?f.typical:100; }
+  const f = getFood(foodId);
+  const typical = f ? f.typical : 100;
+  if (!hist || hist.length < 1) return typical;
   const rounded = hist.map(g=>Math.round(g/5)*5);
   const freq={};let maxC=0,best=rounded[rounded.length-1];
   for(const v of rounded){freq[v]=(freq[v]||0)+1;if(freq[v]>maxC){maxC=freq[v];best=v;}}
+  // If the most common history value is 100 but the food's typical is different,
+  // the 100 was likely a bad default — return typical instead
+  if(best===100 && typical!==100) return typical;
   return best;
 }
 
