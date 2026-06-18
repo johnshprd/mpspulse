@@ -490,13 +490,13 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
         <input class="custom-input" id="cfIcon" type="text" placeholder="🍽️" maxlength="2">
       </div>
       <div class="custom-field" style="flex:1">
-        <div class="custom-label">PROTEIN PER 100G</div>
-        <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 25" min="0" max="100">
+        <div class="custom-label">TYPICAL SERVING (G)</div>
+        <input class="custom-input" id="cfTypical" type="number" placeholder="e.g. 150" min="1">
       </div>
     </div>
     <div class="custom-field">
-      <div class="custom-label">TYPICAL SERVING (G)</div>
-      <input class="custom-input" id="cfTypical" type="number" placeholder="e.g. 150" min="1">
+      <div class="custom-label">PROTEIN IN THAT SERVING (G)</div>
+      <input class="custom-input" id="cfProtein" type="number" placeholder="e.g. 35" min="0" max="500">
     </div>
     <button class="custom-save-btn" onclick="saveCustomFood()">SAVE FOOD</button>
   </div>
@@ -1224,8 +1224,10 @@ function editFood(id){
   const food=getAllFoods().find(f=>f.id===id); if(!food)return;
   document.getElementById('cfName').value=food.name;
   document.getElementById('cfIcon').value=food.icon||'🍽️';
-  document.getElementById('cfProtein').value=Math.round(food.p100)||'';
   document.getElementById('cfTypical').value=food.typical||100;
+  // Always show protein as grams per typical serving — derive from p100 if needed
+  const proteinPerServing=food.protein?Math.round(food.protein):Math.round((food.p100/100)*(food.typical||100));
+  document.getElementById('cfProtein').value=proteinPerServing;
   document.getElementById('customModalTitle').textContent='EDIT FOOD';
   document.getElementById('customModal').dataset.editId=id;
   document.getElementById('customModal').classList.add('open');
