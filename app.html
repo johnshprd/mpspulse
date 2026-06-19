@@ -1105,16 +1105,35 @@ function updateCoach(){
     const slotTotals=[0,1,2,3].map(i=>slotTotal(i));
     const overCeiling=slotTotals.filter(v=>v>55).length;
     const metTargets=slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
-    const activeSlot=slotTotals.findIndex((v,i)=>v>0&&v<state.slotTargets[i]);
+    // Find the most recently logged slot (by latest entry timestamp), not just the first unmet one
+    let mostRecentSlot=-1, mostRecentTs=-1;
+    state.slots.forEach((entries,i)=>{
+      if(entries.length){
+        const latestTs=Math.max(...entries.map(e=>e.ts));
+        if(latestTs>mostRecentTs){mostRecentTs=latestTs;mostRecentSlot=i;}
+      }
+    });
+    const activeSlot=(mostRecentSlot>=0&&slotTotals[mostRecentSlot]<state.slotTargets[mostRecentSlot])?mostRecentSlot:-1;
     const activeSlotRemaining=activeSlot>=0?Math.round(state.slotTargets[activeSlot]-slotTotals[activeSlot]):0;
+    // Flag any earlier slot (before the active one) that's still short of target
+    let earlierShortfall=null;
+    if(activeSlot>0){
+      for(let i=0;i<activeSlot;i++){
+        if(slotTotals[i]>0&&slotTotals[i]<state.slotTargets[i]){
+          earlierShortfall={idx:i,remaining:Math.round(state.slotTargets[i]-slotTotals[i])};
+          break;
+        }
+      }
+    }
     const nextEmptySlot=slotTotals.findIndex(v=>v===0);
     const SN=['Breakfast','Lunch','Dinner','Evening'];
+    const shortfallNote=earlierShortfall?' (heads up — '+SN[earlierShortfall.idx]+' is still '+earlierShortfall.remaining+'g short)':'';
     let ico,msg;
     if(total>=goal){ico='🏆';msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';}
     else if(overCeiling>0){ico='⚠️';msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';}
     else if(loggedSlots===0){ico=hour<12?'🌅':hour<17?'⏰':'🌙';msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';}
-    else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.';}
-    else if(activeSlot>=0){ico='💪';msg='<strong>'+SN[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target. Keep adding to this pulse before moving on.';}
+    else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+shortfallNote;}
+    else if(activeSlot>=0){ico='💪';msg='<strong>'+SN[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target.'+shortfallNote;}
     else if(metTargets>=3){ico='🚀';msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.';}
     else if(metTargets===2){ico='🔥';msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go. Start your next pulse in 3–4 hours.';}
     else if(metTargets===1){ico='✅';msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.';}
