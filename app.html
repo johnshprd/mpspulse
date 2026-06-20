@@ -1093,6 +1093,24 @@ function calcDistScore(){
   return{score,label,color,warn};
 }
 
+// ── PULSE STATE MACHINE ───────────────────────────
+// Computes a single clear state per pulse: empty | active | active-met | closed-met | closed-missed
+// All coaching logic derives from this array instead of scattered conditionals.
+function getPulseStates(){
+  const SN=['Breakfast','Lunch','Dinner','Evening'];
+  return [0,1,2,3].map(i=>{
+    const entries=state.slots[i];
+    const total=slotTotal(i);
+    const target=state.slotTargets[i];
+    const met=total>0&&total>=target;
+    if(!entries.length) return {idx:i,name:SN[i],state:'empty',total,target,remaining:target};
+    const mps=getMpsState(entries).status; // idle|active|ending|ended
+    const windowOpen=mps!=='ended';
+    if(met) return {idx:i,name:SN[i],state:windowOpen?'active-met':'closed-met',total,target,remaining:0};
+    return {idx:i,name:SN[i],state:windowOpen?'active':'closed-missed',total,target,remaining:Math.round(target-total)};
+  });
+}
+
 function updateCoach(){
   const icon=document.getElementById('coachIcon');
   const text=document.getElementById('coachText');
@@ -1101,67 +1119,75 @@ function updateCoach(){
     const total=Math.round(dayTotal());
     const goal=state.goal||150;
     const hour=new Date().getHours();
-    const loggedSlots=state.slots.filter(s=>s&&s.length>0).length;
-    const slotTotals=[0,1,2,3].map(i=>slotTotal(i));
-    const overCeiling=slotTotals.filter(v=>v>55).length;
-    const metTargets=slotTotals.filter((v,i)=>v>0&&v>=(state.slotTargets[i]||40)).length;
-    // Find the most recently logged slot (by latest entry timestamp), not just the first unmet one
-    let mostRecentSlot=-1, mostRecentTs=-1;
+    const pulses=getPulseStates();
+    const overCeiling=pulses.filter(p=>p.total>55).length;
+
+    // Pick the single "in progress, actionable right now" pulse — the most recently touched one still open and under target
+    let mostRecentTs=-1, inProgress=null;
     state.slots.forEach((entries,i)=>{
       if(entries.length){
         const latestTs=Math.max(...entries.map(e=>e.ts));
-        if(latestTs>mostRecentTs){mostRecentTs=latestTs;mostRecentSlot=i;}
+        if(latestTs>mostRecentTs && pulses[i].state==='active'){mostRecentTs=latestTs; inProgress=pulses[i];}
       }
     });
-    // Only treat as "active/in progress" if under target AND the MPS window hasn't closed yet
-    const mostRecentMpsStatus=mostRecentSlot>=0?getMpsState(state.slots[mostRecentSlot]).status:null;
-    const activeSlot=(mostRecentSlot>=0&&slotTotals[mostRecentSlot]<state.slotTargets[mostRecentSlot]&&mostRecentMpsStatus!=='ended')?mostRecentSlot:-1;
-    const activeSlotRemaining=activeSlot>=0?Math.round(state.slotTargets[activeSlot]-slotTotals[activeSlot]):0;
-    // Flag any logged pulse (other than the current active one) that's still short of target AND whose MPS window hasn't closed yet — no point flagging a window that's already gone
-    let earlierShortfall=null;
-    for(let i=0;i<4;i++){
-      if(i===activeSlot) continue;
-      if(slotTotals[i]>0&&slotTotals[i]<state.slotTargets[i]){
-        const mpsStatus=getMpsState(state.slots[i]).status;
-        if(mpsStatus!=='ended'){
-          earlierShortfall={idx:i,remaining:Math.round(state.slotTargets[i]-slotTotals[i])};
-          break;
-        }
-      }
-    }
-    // Separately, note any pulses whose windows have CLOSED while still under target — acknowledged once, not actionable
-    let missedWindows=[];
-    for(let i=0;i<4;i++){
-      if(slotTotals[i]>0&&slotTotals[i]<state.slotTargets[i]&&getMpsState(state.slots[i]).status==='ended'){
-        missedWindows.push(i);
-      }
-    }
-    const nextEmptySlot=slotTotals.findIndex(v=>v===0);
-    const SN=['Breakfast','Lunch','Dinner','Evening'];
-    const shortfallNote=earlierShortfall?' (heads up — '+SN[earlierShortfall.idx]+' is still '+earlierShortfall.remaining+'g short)':'';
-    const missedNote=missedWindows.length?' You missed the '+missedWindows.map(i=>SN[i]).join(' and ')+' window'+(missedWindows.length>1?'s':'')+', but keep hitting your active pulses.':'';
-    const metSlotIndices=slotTotals.map((v,i)=>v>0&&v>=(state.slotTargets[i]||40)?i:null).filter(i=>i!==null);
-    const lastMetSlot=metSlotIndices.length?metSlotIndices[metSlotIndices.length-1]:-1;
-    const eveningMet=slotTotals[3]>0&&slotTotals[3]>=state.slotTargets[3];
+
+    // Secondary context: pulses that are closed-missed (acknowledge once, not actionable) and met pulses (for celebration)
+    const missed=pulses.filter(p=>p.state==='closed-missed');
+    const met=pulses.filter(p=>p.state==='active-met'||p.state==='closed-met');
+    const eveningDone=pulses[3].state==='active-met'||pulses[3].state==='closed-met'||pulses[3].state==='closed-missed';
+    const nothingLogged=pulses.every(p=>p.state==='empty');
+
+    const missedNote=missed.length?' You missed the '+missed.map(p=>p.name).join(' and ')+' window'+(missed.length>1?'s':'')+', but keep hitting your active pulses.':'';
+
     let ico,msg;
-    if(total>=goal){ico='🏆';msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';}
-    else if(eveningMet){
-      ico='🌙';
-      if(missedWindows.length){
-        msg='<strong>That\'s a wrap for today!</strong> Evening pulse hit — nice way to close things out. You missed the '+missedWindows.map(i=>SN[i]).join(' and ')+' window'+(missedWindows.length>1?'s':'')+' today, but tomorrow\'s a fresh set of 4. Rest well.';
+
+    // 1. Daily goal fully reached — best case, always wins
+    if(total>=goal){
+      ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
+    }
+    // 2. Something is over the MPS ceiling — worth a heads up regardless of other state
+    else if(overCeiling>0){
+      ico='⚠️'; msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';
+    }
+    // 3. Nothing logged yet today
+    else if(nothingLogged){
+      ico=hour<12?'🌅':hour<17?'⏰':'🌙';
+      msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+pulses[0].target+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';
+    }
+    // 4. There's an actionable pulse in progress right now — always the headline when present
+    else if(inProgress){
+      if(inProgress.remaining<=10){
+        ico='🎯'; msg='<strong>Almost there on '+inProgress.name+'!</strong> Just <strong>'+inProgress.remaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+missedNote;
       } else {
-        msg='<strong>That\'s a wrap for today!</strong> Evening pulse hit, <strong>'+total+'g</strong> logged across the day. Solid work — rest well and reset tomorrow.';
+        ico='💪'; msg='<strong>'+inProgress.name+' pulse in progress.</strong> You need <strong>'+inProgress.remaining+'g</strong> more to hit your target.'+missedNote;
       }
     }
-    else if(overCeiling>0){ico='⚠️';msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';}
-    else if(loggedSlots===0){ico=hour<12?'🌅':hour<17?'⏰':'🌙';msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';}
-    else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+shortfallNote+missedNote;}
-    else if(activeSlot>=0){ico='💪';msg='<strong>'+SN[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target.'+shortfallNote+missedNote;}
-    else if(metTargets>=3){ico='🚀';msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.'+shortfallNote+missedNote;}
-    else if(metTargets===2){ico='🔥';msg='<strong>'+metSlotIndices.map(i=>SN[i]).join(' and ')+' nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.'+shortfallNote+missedNote;}
-    else if(metTargets===1){ico='✅';msg='<strong>'+SN[lastMetSlot]+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+shortfallNote+missedNote;}
-    else if(loggedSlots>0&&hour>=20&&total<goal*0.75){ico='🌙';msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';}
-    else{ico='👍';msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';}
+    // 5. Evening's window is done (met, or closed having missed) — day is essentially over, sign off
+    else if(eveningDone){
+      ico='🌙';
+      if(missed.length){
+        msg='<strong>That\'s a wrap for today!</strong> '+(pulses[3].state!=='closed-missed'?'Evening pulse hit — nice way to close things out. ':'')+'You missed the '+missed.map(p=>p.name).join(' and ')+' window'+(missed.length>1?'s':'')+' today, but tomorrow\'s a fresh set of 4. Rest well.';
+      } else {
+        msg='<strong>That\'s a wrap for today!</strong> <strong>'+total+'g</strong> logged across the day. Solid work — rest well and reset tomorrow.';
+      }
+    }
+    // 6. No active pulse, day not over — encourage based on how many have been met so far
+    else if(met.length>=3){
+      const nextEmpty=pulses.find(p=>p.state==='empty');
+      ico='🚀'; msg='<strong>'+met.length+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+(nextEmpty?nextEmpty.target:pulses[3].target)+'g</strong> to finish strong.'+missedNote;
+    }
+    else if(met.length===2){
+      ico='🔥'; msg='<strong>'+met.map(p=>p.name).join(' and ')+' nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.'+missedNote;
+    }
+    else if(met.length===1){
+      ico='✅'; msg='<strong>'+met[0].name+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+    }
+    else if(hour>=20&&total<goal*0.75){
+      ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';
+    }
+    else{
+      ico='👍'; msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';
+    }
     icon.textContent=ico; text.innerHTML=msg;
   } catch(e){ icon.textContent='💪'; text.textContent='Log a meal to get coaching tips.'; }
 }
