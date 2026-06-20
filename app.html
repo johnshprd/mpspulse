@@ -1142,8 +1142,17 @@ function updateCoach(){
     const missedNote=missedWindows.length?' You missed the '+missedWindows.map(i=>SN[i]).join(' and ')+' window'+(missedWindows.length>1?'s':'')+', but keep hitting your active pulses.':'';
     const metSlotIndices=slotTotals.map((v,i)=>v>0&&v>=(state.slotTargets[i]||40)?i:null).filter(i=>i!==null);
     const lastMetSlot=metSlotIndices.length?metSlotIndices[metSlotIndices.length-1]:-1;
+    const eveningMet=slotTotals[3]>0&&slotTotals[3]>=state.slotTargets[3];
     let ico,msg;
     if(total>=goal){ico='🏆';msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';}
+    else if(eveningMet){
+      ico='🌙';
+      if(missedWindows.length){
+        msg='<strong>That\'s a wrap for today!</strong> Evening pulse hit — nice way to close things out. You missed the '+missedWindows.map(i=>SN[i]).join(' and ')+' window'+(missedWindows.length>1?'s':'')+' today, but tomorrow\'s a fresh set of 4. Rest well.';
+      } else {
+        msg='<strong>That\'s a wrap for today!</strong> Evening pulse hit, <strong>'+total+'g</strong> logged across the day. Solid work — rest well and reset tomorrow.';
+      }
+    }
     else if(overCeiling>0){ico='⚠️';msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';}
     else if(loggedSlots===0){ico=hour<12?'🌅':hour<17?'⏰':'🌙';msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';}
     else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+shortfallNote+missedNote;}
