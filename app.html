@@ -1128,15 +1128,17 @@ function updateCoach(){
     const nextEmptySlot=slotTotals.findIndex(v=>v===0);
     const SN=['Breakfast','Lunch','Dinner','Evening'];
     const shortfallNote=earlierShortfall?' (heads up — '+SN[earlierShortfall.idx]+' is still '+earlierShortfall.remaining+'g short)':'';
+    const metSlotIndices=slotTotals.map((v,i)=>v>0&&v>=(state.slotTargets[i]||40)?i:null).filter(i=>i!==null);
+    const lastMetSlot=metSlotIndices.length?metSlotIndices[metSlotIndices.length-1]:-1;
     let ico,msg;
     if(total>=goal){ico='🏆';msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';}
     else if(overCeiling>0){ico='⚠️';msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';}
     else if(loggedSlots===0){ico=hour<12?'🌅':hour<17?'⏰':'🌙';msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+(state.slotTargets[0]||43)+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';}
     else if(activeSlot>=0&&activeSlotRemaining<=10){ico='🎯';msg='<strong>Almost there on '+SN[activeSlot]+'!</strong> Just <strong>'+activeSlotRemaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+shortfallNote;}
     else if(activeSlot>=0){ico='💪';msg='<strong>'+SN[activeSlot]+' pulse in progress.</strong> You need <strong>'+activeSlotRemaining+'g</strong> more to hit your target.'+shortfallNote;}
-    else if(metTargets>=3){ico='🚀';msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.';}
-    else if(metTargets===2){ico='🔥';msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go. Start your next pulse in 3–4 hours.';}
-    else if(metTargets===1){ico='✅';msg='<strong>Pulse 1 done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.';}
+    else if(metTargets>=3){ico='🚀';msg='<strong>'+metTargets+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+Math.round(state.slotTargets[nextEmptySlot>=0?nextEmptySlot:3])+'g</strong> to finish strong.'+shortfallNote;}
+    else if(metTargets===2){ico='🔥';msg='<strong>Two pulses nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go. Start your next pulse in 3–4 hours.'+shortfallNote;}
+    else if(metTargets===1){ico='✅';msg='<strong>'+SN[lastMetSlot]+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+shortfallNote;}
     else if(loggedSlots>0&&hour>=20&&total<goal*0.75){ico='🌙';msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';}
     else{ico='👍';msg='<strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';}
     icon.textContent=ico; text.innerHTML=msg;
