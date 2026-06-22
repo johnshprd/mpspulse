@@ -1180,7 +1180,12 @@ function updateCoach(){
       ico='🔥'; msg='<strong>'+met.map(p=>p.name).join(' and ')+' nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.'+missedNote;
     }
     else if(met.length===1){
-      ico='✅'; msg='<strong>'+met[0].name+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+      ico='✅';
+      if(met[0].state==='closed-met'){
+        msg='<strong>'+met[0].name+' done!</strong> Ready for your next pulse whenever you are — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+      } else {
+        msg='<strong>'+met[0].name+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+      }
     }
     else if(hour>=20&&total<goal*0.75){
       ico='🌙'; msg='<strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';
