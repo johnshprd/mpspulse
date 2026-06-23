@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS Pulse — Help</title>
+<meta name="theme-color" content="#f7f8fc">
+<link rel="icon" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f8fc; --surface: #ffffff; --surface2: #eeeef6;
+  --border: #dddde8; --border2: #c8c8dc;
+  --accent: #4f46e5; --accent2: #3730a3; --accent3: #e0e0f8;
+  --amber: #d97706; --red: #dc2626;
+  --text: #1e1b4b; --muted: #9490b8; --muted2: #6b67a0;
+  --g1: #4f46e5; --g2: #3730a3;
+}
+[data-theme="dark"] {
+  --bg: #0f0e1a; --surface: #1a1830; --surface2: #242240;
+  --border: #2e2b4e; --border2: #3a3660;
+  --text: #e8e7f8; --muted: #6b67a0; --muted2: #9490b8;
+  --g1: #818cf8; --g2: #6366f1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 4px; color: var(--g1); display: flex; align-items: center; gap: 8px; }
+.back-btn { font-family: 'Space Mono', monospace; font-size: 0.74rem; letter-spacing: 1px; color: var(--muted2); background: none; border: 1px solid var(--border); border-radius: 6px; padding: 7px 14px; cursor: pointer; text-decoration: none; display: inline-block; }
+.back-btn:hover { border-color: var(--g1); color: var(--g1); }
+
+.wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px 64px; }
+
+.page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; color: var(--text); margin-bottom: 6px; }
+.page-sub { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 1px; margin-bottom: 32px; }
+
+/* Section nav */
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; }
+.toc-title { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+.toc-links { display: flex; flex-direction: column; gap: 6px; }
+.toc-links a { font-size: 0.92rem; color: var(--g1); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.toc-links a:hover { text-decoration: underline; }
+.toc-links a::before { content: '→'; font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+
+/* FAQ sections */
+.faq-section { margin-bottom: 36px; }
+.faq-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--g1); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--accent3); }
+.faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.faq-q { font-family: 'DM Sans', sans-serif; font-size: 0.96rem; font-weight: 600; color: var(--text); padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.faq-q:hover { background: var(--surface2); }
+.faq-chevron { font-size: 0.8rem; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+.faq-a { display: none; padding: 0 16px 14px; font-size: 0.92rem; color: var(--muted2); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 12px; }
+.faq-item.open .faq-a { display: block; }
+.faq-a strong { color: var(--text); }
+.faq-a .highlight { background: var(--accent3); border-left: 3px solid var(--g1); border-radius: 4px; padding: 8px 12px; margin: 10px 0; font-size: 0.88rem; color: var(--text); }
+
+/* Stat pills */
+.stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+.stat-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; text-align: center; }
+.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--g1); }
+.stat-lbl { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 1px; }
+
+footer { border-top: 1px solid var(--border); padding: 20px; text-align: center; font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 110 110" style="flex-shrink:0">
+      <rect width="110" height="110" rx="22" fill="#4f46e5"/>
+      <polyline points="5,55 20,55 30,25 42,85 53,10 63,55 80,55 110,55" fill="none" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    PULSE
+  </div>
+  <a href="app.html" class="back-btn">← BACK TO APP</a>
+</header>
+
+<div class="wrap">
+  <div class="page-title">HELP & FAQ</div>
+  <div class="page-sub">QUICK ANSWERS TO COMMON QUESTIONS</div>
+
+  <div class="toc">
+    <div class="toc-title">Jump to section</div>
+    <div class="toc-links">
+      <a href="#basics">The Basics</a>
+      <a href="#pulses">Pulses & Timing</a>
+      <a href="#mps">MPS Windows</a>
+      <a href="#score">Distribution Score</a>
+      <a href="#logging">Logging Food</a>
+      <a href="#account">Account & Settings</a>
+    </div>
+  </div>
+
+  <!-- THE BASICS -->
+  <div class="faq-section" id="basics">
+    <div class="faq-section-title">THE BASICS</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What makes MPS Pulse different from other protein trackers? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Most apps count your <strong>daily total</strong> — but research shows that <strong>when</strong> you eat protein matters just as much as how much you eat. MPS Pulse tracks your protein across 4 evenly-spaced meal windows (pulses) throughout the day, because this pattern maximises the time your muscles spend in a growth state.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is Muscle Protein Synthesis (MPS)? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">MPS is the process your body uses to build and repair muscle tissue. Every time you eat a meaningful amount of protein, your body triggers an MPS window — a period of active muscle-building that lasts roughly 2–3 hours. After that window closes, eating more protein from the same meal has diminishing returns. The key insight: <strong>4 separate triggers across the day beats one large protein meal</strong>.
+        <div class="stat-row">
+          <div class="stat-pill"><div class="stat-num">~3H</div><div class="stat-lbl">PER WINDOW</div></div>
+          <div class="stat-pill"><div class="stat-num">4×</div><div class="stat-lbl">MAX DAILY</div></div>
+          <div class="stat-pill"><div class="stat-num">~40G</div><div class="stat-lbl">OPTIMAL DOSE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I set my protein goal? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Tap the <strong>GOAL</strong> pill in the header or go to <strong>Settings → Daily Protein Goal</strong>. The evidence-based recommendation is <strong>1.6–2.2g of protein per kg of bodyweight per day</strong>. For example, if you weigh 80kg, aim for 128–176g. Your 4 pulse targets will automatically distribute evenly from your goal.</div>
+    </div>
+  </div>
+
+  <!-- PULSES & TIMING -->
+  <div class="faq-section" id="pulses">
+    <div class="faq-section-title">PULSES & TIMING</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How far apart should my pulses be? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Aim for <strong>3–4 hours between pulses</strong>. This gives each MPS window time to run its course before the next one is triggered. Eating protein too soon after a previous pulse doesn't open a new window — it just adds to one that's already winding down.
+        <div class="highlight">⚠ The app will warn you if two pulses are less than 3 hours apart.</div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do I have to eat exactly at Breakfast, Lunch, Dinner and Evening? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">No — those are just labels. What matters is that you have <strong>4 protein meals spaced roughly 3–4 hours apart</strong> across your waking day. You can eat at any times that suit your schedule. Log each meal into whichever pulse slot is next in your day.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What if I miss a pulse? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Missing a pulse means missing a potential MPS window for that period — but it doesn't ruin the day. Just hit your remaining pulses as best you can. The app will acknowledge missed windows without nagging you about something you can't fix. <strong>Tomorrow is a fresh set of 4.</strong></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I change the time on a pulse? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Yes — once you've logged at least one food in a pulse, a <strong>time field</strong> appears next to the MPS badge. Tap it to edit the pulse time. This affects the MPS countdown, so use it if you forgot to log a meal at the time you actually ate it.</div>
+    </div>
+  </div>
+
+  <!-- MPS WINDOWS -->
+  <div class="faq-section" id="mps">
+    <div class="faq-section-title">MPS WINDOWS</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What does the dashed bar in each pulse card mean? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">The <strong>dashed MPS bar</strong> shows how far through the current MPS window you are. It starts empty when you log your first food in a pulse, then fills over the next 3 hours as the window progresses. When it's full and shows <strong>ENDED</strong>, that MPS window has closed.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What does ACTIVE, ENDING, and ENDED mean? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">
+        <strong>ACTIVE</strong> — your MPS window is open and your muscles are in a building state.<br><br>
+        <strong>ENDING</strong> — the window is in its final stretch (last ~1 hour). You can still add to this pulse but the window is winding down.<br><br>
+        <strong>ENDED</strong> — the window has closed. Adding more food to this pulse won't restart it.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Why is there a 55g ceiling? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Research suggests your muscles can only utilise around <strong>40–55g of protein per meal</strong> for MPS. Eating more than this in a single pulse doesn't stack up — the excess gets used for energy or excreted rather than going toward muscle growth. The app warns you when a pulse exceeds this ceiling.</div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTION SCORE -->
+  <div class="faq-section" id="score">
+    <div class="faq-section-title">DISTRIBUTION SCORE</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is the distribution score? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">The distribution score (0–100) measures how <strong>evenly spread</strong> your protein is across your 4 pulses. A score of 100 means all 4 pulses were identical in size — perfect distribution. Lower scores mean your protein was uneven, with some pulses much larger than others.
+        <div class="highlight">85+ = Optimal · 60–84 = Good · 35–59 = Uneven · Below 35 = Poor</div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Why does the score say IN PROGRESS early in the day? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">The score is contextual — it doesn't penalise you for having empty pulses when the day isn't over yet. Early in the day it shows <strong>IN PROGRESS</strong> rather than a low score, since you haven't had the chance to fill all 4 pulses yet. The full verdict only appears once all 4 pulses have been logged.</div>
+    </div>
+  </div>
+
+  <!-- LOGGING FOOD -->
+  <div class="faq-section" id="logging">
+    <div class="faq-section-title">LOGGING FOOD</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I add a food that isn't in the database? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Type the food name in the search box — if it doesn't match anything, an <strong>"Add to My Foods"</strong> button will appear. Tap it to open the custom food modal. Enter the food name, emoji, typical serving size in grams, and how much protein is in that serving. It'll be saved to your personal food library.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What does the 📸 SCAN button do? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">The scan button uses <strong>AI to analyse a photo of your meal</strong> and estimate the protein content of each food it detects. Take or upload a photo, tap Analyse, then review the detected foods and their protein estimates. You can tick or untick individual items before logging them to your pulse.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">I added a food retrospectively — what happens to the pulse time? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">If you add food to a pulse <strong>within 5 minutes</strong> of your first entry, it logs silently using the original time — no prompt. If it's been more than 5 minutes, you'll be asked whether to keep the original pulse time or update it to now. This matters because the MPS countdown is based on the pulse time.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Why does the serving size default to 100g? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">It shouldn't — the app uses each food's <strong>typical serving size</strong> as the default (e.g. 180g for a chicken breast, 200g for a pot of Greek yoghurt). If you're seeing 100g, the food may have been added with a corrupted serving history. Open <strong>Settings → Manage Foods</strong>, tap the edit icon next to the food, and set the correct typical serving size.</div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT & SETTINGS -->
+  <div class="faq-section" id="account">
+    <div class="faq-section-title">ACCOUNT & SETTINGS</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Does my data reset every day? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Yes — your pulse log resets at midnight each day. Your previous day's total is saved to the <strong>7-day history</strong> automatically before resetting, so you can track your consistency over the week.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I reset today's log? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Go to <strong>Settings (⚙️) → Reset Today</strong>. This clears all of today's entries across all 4 pulses. This action can't be undone.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I manage or delete foods from my library? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Go to <strong>Settings → Manage Foods</strong>. You can edit any food (including built-in ones) with the ✏️ button, or remove foods from the database with 🗑. Removed built-in foods can be restored with the restore button at the bottom of the list.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is my data backed up? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Yes — your data is saved to your account in real time. As long as you're signed in, your food logs, history, custom foods, and settings are all synced and will be there if you switch devices or reinstall the app.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>MPS PULSE · PROTEIN TIMING, NOT JUST TOTALS</footer>
+
+<script>
+function toggleFaq(el){
+  const item=el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+// Apply saved theme
+const saved=localStorage.getItem('mps_theme');
+if(saved==='dark') document.documentElement.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>
