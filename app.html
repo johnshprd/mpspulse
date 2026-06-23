@@ -877,6 +877,26 @@ function renderSlots() {
       '<button class="scan-btn" onclick="openScan('+si+')" title="Scan meal with AI">📸 SCAN</button>'+
       '</div></div>';
     grid.appendChild(card);
+
+    // Re-inject persistent time prompt if a pending decision exists for this slot
+    if(pendingTimeDecision[si]){
+      const pending=pendingTimeDecision[si];
+      const addArea=document.getElementById('slot-add-'+si);
+      if(addArea){
+        const nowTime=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        const div=document.createElement('div');
+        div.id='time-confirm-'+si;
+        div.style.cssText='background:var(--surface2);border:1px solid var(--amber);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-family:Space Mono,monospace;font-size:0.72rem;color:var(--text);line-height:1.6';
+        div.innerHTML=
+          '<div style="color:var(--amber);font-weight:700;margin-bottom:6px">⏱ UPDATE PULSE TIME?</div>'+
+          '<div style="color:var(--muted2);margin-bottom:8px;font-size:0.67rem">'+pending.food.name+' is ready to log. Which time should this pulse use?</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<button onclick="confirmAddToSlot('+si+',\'original\')" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-family:Space Mono,monospace;font-size:0.67rem;cursor:pointer;letter-spacing:1px">KEEP '+pending.originalTime+'</button>'+
+          '<button onclick="confirmAddToSlot('+si+',\'now\')" style="flex:1;background:var(--g1);border:none;color:#fff;border-radius:6px;padding:8px 10px;font-family:Space Mono,monospace;font-size:0.67rem;cursor:pointer;letter-spacing:1px">USE NOW ('+nowTime+')</button>'+
+          '</div>';
+        addArea.insertBefore(div, addArea.firstChild);
+      }
+    }
   });
 }
 
@@ -936,6 +956,12 @@ function hideFood(id){
 
 function restoreHiddenFoods(){ state.hiddenFoods=[]; showToast('↺ Hidden foods restored'); updateUI(); }
 
+// Pending time decisions — persists across re-renders until user decides
+// Structure: { [slotIndex]: { food, serving, protein, originalTime, originalTs } }
+const pendingTimeDecision = {};
+
+const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
 function addToSlot(si){
   const searchEl = document.getElementById('food-search-'+si);
   const srvEl = document.getElementById('srv-'+si);
@@ -946,13 +972,34 @@ function addToSlot(si){
   const typicalDefault=smartDefault(food.id);
   const serving=parseFloat(srvEl.value)||typicalDefault||100;
   const protein=(food.p100/100)*serving;
-
-  // If slot already has entries, ask whether to keep original time or reset to now
   const existingEntries=state.slots[si];
+
   if(existingEntries.length>0){
-    const originalTime=existingEntries[0].time;
-    const originalTs=existingEntries[0].ts;
-    showTimeConfirm(si, food, serving, protein, originalTime, originalTs);
+    const firstTs=existingEntries[0].ts;
+    const elapsed=Date.now()-firstTs;
+
+    if(elapsed<=GRACE_WINDOW_MS){
+      // Within 5-minute grace window — log silently with original time, no prompt
+      _doAddToSlot(si, food, serving, protein, firstTs, existingEntries[0].time);
+      return;
+    }
+
+    // Outside grace window — store pending decision and trigger prompt
+    pendingTimeDecision[si]={
+      food:{id:food.id,name:food.name,icon:food.icon,p100:food.p100},
+      serving, protein,
+      originalTime: existingEntries[0].time,
+      originalTs: firstTs
+    };
+
+    // Reset search UI immediately so user can see the prompt clearly
+    searchEl.value=''; delete searchEl.dataset.selectedId; srvEl.value='';
+    const btnEl=document.getElementById('add-btn-'+si);
+    if(btnEl) btnEl.disabled=true;
+    searchEl.classList.add('pulse-glow');
+
+    // Re-render to show the persistent prompt
+    renderSlots();
     return;
   }
 
@@ -960,45 +1007,15 @@ function addToSlot(si){
   _doAddToSlot(si, food, serving, protein, Date.now(), new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
 }
 
-function showTimeConfirm(si, food, serving, protein, originalTime, originalTs){
-  const nowTime=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  const nowTs=Date.now();
-
-  // Build a small inline confirmation UI above the add button
-  const addArea=document.getElementById('slot-add-'+si);
-  if(!addArea)return;
-
-  // Remove any existing confirm prompt
-  const existing=document.getElementById('time-confirm-'+si);
-  if(existing)existing.remove();
-
-  const div=document.createElement('div');
-  div.id='time-confirm-'+si;
-  div.style.cssText='background:var(--surface2);border:1px solid var(--amber);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-family:Space Mono,monospace;font-size:0.72rem;color:var(--text);line-height:1.6';
-  div.innerHTML=
-    '<div style="color:var(--amber);font-weight:700;margin-bottom:6px">⏱ UPDATE PULSE TIME?</div>'+
-    '<div style="color:var(--muted2);margin-bottom:10px;font-size:0.67rem">Adding to this pulse will affect the MPS countdown.</div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-    '<button onclick="confirmAddToSlot('+si+',\'original\','+originalTs+')" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;font-family:Space Mono,monospace;font-size:0.67rem;cursor:pointer;letter-spacing:1px">KEEP '+originalTime+'</button>'+
-    '<button onclick="confirmAddToSlot('+si+',\'now\','+nowTs+')" style="flex:1;background:var(--g1);border:none;color:#fff;border-radius:6px;padding:7px 10px;font-family:Space Mono,monospace;font-size:0.67rem;cursor:pointer;letter-spacing:1px">USE NOW ('+nowTime+')</button>'+
-    '</div>';
-
-  addArea.insertBefore(div, addArea.firstChild);
-
-  // Store pending entry details on the div for retrieval
-  div.dataset.food=JSON.stringify({id:food.id,name:food.name,icon:food.icon,p100:food.p100});
-  div.dataset.serving=serving;
-  div.dataset.protein=protein;
-}
-
-function confirmAddToSlot(si, choice, ts){
-  const div=document.getElementById('time-confirm-'+si);
-  if(!div)return;
-  const food=JSON.parse(div.dataset.food);
-  const serving=parseFloat(div.dataset.serving);
-  const protein=parseFloat(div.dataset.protein);
+function confirmAddToSlot(si, choice){
+  const pending=pendingTimeDecision[si];
+  if(!pending)return;
+  const food=pending.food;
+  const serving=pending.serving;
+  const protein=pending.protein;
+  const ts=choice==='original'?pending.originalTs:Date.now();
   const time=new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  div.remove();
+  delete pendingTimeDecision[si];
   _doAddToSlot(si, food, serving, protein, ts, time);
 }
 
