@@ -667,12 +667,20 @@ let state = {
   hiddenFoods: [],
 };
 
+// ── SUBSCRIPTION CHECK ────────────────────────────
+// Allows: active, trialing, or no row yet (new signup grace period)
+// Blocks: inactive, past_due, canceled, etc.
 async function checkSubscription(userId) {
   const { data, error } = await db.from('subscriptions').select('status, current_period_end').eq('user_id', userId).single();
-  if (error || !data) return false;
-  if (data.status !== 'active') return false;
-  if (data.current_period_end) { const expiry = new Date(data.current_period_end); if (expiry < new Date()) return false; }
-  return true;
+  if (error || !data) return true; // No row = new signup, let them in
+  if (data.status === 'active' || data.status === 'trialing') {
+    if (data.current_period_end) {
+      const expiry = new Date(data.current_period_end);
+      if (expiry < new Date()) return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 async function init() {
@@ -767,8 +775,6 @@ function smartDefault(foodId) {
   const rounded = hist.map(g=>Math.round(g/5)*5);
   const freq={};let maxC=0,best=rounded[rounded.length-1];
   for(const v of rounded){freq[v]=(freq[v]||0)+1;if(freq[v]>maxC){maxC=freq[v];best=v;}}
-  // If the most common history value is 100 but the food's typical is different,
-  // the 100 was likely a bad default — return typical instead
   if(best===100 && typical!==100) return typical;
   return best;
 }
@@ -885,7 +891,6 @@ function renderSlots() {
       '</div></div>';
     grid.appendChild(card);
 
-    // Re-inject persistent time prompt if a pending decision exists for this slot
     if(pendingTimeDecision[si]){
       const pending=pendingTimeDecision[si];
       const addArea=document.getElementById('slot-add-'+si);
@@ -963,11 +968,8 @@ function hideFood(id){
 
 function restoreHiddenFoods(){ state.hiddenFoods=[]; showToast('↺ Hidden foods restored'); updateUI(); }
 
-// Pending time decisions — persists across re-renders until user decides
-// Structure: { [slotIndex]: { food, serving, protein, originalTime, originalTs } }
 const pendingTimeDecision = {};
-
-const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const GRACE_WINDOW_MS = 5 * 60 * 1000;
 
 function addToSlot(si){
   const searchEl = document.getElementById('food-search-'+si);
@@ -986,12 +988,10 @@ function addToSlot(si){
     const elapsed=Date.now()-firstTs;
 
     if(elapsed<=GRACE_WINDOW_MS){
-      // Within 5-minute grace window — log silently with original time, no prompt
       _doAddToSlot(si, food, serving, protein, firstTs, existingEntries[0].time);
       return;
     }
 
-    // Outside grace window — store pending decision and trigger prompt
     pendingTimeDecision[si]={
       food:{id:food.id,name:food.name,icon:food.icon,p100:food.p100},
       serving, protein,
@@ -999,18 +999,15 @@ function addToSlot(si){
       originalTs: firstTs
     };
 
-    // Reset search UI immediately so user can see the prompt clearly
     searchEl.value=''; delete searchEl.dataset.selectedId; srvEl.value='';
     const btnEl=document.getElementById('add-btn-'+si);
     if(btnEl) btnEl.disabled=true;
     searchEl.classList.add('pulse-glow');
 
-    // Re-render to show the persistent prompt
     renderSlots();
     return;
   }
 
-  // No existing entries — log normally with current time
   _doAddToSlot(si, food, serving, protein, Date.now(), new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
 }
 
@@ -1032,7 +1029,6 @@ function _doAddToSlot(si, food, serving, protein, ts, time){
   if(serving!==typicalDefault) recordServing(food.id,serving);
   state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts,time});
 
-  // Reset search UI
   const searchEl=document.getElementById('food-search-'+si);
   const srvEl=document.getElementById('srv-'+si);
   const btnEl=document.getElementById('add-btn-'+si);
@@ -1179,9 +1175,6 @@ function calcDistScore(){
   return{score,label,color,warn};
 }
 
-// ── PULSE STATE MACHINE ───────────────────────────
-// Computes a single clear state per pulse: empty | active | active-met | closed-met | closed-missed
-// All coaching logic derives from this array instead of scattered conditionals.
 function getPulseStates(){
   const SN=['Breakfast','Lunch','Dinner','Evening'];
   return [0,1,2,3].map(i=>{
@@ -1190,7 +1183,7 @@ function getPulseStates(){
     const target=state.slotTargets[i];
     const met=total>0&&total>=target;
     if(!entries.length) return {idx:i,name:SN[i],state:'empty',total,target,remaining:target};
-    const mps=getMpsState(entries).status; // idle|active|ending|ended
+    const mps=getMpsState(entries).status;
     const windowOpen=mps!=='ended';
     if(met) return {idx:i,name:SN[i],state:windowOpen?'active-met':'closed-met',total,target,remaining:0};
     return {idx:i,name:SN[i],state:windowOpen?'active':'closed-missed',total,target,remaining:Math.round(target-total)};
@@ -1208,7 +1201,6 @@ function updateCoach(){
     const pulses=getPulseStates();
     const overCeiling=pulses.filter(p=>p.total>55).length;
 
-    // Pick the single "in progress, actionable right now" pulse — the most recently touched one still open and under target
     let mostRecentTs=-1, inProgress=null;
     state.slots.forEach((entries,i)=>{
       if(entries.length){
@@ -1217,7 +1209,6 @@ function updateCoach(){
       }
     });
 
-    // Secondary context: pulses that are closed-missed (acknowledge once, not actionable) and met pulses (for celebration)
     const missed=pulses.filter(p=>p.state==='closed-missed');
     const met=pulses.filter(p=>p.state==='active-met'||p.state==='closed-met');
     const eveningDone=pulses[3].state==='active-met'||pulses[3].state==='closed-met'||pulses[3].state==='closed-missed';
@@ -1227,20 +1218,16 @@ function updateCoach(){
 
     let ico,msg;
 
-    // 1. Daily goal fully reached — best case, always wins
     if(total>=goal){
       ico='🏆'; msg='<strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
     }
-    // 2. Something is over the MPS ceiling — worth a heads up regardless of other state
     else if(overCeiling>0){
       ico='⚠️'; msg='<strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';
     }
-    // 3. Nothing logged yet today
     else if(nothingLogged){
       ico=hour<12?'🌅':hour<17?'⏰':'🌙';
       msg='<strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+pulses[0].target+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';
     }
-    // 4. There's an actionable pulse in progress right now — always the headline when present
     else if(inProgress){
       if(inProgress.remaining<=10){
         ico='🎯'; msg='<strong>Almost there on '+inProgress.name+'!</strong> Just <strong>'+inProgress.remaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+missedNote;
@@ -1248,7 +1235,6 @@ function updateCoach(){
         ico='💪'; msg='<strong>'+inProgress.name+' pulse in progress.</strong> You need <strong>'+inProgress.remaining+'g</strong> more to hit your target.'+missedNote;
       }
     }
-    // 5. Evening's window is done (met, or closed having missed) — day is essentially over, sign off
     else if(eveningDone){
       ico='🌙';
       if(missed.length){
@@ -1257,7 +1243,6 @@ function updateCoach(){
         msg='<strong>That\'s a wrap for today!</strong> <strong>'+total+'g</strong> logged across the day. Solid work — rest well and reset tomorrow.';
       }
     }
-    // 6. No active pulse, day not over — encourage based on how many have been met so far
     else if(met.length>=3){
       const nextEmpty=pulses.find(p=>p.state==='empty');
       ico='🚀'; msg='<strong>'+met.length+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+(nextEmpty?nextEmpty.target:pulses[3].target)+'g</strong> to finish strong.'+missedNote;
@@ -1337,7 +1322,6 @@ function renderWeekBars(){
   const reord=Array.from({length:7},(_,i)=>({label:days[(off-6+i+7)%7],val:state.weekHistory[i]}));
   const mx=Math.max(...reord.map(d=>d.val),state.goal,1);
   const goalPct=(state.goal/mx)*100;
-  // Position goal line (it sits inside .week-chart height 64px, bars are 56px tall)
   const goalLineTop=Math.round(64-(goalPct/100)*56)-1;
   const goalLineEl=document.getElementById('weekGoalLine');
   if(goalLineEl) goalLineEl.style.top=goalLineTop+'px';
@@ -1406,16 +1390,12 @@ function editFood(id){
   document.getElementById('cfIcon').value=food.icon||'🍽️';
   const typical=food.typical||100;
   document.getElementById('cfTypical').value=typical;
-  // Derive protein per serving — handle corrupted p100 values (p100 > 100 is impossible)
   let proteinPerServing=0;
   if(food.protein && food.protein<=typical && food.protein<=500){
-    // protein field looks sane — use it directly
     proteinPerServing=Math.round(food.protein);
   } else if(food.p100 && food.p100<=100){
-    // p100 looks sane — derive from it
     proteinPerServing=Math.round((food.p100/100)*typical);
   } else {
-    // Both values are corrupted — leave blank so user re-enters
     proteinPerServing='';
   }
   document.getElementById('cfProtein').value=proteinPerServing;
