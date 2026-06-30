@@ -204,9 +204,12 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
 .drop-zone.has-image { padding: 0; border-color: var(--g2); }
 .drop-zone img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 8px; display: block; }
 .drop-icon { font-size: 2.24rem; margin-bottom: 8px; }
-.drop-label { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 2px; }
+.drop-label { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--muted2); letter-spacing: 2px; margin-bottom: 14px; }
+.scan-source-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.scan-source-btn { position: relative; background: var(--g1); color: #fff; font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; padding: 10px 16px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; overflow: hidden; }
+.scan-source-btn:hover { background: var(--g2); transform: translateY(-1px); }
+.scan-source-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .drop-sub { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
-#fileInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .scan-actions { display: flex; gap: 8px; }
 .scan-analyse-btn { flex: 1; background: var(--g1); color: #050805; border: none; border-radius: 6px; padding: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 3px; cursor: pointer; transition: all 0.15s; }
 .scan-analyse-btn:hover { filter: brightness(1.1); }
@@ -445,12 +448,20 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
     <button class="scan-close" onclick="closeScan()">✕</button>
     <div class="scan-title">SCAN MEAL</div>
     <div class="scan-subtitle">Take or upload a photo of your meal. AI will identify foods and estimate protein content.</div>
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept="image/*" onchange="onFileSelect(event)">
+    <div class="drop-zone" id="dropZone" style="cursor:default">
       <div id="dropPlaceholder">
         <div class="drop-icon">📸</div>
-        <div class="drop-label">TAP TO TAKE PHOTO</div>
-        <div class="drop-sub">or upload from gallery</div>
+        <div class="drop-label">CHOOSE A PHOTO</div>
+        <div class="scan-source-row">
+          <label class="scan-source-btn">
+            📷 TAKE PHOTO
+            <input type="file" id="fileInputCamera" accept="image/*" capture="environment" onchange="onFileSelect(event)">
+          </label>
+          <label class="scan-source-btn">
+            🖼️ FROM GALLERY
+            <input type="file" id="fileInputGallery" accept="image/*" onchange="onFileSelect(event)">
+          </label>
+        </div>
       </div>
       <img id="previewImg" style="display:none">
     </div>
@@ -1062,7 +1073,8 @@ function openScan(si) {
   document.getElementById('scanError').classList.remove('show');
   document.getElementById('scanFoodList').innerHTML = '';
   document.getElementById('scanSlotName').textContent = SLOT_NAMES[si];
-  document.getElementById('fileInput').value = '';
+  document.getElementById('fileInputCamera').value = '';
+  document.getElementById('fileInputGallery').value = '';
   document.getElementById('scanModal').classList.add('open');
 }
 
