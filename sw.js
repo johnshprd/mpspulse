@@ -15,7 +15,7 @@ self.addEventListener('push', event => {
     title: 'MPS Pulse ⚡',
     body: 'Your MPS window has closed. Time for your next pulse!',
     icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    badge: '/icons/badge-96.png',
     data: { url: '/app.html' }
   };
 

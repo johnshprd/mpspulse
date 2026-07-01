@@ -1565,16 +1565,22 @@ function renderSettingsManageFoods(){
   el.innerHTML=html||'<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--muted);padding:8px 0">No foods to show</div>';
 }
 
+function syncThemeColorMeta(isDark){
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', isDark ? '#0f0e1a' : '#f7f8fc');
+}
+
 function initTheme(){
   const saved=localStorage.getItem('mps_theme');
   if(saved==='dark'){ document.documentElement.setAttribute('data-theme','dark'); }
+  syncThemeColorMeta(saved==='dark');
 }
 
 function toggleTheme(){
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const btn=document.getElementById('settingsThemeBtn');
-  if(isDark){ document.documentElement.removeAttribute('data-theme'); localStorage.setItem('mps_theme','light'); if(btn)btn.textContent='🌙 DARK'; }
-  else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('mps_theme','dark'); if(btn)btn.textContent='☀️ LIGHT'; }
+  if(isDark){ document.documentElement.removeAttribute('data-theme'); localStorage.setItem('mps_theme','light'); if(btn)btn.textContent='🌙 DARK'; syncThemeColorMeta(false); }
+  else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('mps_theme','dark'); if(btn)btn.textContent='☀️ LIGHT'; syncThemeColorMeta(true); }
 }
 
 function showToast(msg,warn){
