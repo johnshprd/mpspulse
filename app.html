@@ -552,6 +552,16 @@ header { display: flex; flex-direction: column; border-bottom: 1px solid var(--b
       <div class="smf-list" id="settingsManageFoods"></div>
     </div>
     <div class="settings-sec">
+      <div class="settings-sec-title">Notifications</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-lbl">Pulse Reminders</div>
+          <div class="settings-row-sub">Notify when your MPS window closes</div>
+        </div>
+        <button class="settings-btn" id="notifToggleBtn" onclick="toggleNotifications()">ENABLE</button>
+      </div>
+    </div>
+    <div class="settings-sec">
       <div class="settings-sec-title">Account</div>
       <div class="settings-row">
         <div>
@@ -588,6 +598,10 @@ const MPS_DURATION_MS = 3 * 60 * 60 * 1000;
 let scanSlotIndex = null;
 let scanImageBase64 = null;
 let scanFoods = [];
+
+// Pending time decisions — persists across re-renders
+const pendingTimeDecision = {};
+const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 const FOODS = {
   legumes: [
@@ -974,12 +988,6 @@ function hideFood(id){
 
 function restoreHiddenFoods(){ state.hiddenFoods=[]; showToast('↺ Hidden foods restored'); updateUI(); }
 
-// Pending time decisions — persists across re-renders until user decides
-// Structure: { [slotIndex]: { food, serving, protein, originalTime, originalTs } }
-const pendingTimeDecision = {};
-
-const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
-
 function addToSlot(si){
   const searchEl = document.getElementById('food-search-'+si);
   const srvEl = document.getElementById('srv-'+si);
@@ -1042,6 +1050,7 @@ function _doAddToSlot(si, food, serving, protein, ts, time){
   const typicalDefault=smartDefault(food.id);
   if(serving!==typicalDefault) recordServing(food.id,serving);
   state.slots[si].push({foodId:food.id,name:food.name,icon:food.icon,serving,protein,ts,time});
+  onMealLogged(si, ts);
 
   // Reset search UI
   const searchEl=document.getElementById('food-search-'+si);
@@ -1152,9 +1161,11 @@ function logScannedMeal() {
   if (!selected.length) { showToast('Select at least one food', true); return; }
   const si = scanSlotIndex;
   const wasOver = slotTotal(si) > 55;
+  const logTs = Date.now();
   selected.forEach(f => {
-    state.slots[si].push({foodId:'scan_'+f.name.toLowerCase().replace(/\s/g,'_'),name:f.name,icon:f.icon,serving:f.portionG,protein:f.proteinG,ts:Date.now(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+    state.slots[si].push({foodId:'scan_'+f.name.toLowerCase().replace(/\s/g,'_'),name:f.name,icon:f.icon,serving:f.portionG,protein:f.proteinG,ts:logTs,time:new Date(logTs).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
   });
+  onMealLogged(si, logTs);
   const newTotal = slotTotal(si);
   const totalProtein = selected.reduce((s,f)=>s+f.proteinG,0);
   if (!wasOver && newTotal >= state.slotTargets[si]) showToast('✓ PULSE '+(si+1)+' TARGET MET');
@@ -1486,6 +1497,7 @@ function openSettings(){
   document.getElementById('settingsThemeBtn').textContent=isDark?'☀️ LIGHT':'🌙 DARK';
   renderSettingsHistory();
   renderSettingsManageFoods();
+  updateNotifToggle();
 }
 
 function closeSettings(){
@@ -1623,6 +1635,132 @@ function goToFirstPulse(){
 }
 
 initTheme(); init(); checkOnboarding();
+
+
+// ── PUSH NOTIFICATIONS ────────────────────────────
+const VAPID_PUBLIC_KEY = 'BPuNM3EiKuQLhV3zx7cMdJQoaZcs6L_I47yi-heX4q8t653C4GLQ1xTVWoSXeoqcTyt6xfXnM8KEyaZGg2ajJoU';
+const MPS_DURATION_MINS = 180; // 3 hours
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  return new Uint8Array([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function getNotificationStatus() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'unsupported';
+  return Notification.permission; // 'default' | 'granted' | 'denied'
+}
+
+async function updateNotifToggle() {
+  const btn = document.getElementById('notifToggleBtn');
+  if (!btn) return;
+  const status = await getNotificationStatus();
+  if (status === 'unsupported') {
+    btn.textContent = 'NOT SUPPORTED';
+    btn.disabled = true;
+  } else if (status === 'granted') {
+    btn.textContent = 'ENABLED ✓';
+    btn.style.borderColor = 'var(--g1)';
+    btn.style.color = 'var(--g1)';
+  } else if (status === 'denied') {
+    btn.textContent = 'BLOCKED';
+    btn.disabled = true;
+    btn.title = 'Notifications blocked in browser settings';
+  } else {
+    btn.textContent = 'ENABLE';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }
+}
+
+async function toggleNotifications() {
+  const status = await getNotificationStatus();
+  if (status === 'granted') {
+    // Already enabled — unsubscribe
+    await unsubscribeFromPush();
+  } else if (status === 'default') {
+    // Request permission then subscribe
+    const result = await Notification.requestPermission();
+    if (result === 'granted') {
+      await subscribeToPush();
+    }
+  }
+  updateNotifToggle();
+}
+
+async function subscribeToPush() {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    const keys = subscription.toJSON().keys;
+    await db.from('push_subscriptions').upsert({
+      user_id: currentUser.id,
+      endpoint: subscription.endpoint,
+      p256dh: keys.p256dh,
+      auth: keys.auth
+    }, { onConflict: 'user_id,endpoint' });
+
+    showToast('✓ Pulse reminders enabled');
+  } catch (err) {
+    console.error('Push subscribe error:', err);
+    showToast('Could not enable notifications', true);
+  }
+}
+
+async function unsubscribeFromPush() {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await db.from('push_subscriptions')
+        .delete()
+        .eq('user_id', currentUser.id)
+        .eq('endpoint', sub.endpoint);
+      await sub.unsubscribe();
+    }
+    showToast('Pulse reminders disabled');
+  } catch (err) {
+    console.error('Push unsubscribe error:', err);
+  }
+}
+
+async function scheduleNotification(slotIndex, mealTs) {
+  if (!currentUser) return;
+  const status = await getNotificationStatus();
+  if (status !== 'granted') return;
+
+  const scheduledFor = new Date(mealTs + MPS_DURATION_MINS * 60 * 1000).toISOString();
+
+  // Remove any existing unset notification for this slot today
+  await db.from('scheduled_notifications')
+    .delete()
+    .eq('user_id', currentUser.id)
+    .eq('slot_index', slotIndex)
+    .eq('sent', false);
+
+  await db.from('scheduled_notifications').insert({
+    user_id: currentUser.id,
+    slot_index: slotIndex,
+    scheduled_for: scheduledFor,
+    sent: false
+  });
+}
+
+// Call this after a meal is logged to schedule its notification
+async function onMealLogged(slotIndex, ts) {
+  await scheduleNotification(slotIndex, ts);
+}
+
+// Init notification toggle when settings opens — called directly from openSettings()
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
