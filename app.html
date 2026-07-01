@@ -1658,34 +1658,49 @@ async function updateNotifToggle() {
   if (!btn) return;
   const status = await getNotificationStatus();
   if (status === 'unsupported') {
-    btn.textContent = 'NOT SUPPORTED';
-    btn.disabled = true;
-  } else if (status === 'granted') {
-    btn.textContent = 'ENABLED ✓';
-    btn.style.borderColor = 'var(--g1)';
-    btn.style.color = 'var(--g1)';
-  } else if (status === 'denied') {
-    btn.textContent = 'BLOCKED';
-    btn.disabled = true;
-    btn.title = 'Notifications blocked in browser settings';
-  } else {
+    btn.textContent = 'NOT SUPPORTED'; btn.disabled = true; return;
+  }
+  if (status === 'denied') {
+    btn.textContent = 'BLOCKED'; btn.disabled = true;
+    btn.title = 'Notifications blocked in browser settings'; return;
+  }
+  // Check actual Supabase subscription as source of truth
+  try {
+    const { data } = await db.from('push_subscriptions')
+      .select('id').eq('user_id', currentUser.id).maybeSingle();
+    if (data) {
+      btn.textContent = 'ENABLED ✓';
+      btn.style.borderColor = 'var(--g1)'; btn.style.color = 'var(--g1)';
+    } else {
+      btn.textContent = 'ENABLE';
+      btn.style.borderColor = ''; btn.style.color = '';
+    }
+  } catch(e) {
     btn.textContent = 'ENABLE';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    btn.style.borderColor = ''; btn.style.color = '';
   }
 }
 
 async function toggleNotifications() {
   const status = await getNotificationStatus();
-  if (status === 'granted') {
-    // Already enabled — unsubscribe
-    await unsubscribeFromPush();
-  } else if (status === 'default') {
-    // Request permission then subscribe
-    const result = await Notification.requestPermission();
-    if (result === 'granted') {
+  if (status === 'denied' || status === 'unsupported') return;
+
+  // Use Supabase as source of truth for subscription state
+  try {
+    const { data: existing } = await db.from('push_subscriptions')
+      .select('id').eq('user_id', currentUser.id).maybeSingle();
+
+    if (existing) {
+      await unsubscribeFromPush();
+    } else {
+      if (status === 'default') {
+        const result = await Notification.requestPermission();
+        if (result !== 'granted') { updateNotifToggle(); return; }
+      }
       await subscribeToPush();
     }
+  } catch(e) {
+    console.error('Toggle notifications error:', e);
   }
   updateNotifToggle();
 }
