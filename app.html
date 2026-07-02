@@ -603,6 +603,9 @@ let scanFoods = [];
 const pendingTimeDecision = {};
 const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
+// Custom backdated log time per slot — persists across re-renders until used or cleared
+const customLogTime = {};
+
 const FOODS = {
   legumes: [
     {id:'lentils',name:'Red Lentils',icon:'🔴',p100:9.0,typical:180,typicalLabel:'1 cup cooked'},
@@ -899,6 +902,14 @@ function renderSlots() {
       '<input class="food-search pulse-glow" id="food-search-'+si+'" type="text" list="foodlist-'+si+'" placeholder="🔍 Search food or type a meal name..." oninput="searchFood('+si+',this.value)" onchange="searchFood('+si+',this.value)" autocomplete="off">'+
       '<datalist id="foodlist-'+si+'">'+getVisibleFoods().map(f=>'<option value="'+f.name+'">').join('')+'</datalist>'+
       '</div>'+
+      '<span class="log-time-toggle" id="log-time-toggle-'+si+'" onclick="toggleTimePicker('+si+')" style="font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted2);cursor:pointer;letter-spacing:0.5px;display:inline-block;margin-bottom:6px">'+
+      (customLogTime[si] ? '🕐 LOGGING FOR '+customLogTime[si]+' · TAP TO CHANGE' : '🕐 LOGGING NOW · TAP TO BACKDATE')+
+      '</span>'+
+      '<div id="log-time-picker-'+si+'" style="display:none;gap:6px;align-items:center;margin-bottom:6px">'+
+      '<input type="time" id="log-time-input-'+si+'" style="font-family:Space Mono,monospace;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:0.72rem">'+
+      '<button onclick="setCustomLogTime('+si+')" style="background:var(--g1);border:none;color:#fff;border-radius:6px;padding:6px 10px;font-family:Space Mono,monospace;font-size:0.65rem;letter-spacing:1px;cursor:pointer">SET</button>'+
+      '<button onclick="clearCustomLogTime('+si+')" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 10px;font-family:Space Mono,monospace;font-size:0.65rem;cursor:pointer">✕</button>'+
+      '</div>'+
       '<div id="add-to-db-'+si+'" style="display:none">'+
       '<button class="add-to-db-btn" onclick="promptAddToDb('+si+')">＋ Add "<span id="add-to-db-name-'+si+'"></span>" to My Foods</button>'+
       '</div>'+
@@ -988,6 +999,49 @@ function hideFood(id){
 
 function restoreHiddenFoods(){ state.hiddenFoods=[]; showToast('↺ Hidden foods restored'); updateUI(); }
 
+function toggleTimePicker(si){
+  const picker=document.getElementById('log-time-picker-'+si);
+  if(!picker) return;
+  const input=document.getElementById('log-time-input-'+si);
+  if(picker.style.display!=='none'){ picker.style.display='none'; return; }
+  if(input) input.value = customLogTime[si] || new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
+  picker.style.display='flex';
+}
+
+function setCustomLogTime(si){
+  const input=document.getElementById('log-time-input-'+si);
+  if(!input||!input.value) return;
+  const [h,m]=input.value.split(':').map(Number);
+  const d=new Date(); d.setHours(h,m,0,0);
+  if(d.getTime()>Date.now()){ showToast("Can't log a future time",true); return; }
+  customLogTime[si]=input.value;
+  const toggle=document.getElementById('log-time-toggle-'+si);
+  if(toggle) toggle.textContent='🕐 LOGGING FOR '+input.value+' · TAP TO CHANGE';
+  const picker=document.getElementById('log-time-picker-'+si);
+  if(picker) picker.style.display='none';
+  const scheduledCloses=d.getTime()+MPS_DURATION_MINS*60*1000;
+  if(scheduledCloses<=Date.now()){
+    showToast("This pulse's window already closed — you'll get notified shortly once logged");
+  }
+}
+
+function clearCustomLogTime(si){
+  delete customLogTime[si];
+  const toggle=document.getElementById('log-time-toggle-'+si);
+  if(toggle) toggle.textContent='🕐 LOGGING NOW · TAP TO BACKDATE';
+  const picker=document.getElementById('log-time-picker-'+si);
+  if(picker) picker.style.display='none';
+}
+
+function customTimestampFor(si){
+  const val=customLogTime[si];
+  if(!val) return null;
+  const [h,m]=val.split(':').map(Number);
+  const d=new Date(); d.setHours(h,m,0,0);
+  if(d.getTime()>Date.now()) return null;
+  return d.getTime();
+}
+
 function addToSlot(si){
   const searchEl = document.getElementById('food-search-'+si);
   const srvEl = document.getElementById('srv-'+si);
@@ -1029,8 +1083,11 @@ function addToSlot(si){
     return;
   }
 
-  // No existing entries — log normally with current time
-  _doAddToSlot(si, food, serving, protein, Date.now(), new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+  // No existing entries — log with a custom backdated time if one was set, else current time
+  const customTs = customTimestampFor(si);
+  const ts = customTs || Date.now();
+  delete customLogTime[si];
+  _doAddToSlot(si, food, serving, protein, ts, new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
 }
 
 function confirmAddToSlot(si, choice){
