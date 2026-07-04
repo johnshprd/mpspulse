@@ -1,5 +1,5 @@
 {
-  "name": "MPS Pulse",
+  "name": "Pulse",
   "short_name": "Pulse",
   "description": "Track your protein by MPS pulse timing, not just daily totals.",
   "start_url": "/app.html",
@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f0e1a",
-  "theme_color": "#0f0e1a",
+  "background_color": "#4F46E5",
+  "theme_color": "#4F46E5",
   "icons": [
     {
       "src": "/icons/icon-192.png",
