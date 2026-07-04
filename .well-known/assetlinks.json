@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "app.mpspulse.twa",
-        "sha256_cert_fingerprints": ["F1:83:26:01:9A:67:B8:14:0B:58:61:E0:68:CC:9B:77:FB:4F:E5:E6:9E:F4:F3:1B:F3:D0:B7:30:71:35:55:40"]
+        "sha256_cert_fingerprints": ["0E:DD:65:9C:05:54:66:9D:D5:0D:DC:11:E2:9F:D0:42:00:69:D5:98:5E:9A:B0:E2:FC:B8:20:CC:EE:4A:15:D0"]
       }
     }]
