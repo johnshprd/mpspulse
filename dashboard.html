@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#f7f8fc; --surface:#ffffff; --surface2:#eeeef6;
+    --g1:#4f46e5; --g2:#3730a3; --g3:#312e81;
+    --text:#161528; --muted:#8a87a3; --muted2:#5f5c78;
+    --border:#e7e6f2; --border2:#d9d7ec;
+    --amber:#d97706; --green:#16a34a; --grey:#c7c5d8;
+  }
+  *{box-sizing:border-box;}
+  html,body{ margin:0; height:100%; background:var(--bg); font-family:'DM Sans',sans-serif; color:var(--text); }
+  #app{ max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; position:relative; }
+
+  #loading{ position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; }
+  .loading-logo{ font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:5px; color:var(--g1); }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .sticky-header{ position:sticky; top:0; z-index:40; background:var(--bg); }
+  .sticky-header .coach-bubble{ margin:12px 16px 14px; }
+  .logo{ font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:4px; color:var(--g1); }
+  .goal-pill{ display:flex; align-items:center; gap:6px; background:var(--surface2); border:1px solid var(--border2); border-radius:18px; padding:5px 12px; }
+  .goal-pill span:first-child{ font-family:'Space Mono',monospace; font-size:0.64rem; color:var(--muted); letter-spacing:1px; }
+  .goal-pill span:last-child{ font-family:'Bebas Neue',sans-serif; font-size:1.05rem; color:var(--g1); }
+
+  .content{ flex:1; padding:16px 16px 90px; }
+
+  .coach-bubble{ background:var(--g1); border-radius:14px; padding:14px; margin-bottom:16px; }
+  .coach-bubble p{ font-family:'DM Sans',sans-serif; font-size:0.84rem; color:#fff; line-height:1.4; margin:0; }
+
+  .daily-summary{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding:0 2px; }
+  .daily-total{ display:flex; align-items:baseline; gap:5px; }
+  .daily-total .val{ font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--text); }
+  .daily-total .of{ font-family:'DM Sans',sans-serif; font-size:0.84rem; color:var(--muted); }
+  .daily-left{ font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--muted2); letter-spacing:1px; text-align:right; }
+  .daily-left b{ color:var(--g1); font-size:0.86rem; }
+
+  .strip{ display:flex; gap:6px; margin-bottom:16px; }
+  .segment{ flex:1; text-align:center; padding:10px 4px; border-radius:10px; border:1.5px solid var(--border2); background:var(--surface); cursor:pointer; position:relative; overflow:hidden; }
+  .segment.active{ border-color:var(--g1); background:rgba(79,70,229,0.07); }
+  .segment.hit{ border-color:var(--green); }
+  .segment.missed{ border-color:var(--amber); }
+  .seg-fill{ position:absolute; bottom:0; left:0; right:0; background:rgba(79,70,229,0.14); z-index:0; transition:height 0.4s; }
+  .segment.hit .seg-fill{ background:rgba(22,163,74,0.14); }
+  .segment.missed .seg-fill{ background:rgba(217,119,6,0.14); }
+  .seg-content{ position:relative; z-index:1; }
+  .seg-label{ font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:1px; color:var(--muted2); text-transform:uppercase; margin-bottom:2px; }
+  .segment.active .seg-label{ color:var(--g1); font-weight:700; }
+  .seg-pct{ font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--text); }
+  .segment.hit .seg-pct{ color:var(--green); }
+  .segment.missed .seg-pct{ color:var(--amber); }
+  .segment.active .seg-pct{ color:var(--g1); }
+
+  .expanded-card{ background:var(--surface); border:1.5px solid var(--g1); border-radius:16px; padding:16px; margin-bottom:12px; }
+  .expanded-head{ display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+  .expanded-title{ font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--text); letter-spacing:0.5px; line-height:1.15; }
+  .expanded-window-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .expanded-window{ font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted); letter-spacing:0.5px; line-height:1.4; flex:1; min-width:0; }
+  .expanded-sub{ font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--muted2); margin-bottom:14px; }
+  .expanded-sub b{ color:var(--g1); }
+
+  .btn-log-meal{ background:var(--g1); color:#fff; border:none; border-radius:12px; width:100%; padding:15px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; margin-bottom:10px; }
+
+  .logged-item{ display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
+  .logged-swatch{ width:28px; height:28px; border-radius:7px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+  .logged-name{ flex:1; font-family:'DM Sans',sans-serif; font-size:0.84rem; font-weight:600; color:var(--text); }
+  .logged-protein{ font-family:'Space Mono',monospace; font-size:0.78rem; color:var(--g1); font-weight:700; }
+  .logged-macros{ font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:0.3px; margin-top:2px; }
+  .logged-remove{ background:none; border:none; color:var(--muted); font-size:0.9rem; cursor:pointer; padding:2px 4px; }
+
+  .empty-state{ text-align:center; padding:12px 8px; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--muted2); line-height:1.4; }
+
+  .collapsed-list{ display:flex; flex-direction:column; gap:8px; }
+  #pulseList{ display:flex; flex-direction:column; }
+  .collapsed-row{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 12px; cursor:pointer; margin-bottom:8px; }
+  .collapsed-row.hit{ border-color:rgba(22,163,74,0.3); }
+  .collapsed-row.missed{ border-color:rgba(217,119,6,0.3); }
+  .collapsed-dot{ width:9px; height:9px; border-radius:50%; background:var(--grey); flex-shrink:0; }
+  .collapsed-row.hit .collapsed-dot{ background:var(--green); }
+  .collapsed-row.missed .collapsed-dot{ background:var(--amber); }
+  .collapsed-info{ flex:1; }
+  .collapsed-info h5{ font-family:'DM Sans',sans-serif; font-size:0.86rem; font-weight:700; margin:0; color:var(--text); }
+  .collapsed-info span{ font-family:'Space Mono',monospace; font-size:0.66rem; color:var(--muted2); letter-spacing:0.5px; }
+  .collapsed-stat{ font-family:'Bebas Neue',sans-serif; font-size:1.05rem; color:var(--muted2); }
+  .collapsed-row.hit .collapsed-stat{ color:var(--green); }
+  .collapsed-row.missed .collapsed-stat{ color:var(--amber); }
+
+  .fab{ position:fixed; bottom:24px; right:calc(50% - 240px + 24px); width:56px; height:56px; border-radius:50%; background:var(--g1); color:#fff; border:none; font-size:1.7rem; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(79,70,229,0.4); cursor:pointer; z-index:50; }
+  @media (max-width:480px){ .fab{ right:24px; } }
+
+  /* Add-meal sheet */
+  .sheet-backdrop{ position:fixed; inset:0; background:rgba(20,15,60,0.4); z-index:100; display:none; }
+  .sheet-backdrop.open{ display:block; }
+  .sheet{ position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; background:var(--surface); border-radius:20px 20px 0 0; z-index:101; max-height:82vh; overflow-y:auto; transform:translateY(100%); transition:transform 0.25s ease; padding-bottom:20px; }
+  .sheet.open{ transform:translateY(0); }
+  .sheet-handle{ width:36px; height:4px; background:var(--border2); border-radius:2px; margin:10px auto 6px; }
+  .sheet-header{ display:flex; align-items:center; justify-content:space-between; padding:6px 18px 12px; border-bottom:1px solid var(--border); }
+  .sheet-title{ font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+  .sheet-close{ background:var(--surface2); border:none; width:28px; height:28px; border-radius:50%; color:var(--muted2); cursor:pointer; }
+  .sheet-body{ padding:16px 18px; }
+
+  .search-bar{ display:flex; align-items:center; gap:8px; background:var(--surface2); border:1.5px solid var(--border2); border-radius:12px; padding:11px 13px; margin-bottom:12px; }
+  .search-bar input{ border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--text); width:100%; }
+  .food-result{ display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .food-swatch{ width:34px; height:34px; border-radius:8px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0; }
+  .food-info{ flex:1; min-width:0; }
+  .food-info h5{ font-family:'DM Sans',sans-serif; font-size:0.84rem; font-weight:700; margin:0 0 1px; color:var(--text); }
+  .food-info span{ font-family:'Space Mono',monospace; font-size:0.66rem; color:var(--muted2); }
+  .food-add-btn{ width:26px; height:26px; border-radius:50%; background:var(--g1); color:#fff; border:none; font-size:0.95rem; flex-shrink:0; cursor:pointer; }
+
+  .portion-step{ display:none; }
+  .portion-step.active{ display:block; }
+  .portion-food-name{ font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--text); margin-bottom:4px; }
+  .portion-field{ display:flex; align-items:center; gap:10px; background:var(--surface2); border:1.5px solid var(--border2); border-radius:12px; padding:12px 14px; margin:14px 0; }
+
+  .field{ margin-bottom:14px; }
+  .field-label{ display:block; font-family:'Space Mono',monospace; font-size:0.64rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
+  .field-input{ display:flex; align-items:center; gap:8px; background:var(--surface2); border:1.5px solid var(--border2); border-radius:10px; padding:11px 13px; transition:border-color 0.15s; }
+  .field-input:focus-within{ border-color:var(--g1); }
+  .field-input input{ border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:500; color:var(--text); width:100%; }
+  .field-input .unit{ font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--muted); flex-shrink:0; }
+  .row2{ display:flex; gap:10px; }
+  .row2 .field{ flex:1; }
+  .portion-field input{ border:none; outline:none; background:none; font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--text); width:100%; }
+  .portion-field .unit{ font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--muted); }
+  .portion-calc{ font-family:'DM Sans',sans-serif; font-size:0.86rem; color:var(--muted2); margin-bottom:14px; }
+  .portion-calc b{ color:var(--g1); }
+  .pulse-select{ display:flex; gap:8px; margin-bottom:16px; }
+  .pulse-chip{ flex:1; text-align:center; padding:10px 4px; border-radius:10px; border:1.5px solid var(--border2); background:var(--surface); font-family:'Space Mono',monospace; font-size:0.68rem; letter-spacing:1px; color:var(--muted2); cursor:pointer; }
+  .pulse-chip.active{ border-color:var(--g1); background:rgba(79,70,229,0.08); color:var(--g1); font-weight:700; }
+
+  .calc-option{ display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1.5px solid var(--border2); border-radius:10px; padding:11px 13px; font-family:'DM Sans',sans-serif; font-size:0.84rem; font-weight:600; color:var(--text); cursor:pointer; }
+  .calc-option span{ font-family:'Space Mono',monospace; font-size:0.64rem; color:var(--muted); letter-spacing:0.5px; font-weight:400; }
+  .calc-option.active{ border-color:var(--g1); background:rgba(79,70,229,0.08); }
+  .calc-option.active span{ color:var(--g1); }
+  .btn-confirm{ background:var(--g1); color:#fff; border:none; border-radius:12px; width:100%; padding:14px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.92rem; cursor:pointer; }
+  .btn-back{ background:none; border:none; color:var(--muted2); font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; cursor:pointer; margin-bottom:12px; padding:0; }
+
+  .method-btn{ display:flex; align-items:center; gap:14px; background:var(--surface); border:1.5px solid var(--border2); border-radius:14px; padding:16px; margin-bottom:12px; cursor:pointer; }
+  .method-btn.primary{ border-color:var(--g1); background:rgba(79,70,229,0.06); }
+  .method-icon{ width:44px; height:44px; border-radius:11px; background:var(--g1); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .method-icon.alt{ background:var(--g2); }
+  .method-text h4{ font-family:'DM Sans',sans-serif; font-size:0.94rem; font-weight:700; margin:0 0 2px; color:var(--text); }
+  .method-text p{ font-family:'DM Sans',sans-serif; font-size:0.76rem; color:var(--muted2); margin:0; line-height:1.3; }
+  .method-chevron{ margin-left:auto; color:var(--muted); font-size:1.1rem; flex-shrink:0; }
+  .divider-label{ text-align:center; font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; margin:16px 0 12px; }
+
+  .mock-item-card{ background:var(--surface); border:1.5px solid var(--border2); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .mock-item-card.uncertain{ border-color:var(--amber); }
+  .mock-item-top{ display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+  .mock-item-swatch{ width:30px; height:30px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1rem; background:var(--surface2); }
+  .mock-item-name{ flex:1; border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.86rem; font-weight:700; color:var(--text); min-width:0; }
+  .mock-item-flag{ width:7px; height:7px; border-radius:50%; background:var(--amber); flex-shrink:0; }
+  .mock-item-row{ display:flex; gap:7px; }
+  .mock-item-field{ flex:1; }
+  .mock-item-field label{ display:block; font-family:'Space Mono',monospace; font-size:0.56rem; letter-spacing:1px; color:var(--muted); text-transform:uppercase; margin-bottom:3px; }
+  .mock-item-field-input{ display:flex; align-items:center; background:var(--surface2); border:1.5px solid var(--border2); border-radius:8px; padding:7px 9px; }
+  .mock-item-field-input input{ border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; color:var(--text); width:100%; }
+  .mock-item-field-input .unit{ font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="loading-logo">PULSE</div></div>
+
+<div id="app" style="display:none;">
+  <div class="sticky-header">
+    <div class="topbar">
+      <div class="logo">PULSE</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="historyBtn" style="background:var(--surface2); border:1px solid var(--border2); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer;">📊</button>
+        <div class="goal-pill" id="goalPill" style="cursor:pointer;"><span>GOAL</span><span id="goalVal">—</span><span style="color:var(--muted); font-size:0.7rem; margin-left:2px;">✎</span></div>
+      </div>
+    </div>
+    <div class="coach-bubble"><p id="coachText">Loading your day…</p></div>
+  </div>
+
+  <div class="content">
+    <div class="daily-summary">
+      <div class="daily-total"><span class="val" id="dailyTotal">0</span><span class="of">/ <span id="dailyGoalInline">0</span>g today</span></div>
+      <div class="daily-left">LEFT<br><b id="dailyLeft">0g</b></div>
+    </div>
+
+    <div class="strip" id="strip"></div>
+    <div id="pulseList"></div>
+  </div>
+
+  <button class="fab" id="fabBtn">+</button>
+</div>
+
+<!-- Add meal bottom sheet -->
+<div class="sheet-backdrop" id="editItemBackdrop"></div>
+<div class="sheet" id="editItemSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Edit logged meal</div>
+    <button class="sheet-close" id="editItemClose">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label class="field-label">Food name &amp; icon</label>
+      <div class="field-input" style="gap:10px;">
+        <button id="editItemIconBtn" style="background:var(--surface); border:1.5px solid var(--border2); border-radius:8px; width:38px; height:38px; font-size:1.2rem; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">🍽️</button>
+        <input id="editItemName">
+      </div>
+      <div id="editItemIconPicker" style="display:none; flex-wrap:wrap; gap:6px; margin-top:8px; background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:10px;"></div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="field-label">Portion</label>
+        <div class="field-input"><input type="number" id="editItemGrams" inputmode="decimal"><span class="unit">g</span></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Protein</label>
+        <div class="field-input"><input type="number" id="editItemProtein" inputmode="decimal"><span class="unit">g</span></div>
+      </div>
+    </div>
+    <div id="editItemRatioNote" style="font-family:'DM Sans',sans-serif; font-size:0.74rem; color:var(--muted2); margin:-6px 0 14px; line-height:1.4;"></div>
+    <div style="font-family:'DM Sans',sans-serif; font-size:0.72rem; color:var(--muted); margin:-6px 0 8px;">Optional — carbs, fat and calories, shown for information only</div>
+    <div class="row2">
+      <div class="field">
+        <label class="field-label">Carbs</label>
+        <div class="field-input"><input type="number" id="editItemCarbs" inputmode="decimal" placeholder="—"><span class="unit">g</span></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Fat</label>
+        <div class="field-input"><input type="number" id="editItemFat" inputmode="decimal" placeholder="—"><span class="unit">g</span></div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Calories</label>
+      <div class="field-input"><input type="number" id="editItemKcal" inputmode="decimal" placeholder="—"><span class="unit">kcal</span></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Time logged</label>
+      <div class="field-input"><input type="time" id="editItemTime"></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Notes</label>
+      <div class="field-input" style="align-items:flex-start;">
+        <textarea id="editItemNotes" rows="2" placeholder="e.g. 100g = roughly 2 large eggs" style="border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:0.86rem; color:var(--text); width:100%; resize:vertical; padding:0;"></textarea>
+      </div>
+      <div style="font-family:'DM Sans',sans-serif; font-size:0.7rem; color:var(--muted); margin-top:4px; line-height:1.3;">Saved against "<span id="editItemNotesFoodName">this food</span>" — you'll see it again next time you log it.</div>
+    </div>
+    <label style="display:flex; align-items:center; gap:8px; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--muted2); margin-bottom:14px; cursor:pointer;">
+      <input type="checkbox" id="editItemSaveFav" style="width:16px; height:16px; accent-color:var(--g1);"> ⭐ Save as favourite for quick logging later
+    </label>
+    <button class="btn-confirm" id="saveEditItemBtn">Save changes →</button>
+    <button id="deleteEditItemBtn" style="width:100%; background:none; border:none; color:#dc2626; font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; padding:12px; cursor:pointer;">Delete this entry</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="historySheetBackdrop"></div>
+<div class="sheet" id="historySheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">7-Day History</div>
+    <button class="sheet-close" id="historySheetClose">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div style="position:relative; height:90px; display:flex; align-items:flex-end; gap:8px; margin-bottom:10px;" id="historyBars"></div>
+    <div style="display:flex; gap:14px; font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--muted2); letter-spacing:0.5px;">
+      <span>🟢 GOAL HIT</span><span>🟠 PARTIAL</span><span>⚪ NONE</span>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="goalSheetBackdrop"></div>
+<div class="sheet" id="goalSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Daily protein goal</div>
+    <button class="sheet-close" id="goalSheetClose">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div style="font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--muted2); margin-bottom:14px; line-height:1.4;">
+      This is split evenly across your 4 pulses. Between 40g and 400g.
+    </div>
+    <div class="portion-field" style="margin:0 0 6px;">
+      <input type="number" id="goalInput" inputmode="decimal">
+      <span class="unit">g / day</span>
+    </div>
+    <div id="goalError" style="font-family:'Space Mono',monospace; font-size:0.68rem; color:#dc2626; margin-bottom:12px; min-height:14px;"></div>
+
+    <button id="calcToggleBtn" style="display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px dashed var(--border2); border-radius:12px; padding:11px; font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:1px; color:var(--muted2); text-transform:uppercase; cursor:pointer; margin-bottom:14px; width:100%; background:none;">🧮 Not sure? Work it out for me</button>
+
+    <div id="goalCalculator" style="display:none; background:var(--surface2); border:1px solid var(--border2); border-radius:12px; padding:14px; margin-bottom:14px;">
+      <div class="field">
+        <label class="field-label">Your bodyweight</label>
+        <div style="display:flex; gap:8px;">
+          <div class="field-input" style="flex:1; background:var(--surface);"><input type="number" id="calcWeight" inputmode="decimal" placeholder="e.g. 80"></div>
+          <div class="pulse-select" style="flex:1; margin:0;">
+            <div class="pulse-chip active" id="unitKg" onclick="setCalcUnit('kg')">KG</div>
+            <div class="pulse-chip" id="unitLbs" onclick="setCalcUnit('lbs')">LBS</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Your main aim</label>
+        <div style="display:flex; flex-direction:column; gap:6px;" id="calcAimRow">
+          <div class="calc-option active" data-mult="2.0" onclick="setCalcAim(this)">💪 Build muscle <span>2.0g / kg</span></div>
+          <div class="calc-option" data-mult="2.2" onclick="setCalcAim(this)">🔥 Lose fat, keep muscle <span>2.2g / kg</span></div>
+          <div class="calc-option" data-mult="1.6" onclick="setCalcAim(this)">⚖️ Maintain / general health <span>1.6g / kg</span></div>
+        </div>
+      </div>
+      <div id="calcResult" style="display:none; text-align:center; padding:10px 0 4px;">
+        <div style="font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">Suggested daily goal · applied above</div>
+        <div style="font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:var(--g1);" id="calcResultVal">—</div>
+      </div>
+    </div>
+
+    <button class="btn-confirm" id="confirmGoalBtn">Save goal →</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="sheetTitle">Add meal</div>
+    <button class="sheet-close" id="sheetClose">✕</button>
+  </div>
+  <div class="sheet-body">
+
+    <div class="portion-step active" id="stepMethod">
+      <div class="method-btn" id="btnFavourites">
+        <div class="method-icon alt" style="background:#eab308;">⭐</div>
+        <div class="method-text"><h4>Favourites</h4><p>Your saved foods, one tap to log</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+      <div class="method-btn" id="btnSearchDb">
+        <div class="method-icon alt">🔍</div>
+        <div class="method-text"><h4>Search food database</h4><p>Find packaged foods &amp; common meals</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+      <div class="method-btn" id="btnTypeIn">
+        <div class="method-icon alt">✍️</div>
+        <div class="method-text"><h4>Type it in</h4><p>Know the numbers already? Enter direct</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+      <div class="method-btn" id="btnAddFoodTile">
+        <div class="method-icon alt">➕</div>
+        <div class="method-text"><h4>Add a custom food</h4><p>Save it to your database, with a protein ratio, for next time</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+      <div class="method-btn primary" id="btnScanPhoto">
+        <div class="method-icon">📷</div>
+        <div class="method-text"><h4>Scan meal photo</h4><p>Point at your plate, we'll detect items</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+      <div class="method-btn" id="btnGallery">
+        <div class="method-icon alt">🖼️</div>
+        <div class="method-text"><h4>Choose from gallery</h4><p>Use a photo you already took</p></div>
+        <div class="method-chevron">›</div>
+      </div>
+    </div>
+
+    <div class="portion-step" id="stepFavourites">
+      <button class="btn-back" id="backToMethodFromFav">← Back</button>
+      <div id="favouritesList"></div>
+    </div>
+
+    <div class="portion-step" id="stepSearch">
+      <button class="btn-back" id="backToMethodFromSearch">← Back</button>
+      <div class="search-bar"><span>🔍</span><input id="foodSearchInput" placeholder="Search foods…"></div>
+      <button id="btnAddFood" style="background:none; border:none; color:var(--g1); font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; padding:8px 0 4px; text-align:left;">+ Can't find it? Add it to your food database</button>
+      <div id="foodResults"></div>
+    </div>
+
+    <div class="portion-step" id="stepAddFood">
+      <button class="btn-back" id="backToMethodFromAddFood">← Back</button>
+      <div class="field">
+        <label class="field-label">Food name</label>
+        <div class="field-input"><input id="addFoodName" placeholder="e.g. Mum's shepherd pie"></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Icon</label>
+        <button type="button" id="addFoodIconBtn" style="background:var(--surface2); border:1px solid var(--border2); border-radius:8px; width:44px; height:44px; font-size:1.3rem; cursor:pointer;">🍽️</button>
+        <div id="addFoodIconPicker" style="display:none; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label">Protein / 100g</label>
+          <div class="field-input"><input type="number" id="addFoodProtein" inputmode="decimal" placeholder="0"><span class="unit">g</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Typical portion</label>
+          <div class="field-input"><input type="number" id="addFoodTypical" inputmode="decimal" value="100"><span class="unit">g</span></div>
+        </div>
+      </div>
+      <div style="font-family:'DM Sans',sans-serif; font-size:0.72rem; color:var(--muted); margin:2px 0 12px;">Optional — carbs, fat and calories, shown for information only</div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label">Carbs / 100g</label>
+          <div class="field-input"><input type="number" id="addFoodCarbs" inputmode="decimal" placeholder="—"><span class="unit">g</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Fat / 100g</label>
+          <div class="field-input"><input type="number" id="addFoodFat" inputmode="decimal" placeholder="—"><span class="unit">g</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Calories / 100g</label>
+        <div class="field-input"><input type="number" id="addFoodKcal" inputmode="decimal" placeholder="—"><span class="unit">kcal</span></div>
+      </div>
+      <div id="addFoodError" style="font-family:'DM Sans',sans-serif; font-size:0.76rem; color:#e5484d; margin-bottom:8px; display:none;"></div>
+      <button class="btn-confirm" id="saveAddFoodBtn">Save to my food database →</button>
+    </div>
+
+    <div class="portion-step" id="stepTypeIn">
+      <button class="btn-back" id="backToMethodFromType">← Back</button>
+      <div class="field">
+        <label class="field-label">Food name</label>
+        <div class="field-input"><input id="typeInName" placeholder="e.g. Homemade chilli"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label">Portion</label>
+          <div class="field-input"><input type="number" id="typeInGrams" inputmode="decimal" value="150"><span class="unit">g</span></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Protein</label>
+          <div class="field-input"><input type="number" id="typeInProtein" inputmode="decimal" value="0"><span class="unit">g</span></div>
+        </div>
+      </div>
+      <span class="log-time-toggle" id="typeInTimeToggle" style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted2); cursor:pointer; letter-spacing:0.5px; display:inline-block; margin:2px 0 8px;">🕐 LOGGING NOW · TAP TO BACKDATE</span>
+      <div id="typeInTimePicker" style="display:none; gap:6px; align-items:center; margin-bottom:8px;">
+        <input type="time" id="typeInTimeInput" style="font-family:'Space Mono',monospace; background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:6px; padding:7px 9px; font-size:0.76rem;">
+        <button onclick="setBackdateTime('typeInTimeToggle','typeInTimePicker','typeInTimeInput')" style="background:var(--g1); border:none; color:#fff; border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">SET</button>
+        <button onclick="clearBackdateTime('typeInTimeToggle','typeInTimePicker')" style="background:var(--surface); border:1px solid var(--border2); color:var(--muted); border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="typeInTimeDecision"></div>
+      <div class="pulse-select" id="pulseSelectTypeIn" style="margin-bottom:14px;"></div>
+      <button class="btn-confirm" id="confirmTypeInBtn">Confirm &amp; log →</button>
+    </div>
+
+    <div class="portion-step" id="stepPortion">
+      <button class="btn-back" id="backToSearch">← Back to search</button>
+      <div class="portion-food-name" id="portionFoodName">—</div>
+      <div id="portionFoodNote" style="font-family:'DM Sans',sans-serif; font-size:0.78rem; color:var(--g1); font-style:italic; margin:-4px 0 8px;"></div>
+      <div class="portion-field">
+        <input type="number" id="portionGrams" inputmode="decimal">
+        <span class="unit">g</span>
+      </div>
+      <div class="portion-calc">= <b id="portionProtein">0g</b> protein</div>
+      <div id="portionMacros" class="logged-macros" style="margin:-4px 0 8px;"></div>
+      <span class="log-time-toggle" id="portionTimeToggle" style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted2); cursor:pointer; letter-spacing:0.5px; display:inline-block; margin:2px 0 8px;">🕐 LOGGING NOW · TAP TO BACKDATE</span>
+      <div id="portionTimePicker" style="display:none; gap:6px; align-items:center; margin-bottom:8px;">
+        <input type="time" id="portionTimeInput" style="font-family:'Space Mono',monospace; background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:6px; padding:7px 9px; font-size:0.76rem;">
+        <button onclick="setBackdateTime('portionTimeToggle','portionTimePicker','portionTimeInput')" style="background:var(--g1); border:none; color:#fff; border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">SET</button>
+        <button onclick="clearBackdateTime('portionTimeToggle','portionTimePicker')" style="background:var(--surface); border:1px solid var(--border2); color:var(--muted); border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="portionTimeDecision"></div>
+      <label style="display:flex; align-items:center; gap:8px; font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--muted2); margin-bottom:14px; cursor:pointer;">
+        <input type="checkbox" id="portionSaveFav" style="width:16px; height:16px; accent-color:var(--g1);"> ⭐ Save as favourite for quick logging later
+      </label>
+      <div class="pulse-select" id="pulseSelect"></div>
+      <button class="btn-confirm" id="confirmLogBtn">Confirm &amp; log →</button>
+    </div>
+
+    <div class="portion-step" id="stepMealScan">
+      <button class="btn-back" id="backToMethodFromScan">← Back</button>
+      <div style="position:relative; margin:0 0 14px; border-radius:12px; overflow:hidden;">
+        <img id="scanPhotoPreview" style="width:100%; height:150px; object-fit:cover; display:block; background:#e0ded4;">
+      </div>
+      <div id="mockItemsList"></div>
+      <button class="add-missed-btn" id="addMissedItemBtn" style="display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px dashed var(--border2); border-radius:12px; padding:11px; font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:1px; color:var(--muted2); text-transform:uppercase; cursor:pointer; margin-bottom:14px; width:100%; background:none;">+ Add missed item</button>
+      <div class="pulse-select" id="pulseSelectScan" style="margin:14px 0;"></div>
+      <span class="log-time-toggle" id="scanTimeToggle" style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted2); cursor:pointer; letter-spacing:0.5px; display:inline-block; margin:2px 0 8px;">🕐 LOGGING NOW · TAP TO BACKDATE</span>
+      <div id="scanTimePicker" style="display:none; gap:6px; align-items:center; margin-bottom:8px;">
+        <input type="time" id="scanTimeInput" style="font-family:'Space Mono',monospace; background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:6px; padding:7px 9px; font-size:0.76rem;">
+        <button onclick="setBackdateTime('scanTimeToggle','scanTimePicker','scanTimeInput')" style="background:var(--g1); border:none; color:#fff; border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">SET</button>
+        <button onclick="clearBackdateTime('scanTimeToggle','scanTimePicker')" style="background:var(--surface); border:1px solid var(--border2); color:var(--muted); border-radius:6px; padding:7px 11px; font-family:'Space Mono',monospace; font-size:0.66rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="scanTimeDecision"></div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+        <span style="font-family:'Space Mono',monospace; font-size:0.68rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase;">Total protein</span>
+        <span id="scanTotalProtein" style="font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--g1);">0g</span>
+      </div>
+      <button class="btn-confirm" id="confirmScanBtn">Confirm &amp; log meal →</button>
+    </div>
+
+  </div>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="galleryInput" accept="image/*" style="display:none;">
+
+<script src="js/config.js"></script>
+<script src="js/foods.js"></script>
+<script>
+const SLOT_NAMES = ['Breakfast','Lunch','Dinner','Evening'];
+const SLOT_ICONS = ['🌅','☀️','🌙','🌛'];
+
+let currentUser = null;
+let state = {
+  goal: 150,
+  slotTargets: [38,38,37,37],
+  slots: [[],[],[],[]],
+  customFoods: [],
+  favourites: [],
+  foodNotes: {}, // { "eggs": "100g = roughly 2 large eggs" } — keyed by lowercase name
+  weekHistory: [0,0,0,0,0,0,0], // rolling 7-day totals, today is always index 6
+};
+let pendingFood = null;
+let pendingSlot = 0;
+
+function distributeGoal(goal){
+  const base = Math.floor(goal/4), rem = goal - base*4;
+  return [base+(rem>0?1:0), base+(rem>1?1:0), base+(rem>2?1:0), base];
+}
+
+function currentHour(){ return new Date().getHours(); }
+
+// The "active" pulse to auto-expand on load: the most recently-touched pulse
+// that's still within its live MPS window, falling back to the first empty one.
+function activeSlotIndex(){
+  const pulses = getPulseStates();
+  let mostRecentTs = -1, activeIdx = null;
+  state.slots.forEach((entries,i)=>{
+    if (entries.length && pulses[i].state==='active'){
+      const latestTs = Math.max(...entries.map(e=>new Date(e.loggedAt).getTime()));
+      if (latestTs > mostRecentTs){ mostRecentTs = latestTs; activeIdx = i; }
+    }
+  });
+  if (activeIdx !== null) return activeIdx;
+
+  // Nothing actively in progress — suggest a pulse that fits the time of day,
+  // but never one earlier than the first still-empty pulse (skip past completed ones).
+  const h = currentHour();
+  const timeSuggested = h < 11 ? 0 : h < 16 ? 1 : h < 20 ? 2 : 3;
+  const firstEmpty = pulses.findIndex(p=>p.state==='empty');
+  if (firstEmpty === -1) return 3;
+  return Math.max(firstEmpty, timeSuggested);
+}
+
+// Maps the real MPS state (empty/active/active-met/closed-met/closed-missed)
+// to the strip's simple hit/missed/neutral colouring.
+function slotStatus(i){
+  const s = getPulseStates()[i].state;
+  if (s==='active-met' || s==='closed-met') return 'hit';
+  if (s==='closed-missed') return 'missed';
+  return 'neutral';
+}
+
+function round1(n){ return Math.round(n*10)/10; }
+
+// The live production app (app.html) writes logged items with ts (epoch ms) + a
+// pre-formatted time string, and foodId/serving, instead of v2's loggedAt/id/grams.
+// Both apps share the same Supabase row for a given user, so an item logged in the
+// production app shows up here missing loggedAt entirely — which previously broke
+// v2's date math and showed up as "NaNm remaining". This converts it on load instead.
+function normalizeLegacyItem(item){
+  if (item.loggedAt) return item; // already v2-shaped, nothing to do
+  const out = { ...item };
+  const tsValid = item.ts != null && !isNaN(new Date(item.ts).getTime());
+  out.loggedAt = tsValid ? new Date(item.ts).toISOString() : new Date().toISOString();
+  if (out.id == null && item.foodId != null) out.id = item.foodId;
+  if (out.grams == null && item.serving != null) out.grams = item.serving;
+  return out;
+}
+
+const MPS_DURATION_MS = 3 * 60 * 60 * 1000; // same 3-hour MPS window as the live app
+
+function slotTotal(i){
+  return round1((state.slots[i]||[]).reduce((sum,item)=>sum+item.protein,0));
+}
+
+// Ported directly from the live app's getMpsState — each pulse's window opens
+// on its first logged meal and stays "active" for 3 hours after the latest entry.
+function getMpsState(entries){
+  if (!entries.length) return { status:'idle', pct:0, label:'Tap + ADD below to log your first meal and start your MPS window' };
+  const latest = Math.max(...entries.map(e => new Date(e.loggedAt).getTime()));
+  const elapsed = Date.now() - latest;
+  const pct = Math.max(0, Math.min(100, (elapsed/MPS_DURATION_MS)*100));
+  if (elapsed > MPS_DURATION_MS) return { status:'ended', pct:100, label:'MPS window closed' };
+  const mins = Math.round((MPS_DURATION_MS-elapsed)/60000);
+  const h = Math.floor(mins/60), m = mins%60;
+  return { status: pct<70?'active':'ending', pct, label: h>0?h+'h '+m+'m remaining':m+'m remaining' };
+}
+
+// Ported directly from the live app's getPulseStates
+function getPulseStates(){
+  return [0,1,2,3].map(i => {
+    const entries = state.slots[i] || [];
+    const total = slotTotal(i);
+    const target = state.slotTargets[i];
+    const met = total > 0 && total >= target;
+    if (!entries.length) return { idx:i, name:SLOT_NAMES[i], state:'empty', total, target, remaining:target };
+    const mps = getMpsState(entries).status; // idle|active|ending|ended
+    const windowOpen = mps !== 'ended';
+    if (met) return { idx:i, name:SLOT_NAMES[i], state: windowOpen?'active-met':'closed-met', total, target, remaining:0 };
+    return { idx:i, name:SLOT_NAMES[i], state: windowOpen?'active':'closed-missed', total, target, remaining: round1(target-total) };
+  });
+}
+
+function dayTotal(){ return round1(state.slots.reduce((s,_,i)=>s+slotTotal(i),0)); }
+
+// Ported directly from the live app's updateCoach() — same priority order,
+// same messages, same 55g MPS-ceiling warning, same evening wrap-up logic.
+function updateCoach(){
+  const textEl = document.getElementById('coachText');
+  if (!textEl) return;
+  try {
+    const total = Math.round(dayTotal());
+    const goal = state.goal || 150;
+    const hour = new Date().getHours();
+    const pulses = getPulseStates();
+    const overCeiling = pulses.filter(p=>p.total>55).length;
+
+    let mostRecentTs=-1, inProgress=null;
+    state.slots.forEach((entries,i)=>{
+      if (entries.length){
+        const latestTs = Math.max(...entries.map(e=>new Date(e.loggedAt).getTime()));
+        if (latestTs>mostRecentTs && pulses[i].state==='active'){ mostRecentTs=latestTs; inProgress=pulses[i]; }
+      }
+    });
+
+    const missed = pulses.filter(p=>p.state==='closed-missed');
+    const met = pulses.filter(p=>p.state==='active-met'||p.state==='closed-met');
+    const eveningDone = pulses[3].state==='active-met'||pulses[3].state==='closed-met'||pulses[3].state==='closed-missed';
+    const nothingLogged = pulses.every(p=>p.state==='empty');
+
+    const missedNote = missed.length ? ' You missed the '+missed.map(p=>p.name).join(' and ')+' window'+(missed.length>1?'s':'')+', but keep hitting your active pulses.' : '';
+
+    let msg;
+
+    if (total>=goal){
+      msg = '🏆 <strong>Daily goal reached!</strong> Outstanding — you\'ve given your muscles the best chance to grow today.';
+    }
+    else if (overCeiling>0){
+      msg = '⚠️ <strong>One pulse is over 55g.</strong> Your muscles can only absorb ~40–55g per meal — try spreading that protein across two pulses next time.';
+    }
+    else if (nothingLogged){
+      const ico = hour<12?'🌅':hour<17?'⏰':'🌙';
+      msg = ico+' <strong>Nothing logged yet today.</strong> Log your first meal — aim for <strong>'+pulses[0].target+'g</strong> for Pulse 1. Try eggs, Greek yoghurt or a protein shake to get started.';
+    }
+    else if (inProgress){
+      if (inProgress.remaining<=10){
+        msg = '🎯 <strong>Almost there on '+inProgress.name+'!</strong> Just <strong>'+inProgress.remaining+'g</strong> to go — a glass of milk (9g), a boiled egg (6g), or a spoonful of peanut butter (8g) would do it.'+missedNote;
+      } else {
+        msg = '💪 <strong>'+inProgress.name+' pulse in progress.</strong> You need <strong>'+inProgress.remaining+'g</strong> more to hit your target.'+missedNote;
+      }
+    }
+    else if (eveningDone){
+      if (missed.length){
+        msg = '🌙 <strong>That\'s a wrap for today!</strong> '+(pulses[3].state!=='closed-missed'?'Evening pulse hit — nice way to close things out. ':'')+'You missed the '+missed.map(p=>p.name).join(' and ')+' window'+(missed.length>1?'s':'')+' today, but tomorrow\'s a fresh set of 4. Rest well.';
+      } else {
+        msg = '🌙 <strong>That\'s a wrap for today!</strong> <strong>'+total+'g</strong> logged across the day. Solid work — rest well and reset tomorrow.';
+      }
+    }
+    else if (met.length>=3){
+      const nextEmpty = pulses.find(p=>p.state==='empty');
+      msg = '🚀 <strong>'+met.length+' pulses on target — brilliant!</strong> You\'ve logged <strong>'+total+'g</strong>. One more pulse of <strong>'+(nextEmpty?nextEmpty.target:pulses[3].target)+'g</strong> to finish strong.'+missedNote;
+    }
+    else if (met.length===2){
+      msg = '🔥 <strong>'+met.map(p=>p.name).join(' and ')+' nailed!</strong> You\'ve logged <strong>'+total+'g</strong> — <strong>'+(goal-total)+'g</strong> to go.'+missedNote;
+    }
+    else if (met.length===1){
+      if (met[0].state==='closed-met'){
+        msg = '✅ <strong>'+met[0].name+' done!</strong> Ready for your next pulse whenever you are — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+      } else {
+        msg = '✅ <strong>'+met[0].name+' done!</strong> Aim for your next meal in 3–4 hours — <strong>'+(goal-total)+'g</strong> remaining today.'+missedNote;
+      }
+    }
+    else if (hour>=20 && total<goal*0.75){
+      msg = '🌙 <strong>Evening check-in:</strong> You\'re at <strong>'+total+'g</strong> with <strong>'+(goal-total)+'g</strong> to go. A protein shake or cottage cheese can close the gap.';
+    }
+    else {
+      msg = '👍 <strong>Keep it up!</strong> You\'ve logged <strong>'+total+'g</strong> today — <strong>'+(goal-total)+'g</strong> to go. Space your remaining pulses evenly for max MPS.';
+    }
+    textEl.innerHTML = msg;
+  } catch(e){
+    textEl.textContent = 'Log a meal to get coaching tips.';
+  }
+}
+
+// Real MPS countdown label for a pulse — no fixed clock times, matches the live app.
+function pulseWindowLabel(i){
+  return getMpsState(state.slots[i] || []).label;
+}
+
+// Small circular countdown ring showing time remaining in the MPS window.
+// pct: 0 (window just opened) → 100 (window closed). Colour shifts to amber
+// once past 70%, matching the live app's active/ending distinction.
+function ringSVG(pct, size, colorOverride){
+  const r = (size/2) - 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (pct/100)*c;
+  const color = colorOverride || (pct >= 70 ? 'var(--amber)' : 'var(--g1)');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0;">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--border2)" stroke-width="2.5"></circle>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="2.5"
+      stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"
+      transform="rotate(-90 ${size/2} ${size/2})"></circle>
+  </svg>`;
+}
+
+// Ring + colour for a pulse's current MPS state, for use in both the
+// expanded card and the collapsed rows.
+function pulseRing(i, size){
+  const mps = getMpsState(state.slots[i] || []);
+  if (mps.status === 'idle') return `<div style="width:${size}px; height:${size}px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0;"></div>`;
+  if (mps.status === 'ended'){
+    const st = getPulseStates()[i].state;
+    const color = st==='closed-met' ? 'var(--green)' : 'var(--amber)';
+    return ringSVG(100, size, color);
+  }
+  return ringSVG(mps.pct, size);
+}
+
+// Local-timezone date string (YYYY-MM-DD) — used for day-rollover so the log
+// resets at the user's actual midnight, not UTC midnight (matters during BST).
+function localDateString(d){
+  d = d || new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+async function init(){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session){ window.location.href = 'auth.html'; return; }
+  currentUser = session.user;
+
+  const today = localDateString();
+  const { data } = await db.from('user_data').select('*').eq('user_id', currentUser.id).single();
+  if (data){
+    state.goal = data.goal || 150;
+    state.slotTargets = data.slot_targets || distributeGoal(state.goal);
+    state.customFoods = data.custom_foods || [];
+    state.favourites = data.favourites || [];
+    state.foodNotes = data.food_notes || {};
+    state.weekHistory = data.week_history || [0,0,0,0,0,0,0];
+
+    const storedDate = data.log_date ? String(data.log_date).slice(0,10) : null;
+    if (storedDate === today){
+      // Same day — carry on with whatever's logged so far
+      let neededFixing = false;
+      state.slots = (data.slots || [[],[],[],[]]).map(entries => (entries||[]).map(item => {
+        if (!item.loggedAt) neededFixing = true;
+        return normalizeLegacyItem(item);
+      }));
+      if (neededFixing) await saveUserData(); // write the fix back so it's not just an in-memory patch
+    } else {
+      // Day has rolled over — bank yesterday's total into history, clear today's slots
+      state.weekHistory.shift();
+      state.weekHistory.push(0);
+      state.slots = [[],[],[],[]];
+      await saveUserData();
+    }
+  } else {
+    state.slotTargets = distributeGoal(state.goal);
+  }
+
+  // If the app is left open across midnight, force a reload so the day
+  // actually rolls over rather than silently carrying yesterday's log forward.
+  localStorage.setItem('pulse_date', new Date().toDateString());
+  setInterval(checkMidnight, 60000);
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  render();
+}
+
+function checkMidnight(){
+  const stored = localStorage.getItem('pulse_date');
+  const todayStr = new Date().toDateString();
+  if (stored && stored !== todayStr){ window.location.reload(); }
+  localStorage.setItem('pulse_date', todayStr);
+}
+
+async function saveUserData(){
+  const today = localDateString();
+  const { error } = await db.from('user_data').upsert({
+    user_id: currentUser.id, goal: state.goal, slot_targets: state.slotTargets,
+    slots: state.slots, log_date: today, custom_foods: state.customFoods, favourites: state.favourites, food_notes: state.foodNotes, week_history: state.weekHistory,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' });
+  if (error){
+    console.error('Save failed:', error);
+    alert('⚠️ Save failed: ' + error.message + '\n\nYour changes may not persist if you close the app. Check the browser console or ask Claude to debug this error message.');
+  }
+}
+
+function render(){
+  const active = activeSlotIndex();
+  const dailyTotal = round1(state.slots.reduce((sum,slot)=>sum+slot.reduce((s,i)=>s+i.protein,0),0));
+  state.weekHistory[6] = dailyTotal; // today's running total always lives at index 6
+
+  document.getElementById('goalVal').textContent = state.goal+'g';
+  document.getElementById('dailyTotal').textContent = dailyTotal;
+  document.getElementById('dailyGoalInline').textContent = state.goal;
+  document.getElementById('dailyLeft').textContent = round1(Math.max(0,state.goal-dailyTotal))+'g';
+
+  // Coach message — ported directly from the live app's updateCoach()
+  updateCoach();
+
+  // Strip
+  const expandIdxForStrip = (typeof expandedSlot === 'number') ? expandedSlot : active;
+  const stripEl = document.getElementById('strip');
+  stripEl.innerHTML = '';
+  for (let i=0;i<4;i++){
+    const status = slotStatus(i);
+    const total = slotTotal(i);
+    const target = state.slotTargets[i];
+    const pct = target>0 ? Math.min(100,(total/target)*100) : 0;
+    const seg = document.createElement('div');
+    seg.className = 'segment' + (i===expandIdxForStrip?' active':'') + (status==='hit'?' hit':'') + (status==='missed'?' missed':'');
+    const mpsStatus = getMpsState(state.slots[i]||[]).status;
+    const showNow = (mpsStatus==='active' || mpsStatus==='ending'); // only a genuinely open MPS window is "now"
+    seg.innerHTML = `
+      <div class="seg-fill" style="height:${pct}%;"></div>
+      <div class="seg-content">
+        <div class="seg-label">P${i+1}${showNow?' · Now':''}</div>
+        <div class="seg-pct">${total>0||status==='hit'?total+'g':'—'}${status==='hit'?' ✓':''}</div>
+      </div>`;
+    seg.onclick = () => { expandedSlot = i; render(); };
+    stripEl.appendChild(seg);
+  }
+
+  // All 4 pulses, rendered in fixed P1→P4 position order — whichever one is
+  // "expanded" just renders bigger in its own slot, it never jumps to the top.
+  const expandIdx = (typeof expandedSlot === 'number') ? expandedSlot : active;
+  const listEl = document.getElementById('pulseList');
+  listEl.innerHTML = '';
+
+  for (let i=0;i<4;i++){
+    const status = slotStatus(i);
+    const total = slotTotal(i);
+    const target = state.slotTargets[i];
+    const items = state.slots[i] || [];
+
+    if (i === expandIdx){
+      const card = document.createElement('div');
+      card.className = 'expanded-card';
+      card.innerHTML = `
+        <div class="expanded-head">
+          <div class="expanded-title">PULSE ${i+1} · ${SLOT_NAMES[i].toUpperCase()}</div>
+          <div class="expanded-window-row">
+            <div class="expanded-window">${pulseWindowLabel(i)}</div>
+            ${pulseRing(i, 22)}
+          </div>
+        </div>
+        <div class="expanded-sub">${items.length===0?'Nothing logged yet':total+'g logged'} · <b>${round1(Math.max(0,target-total))}g</b> to go for this pulse</div>
+        <button class="btn-log-meal" onclick="openSheet(${i})">+ Log meal for ${SLOT_NAMES[i].toLowerCase()}</button>
+        ${items.length===0
+          ? `<div class="empty-state">No meals logged for this pulse yet.</div>`
+          : items.map((item,idx)=>`
+            <div class="logged-item" onclick="openEditItem(${i},${idx})" style="cursor:pointer;">
+              <div class="logged-swatch">${item.icon||'🍽️'}</div>
+              <div style="flex:1; min-width:0;">
+                <div class="logged-name">${item.name}</div>
+                <div style="font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--muted); letter-spacing:0.5px; margin-top:1px;">Logged at ${new Date(item.loggedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+                ${item.kcal!=null || item.carbs!=null || item.fat!=null ? `<div class="logged-macros">${[item.kcal!=null?item.kcal+' kcal':'',item.carbs!=null?item.carbs+'g C':'',item.fat!=null?item.fat+'g F':''].filter(Boolean).join(' · ')}</div>` : ''}
+                ${state.foodNotes[item.name.toLowerCase()] ? `<div style="font-family:'DM Sans',sans-serif; font-size:0.68rem; color:var(--g1); margin-top:2px; font-style:italic;">📝 ${state.foodNotes[item.name.toLowerCase()]}</div>` : ''}
+              </div>
+              <div class="logged-protein">${item.protein}g</div>
+              <span style="color:var(--muted); font-size:0.85rem; margin-left:2px;">✎</span>
+              <button class="logged-remove" onclick="event.stopPropagation(); removeItem(${i},${idx})">✕</button>
+            </div>`).join('')}`;
+      listEl.appendChild(card);
+    } else {
+      const row = document.createElement('div');
+      row.className = 'collapsed-row' + (status==='hit'?' hit':'') + (status==='missed'?' missed':'');
+      const subtitle = pulseWindowLabel(i) + (status==='hit' ? ' · goal hit' : status==='missed' ? ' · missed' : '');
+      row.innerHTML = `
+        ${pulseRing(i, 18)}
+        <div class="collapsed-info"><h5>Pulse ${i+1} · ${SLOT_NAMES[i]}</h5><span>${subtitle}</span></div>
+        <div class="collapsed-stat">${total>0?total+'g':'—'}</div>`;
+      row.onclick = () => { expandedSlot = i; render(); };
+      listEl.appendChild(row);
+    }
+  }
+}
+
+function removeItem(slotIdx, itemIdx){
+  state.slots[slotIdx].splice(itemIdx,1);
+  saveUserData();
+  render();
+}
+
+// --- Edit a logged item ---
+let editingSlot = null, editingIdx = null;
+
+// Icon picker for the edit sheet — common food emoji, tap to set
+const FOOD_ICONS = ['🍽️','🍗','🥩','🐟','🍣','🦐','🥚','🍳','🥓','🍖','🦃','🥛','🍼','🧀','🥣','🍨','🥤','🫘','🔴','🟢','🟡','⚫','⬜','🟫','🥦','🥬','🌽','🍄','🥔','🥜','🌰','🌱','🍞','🍚','🍝','🌯','🥪','🍕','🥗','🍲','🍛','🍜','🥘','🫐','🍌','🍎','💪','🍽'];
+let editingIcon = '🍽️';
+
+function renderIconPicker(){
+  const el = document.getElementById('editItemIconPicker');
+  el.innerHTML = FOOD_ICONS.map(ic => `
+    <button onclick="pickIcon('${ic}')" style="background:${ic===editingIcon?'rgba(79,70,229,0.15)':'var(--surface)'}; border:1.5px solid ${ic===editingIcon?'var(--g1)':'var(--border2)'}; border-radius:8px; width:36px; height:36px; font-size:1.05rem; cursor:pointer;">${ic}</button>`).join('');
+}
+
+function pickIcon(ic){
+  editingIcon = ic;
+  document.getElementById('editItemIconBtn').textContent = ic;
+  document.getElementById('editItemIconPicker').style.display = 'none';
+}
+
+function openEditItem(slotIdx, itemIdx){
+  editingSlot = slotIdx; editingIdx = itemIdx;
+  const item = state.slots[slotIdx][itemIdx];
+  document.getElementById('editItemName').value = item.name;
+  document.getElementById('editItemGrams').value = item.grams;
+  document.getElementById('editItemProtein').value = item.protein;
+  document.getElementById('editItemCarbs').value = item.carbs!=null ? item.carbs : '';
+  document.getElementById('editItemFat').value = item.fat!=null ? item.fat : '';
+  document.getElementById('editItemKcal').value = item.kcal!=null ? item.kcal : '';
+
+  editingIcon = item.icon || '🍽️';
+  document.getElementById('editItemIconBtn').textContent = editingIcon;
+  document.getElementById('editItemIconPicker').style.display = 'none';
+
+  const proteinInput = document.getElementById('editItemProtein');
+  const noteEl = document.getElementById('editItemRatioNote');
+  const isUsdaVerified = item.id && item.id.startsWith('usda-');
+  if (isUsdaVerified){
+    proteinInput.disabled = true;
+    proteinInput.style.opacity = '0.5';
+    noteEl.textContent = `Protein locked to this food's USDA-verified ratio (${item.p100}g/100g) — change the portion to adjust it.`;
+  } else {
+    proteinInput.disabled = false;
+    proteinInput.style.opacity = '1';
+    noteEl.textContent = '';
+  }
+
+  const d = new Date(item.loggedAt);
+  const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('editItemTime').value = `${hh}:${mm}`;
+
+  document.getElementById('editItemNotesFoodName').textContent = item.name;
+  document.getElementById('editItemSaveFav').checked = !!state.favourites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
+  document.getElementById('editItemNotes').value = state.foodNotes[item.name.toLowerCase()] || '';
+
+  document.getElementById('editItemBackdrop').classList.add('open');
+  document.getElementById('editItemSheet').classList.add('open');
+}
+
+function closeEditItem(){
+  document.getElementById('editItemBackdrop').classList.remove('open');
+  document.getElementById('editItemSheet').classList.remove('open');
+  editingSlot = null; editingIdx = null;
+}
+
+document.getElementById('editItemGrams').addEventListener('input', function(){
+  const item = state.slots[editingSlot] && state.slots[editingSlot][editingIdx];
+  if (!item) return;
+  const grams = parseFloat(this.value) || 0;
+  const isUsdaVerified = item.id && item.id.startsWith('usda-');
+  if (isUsdaVerified && item.p100){
+    document.getElementById('editItemProtein').value = round1((grams/100)*item.p100);
+  }
+  // Only USDA items carry a known per-100g rate, so only those auto-rescale.
+  // Anything you've typed in by hand for other foods is left as-is until you change it yourself.
+  if (isUsdaVerified){
+    const scaled = scaledMacros(item, grams);
+    if (scaled.kcal!=null) document.getElementById('editItemKcal').value = scaled.kcal;
+    if (scaled.carbs!=null) document.getElementById('editItemCarbs').value = scaled.carbs;
+    if (scaled.fat!=null) document.getElementById('editItemFat').value = scaled.fat;
+  }
+});
+
+function saveEditItem(){
+  if (editingSlot===null || editingIdx===null) return;
+  const item = state.slots[editingSlot][editingIdx];
+  const name = document.getElementById('editItemName').value.trim() || item.name;
+  const grams = parseFloat(document.getElementById('editItemGrams').value) || 0;
+  const isUsdaVerified = item.id && item.id.startsWith('usda-');
+  const protein = (isUsdaVerified && item.p100) ? round1((grams/100)*item.p100) : round1(parseFloat(document.getElementById('editItemProtein').value) || 0);
+
+  const timeVal = document.getElementById('editItemTime').value;
+  let loggedAt = item.loggedAt;
+  if (timeVal){
+    const [h,m] = timeVal.split(':').map(Number);
+    const d = new Date(item.loggedAt); // keep the same original day, just change the time
+    d.setHours(h,m,0,0);
+    loggedAt = d.toISOString();
+  }
+
+  const carbsVal = document.getElementById('editItemCarbs').value;
+  const fatVal = document.getElementById('editItemFat').value;
+  const kcalVal = document.getElementById('editItemKcal').value;
+  const carbs = carbsVal!=='' ? round1(parseFloat(carbsVal)) : null;
+  const fat = fatVal!=='' ? round1(parseFloat(fatVal)) : null;
+  const kcal = kcalVal!=='' ? Math.round(parseFloat(kcalVal)) : null;
+  const macroFields = {
+    carbs, fat, kcal,
+    c100: (carbs!=null && grams>0) ? round1((carbs/grams)*100) : null,
+    f100: (fat!=null && grams>0) ? round1((fat/grams)*100) : null,
+    kcal100: (kcal!=null && grams>0) ? Math.round((kcal/grams)*100) : null,
+  };
+
+  const noteVal = document.getElementById('editItemNotes').value.trim();
+  if (noteVal) state.foodNotes[name.toLowerCase()] = noteVal;
+  else delete state.foodNotes[name.toLowerCase()];
+
+  // Favourite toggle — tick adds or updates, untick removes
+  const wantFav = document.getElementById('editItemSaveFav').checked;
+  const existingFavIdx = state.favourites.findIndex(f => f.name.toLowerCase() === name.toLowerCase());
+  if (wantFav){
+    const p100 = (isUsdaVerified && item.p100) ? item.p100 : (grams > 0 ? round1((protein/grams)*100) : 0);
+    if (existingFavIdx === -1){
+      state.favourites.push({ id:'fav-'+Date.now(), name, icon: editingIcon, p100, typical: grams });
+    } else {
+      // Already a favourite — sync its icon and details with this edit
+      state.favourites[existingFavIdx] = { ...state.favourites[existingFavIdx], name, icon: editingIcon, p100, typical: grams };
+    }
+  } else if (existingFavIdx !== -1){
+    state.favourites.splice(existingFavIdx, 1);
+  }
+
+  state.slots[editingSlot][editingIdx] = { ...item, ...macroFields, name, grams, protein, loggedAt, icon: editingIcon };
+  saveUserData();
+  closeEditItem();
+  render();
+}
+
+function deleteEditItem(){
+  if (editingSlot===null || editingIdx===null) return;
+  state.slots[editingSlot].splice(editingIdx,1);
+  saveUserData();
+  closeEditItem();
+  render();
+}
+
+document.getElementById('editItemIconBtn').onclick = () => {
+  const picker = document.getElementById('editItemIconPicker');
+  if (picker.style.display === 'none' || !picker.style.display){
+    renderIconPicker();
+    picker.style.display = 'flex';
+  } else {
+    picker.style.display = 'none';
+  }
+};
+document.getElementById('editItemClose').onclick = closeEditItem;
+document.getElementById('editItemBackdrop').onclick = closeEditItem;
+document.getElementById('saveEditItemBtn').onclick = saveEditItem;
+document.getElementById('deleteEditItemBtn').onclick = deleteEditItem;
+
+// --- Add meal sheet ---
+let expandedSlot = null;
+
+const ALL_STEPS = ['stepMethod','stepFavourites','stepSearch','stepTypeIn','stepAddFood','stepPortion','stepMealScan'];
+
+function showStep(stepId, title){
+  ALL_STEPS.forEach(id => document.getElementById(id).classList.toggle('active', id===stepId));
+  document.getElementById('sheetTitle').textContent = title;
+}
+
+function openSheet(slotIdx){
+  pendingSlot = slotIdx;
+  document.getElementById('sheetBackdrop').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  showStep('stepMethod', 'Add meal');
+}
+
+function closeSheet(){
+  document.getElementById('sheetBackdrop').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  ['portionTimeDecision','typeInTimeDecision','scanTimeDecision'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+}
+
+function buildPulseSelect(containerId, onPick){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  for (let i=0;i<4;i++){
+    const chip = document.createElement('div');
+    chip.className = 'pulse-chip' + (i===pendingSlot?' active':'');
+    chip.textContent = 'P'+(i+1);
+    chip.onclick = () => {
+      pendingSlot = i;
+      el.querySelectorAll('.pulse-chip').forEach((c,ci)=>c.classList.toggle('active',ci===i));
+      if (onPick) onPick();
+    };
+    el.appendChild(chip);
+  }
+}
+
+// USDA FoodData Central — free, government, public-domain nutrition database.
+// Sign up for your own free key at fdc.nal.usda.gov/api-key-signup (one form,
+// one email confirmation) and swap it in below — DEMO_KEY works for testing
+// but has a much lower rate limit than a real key.
+const USDA_API_KEY = 'r8oqiN4YU9t9fIt3ZgByaz3vpFKS0HmcnCUvnpaq';
+const usdaCache = {}; // avoid re-querying the same search twice in a session
+let searchDebounceTimer = null;
+let usdaSearchToken = 0; // guards against a slow old request overwriting a newer one
+
+async function searchUSDA(query){
+  if (usdaCache[query]) return usdaCache[query];
+  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_API_KEY}&query=${encodeURIComponent(query)}&pageSize=20`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('USDA lookup failed');
+  const data = await res.json();
+  const findNutrient = (nutrients, name) => { const n = (nutrients||[]).find(n=>n.nutrientName===name); return n ? round1(n.value) : null; };
+  const results = (data.foods || []).map(f => {
+    const p100 = findNutrient(f.foodNutrients, 'Protein') || 0;
+    // Secondary macros — shown only "for information", so a missing value just means we don't display that macro rather than guessing.
+    const c100 = findNutrient(f.foodNutrients, 'Carbohydrate, by difference');
+    const f100 = findNutrient(f.foodNutrients, 'Total lipid (fat)');
+    const kcal100 = findNutrient(f.foodNutrients, 'Energy');
+    return {
+      id: 'usda-'+f.fdcId, name: f.description, icon: '🍽️', p100, c100, f100, kcal100,
+      typical: 100, typicalLabel: '100g', brand: f.brandOwner || null,
+    };
+  }).filter(f => f.p100 > 0);
+  usdaCache[query] = results;
+  return results;
+}
+
+function renderFoodResultsHTML(results, loadingMore){
+  const el = document.getElementById('foodResults');
+  el.innerHTML = results.map(f => {
+    const isCustom = state.customFoods.some(cf => cf.id === f.id);
+    return `
+    <div class="food-result" onclick="selectFood('${f.id}', ${f.id.startsWith('usda-') ? 'true' : 'false'})">
+      <div class="food-swatch">${f.icon}</div>
+      <div class="food-info"><h5>${f.name}${f.brand?' <span style=\"color:var(--muted); font-weight:400;\">· '+f.brand+'</span>':''}</h5><span>${f.p100}g protein / 100g${f.kcal100!=null?' · '+f.kcal100+' kcal':''}</span></div>
+      ${isCustom ? `<button class="logged-remove" title="Delete this food" onclick="event.stopPropagation(); deleteCustomFood('${f.id}')">✕</button>` : ''}
+      <button class="food-add-btn">+</button>
+    </div>`;
+  }).join('')
+    || (loadingMore ? '' : `<div class="empty-state">No matches — try a different search or use "Type it in".</div>`);
+}
+
+// Permanently removes a custom (user-added) food from the user's own data.
+// Built-in local database entries aren't touched here since that list is shared code, not per-user data.
+function deleteCustomFood(id){
+  state.customFoods = state.customFoods.filter(f => f.id !== id);
+  saveUserData();
+  renderFoodResults(document.getElementById('foodSearchInput') ? document.getElementById('foodSearchInput').value : '');
+}
+
+// --- Add a custom food to the user's own searchable database ---
+let addFoodIcon = '🍽️';
+
+function renderAddFoodIconPicker(){
+  const el = document.getElementById('addFoodIconPicker');
+  el.innerHTML = FOOD_ICONS.map(ic => `
+    <button type="button" onclick="pickAddFoodIcon('${ic}')" style="background:${ic===addFoodIcon?'rgba(79,70,229,0.15)':'var(--surface)'}; border:1.5px solid ${ic===addFoodIcon?'var(--g1)':'var(--border2)'}; border-radius:8px; width:36px; height:36px; font-size:1.05rem; cursor:pointer;">${ic}</button>`).join('');
+}
+
+function pickAddFoodIcon(ic){
+  addFoodIcon = ic;
+  document.getElementById('addFoodIconBtn').textContent = ic;
+  document.getElementById('addFoodIconPicker').style.display = 'none';
+}
+
+document.getElementById('addFoodIconBtn').onclick = () => {
+  const picker = document.getElementById('addFoodIconPicker');
+  if (picker.style.display === 'none' || !picker.style.display){
+    renderAddFoodIconPicker();
+    picker.style.display = 'flex';
+  } else {
+    picker.style.display = 'none';
+  }
+};
+
+function openAddFood(){
+  const searchVal = document.getElementById('foodSearchInput') ? document.getElementById('foodSearchInput').value.trim() : '';
+  document.getElementById('addFoodName').value = searchVal;
+  document.getElementById('addFoodProtein').value = '';
+  document.getElementById('addFoodTypical').value = 100;
+  document.getElementById('addFoodCarbs').value = '';
+  document.getElementById('addFoodFat').value = '';
+  document.getElementById('addFoodKcal').value = '';
+  document.getElementById('addFoodError').style.display = 'none';
+  addFoodIcon = '🍽️';
+  document.getElementById('addFoodIconBtn').textContent = addFoodIcon;
+  document.getElementById('addFoodIconPicker').style.display = 'none';
+  showStep('stepAddFood', 'Add a food');
+}
+
+function saveAddFood(){
+  const errEl = document.getElementById('addFoodError');
+  const name = document.getElementById('addFoodName').value.trim();
+  const p100 = round1(parseFloat(document.getElementById('addFoodProtein').value) || 0);
+  const typical = parseFloat(document.getElementById('addFoodTypical').value) || 100;
+
+  if (!name){ errEl.textContent = 'Give it a name first.'; errEl.style.display = 'block'; return; }
+  if (p100 <= 0){ errEl.textContent = 'Protein per 100g needs to be more than 0.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  const carbsVal = document.getElementById('addFoodCarbs').value;
+  const fatVal = document.getElementById('addFoodFat').value;
+  const kcalVal = document.getElementById('addFoodKcal').value;
+
+  const food = {
+    id: 'customfood-'+Date.now(),
+    name, icon: addFoodIcon, p100,
+    typical, typicalLabel: typical+'g',
+    c100: carbsVal!=='' ? round1(parseFloat(carbsVal)) : null,
+    f100: fatVal!=='' ? round1(parseFloat(fatVal)) : null,
+    kcal100: kcalVal!=='' ? Math.round(parseFloat(kcalVal)) : null,
+  };
+
+  state.customFoods.push(food);
+  saveUserData();
+  selectFood(food.id, false); // jump straight into logging the food you just added
+}
+
+document.getElementById('btnAddFood').onclick = openAddFood;
+document.getElementById('backToMethodFromAddFood').onclick = () => showStep('stepMethod', 'Add meal');
+document.getElementById('saveAddFoodBtn').onclick = saveAddFood;
+
+// Cache of USDA results actually shown, so selectFood can find them by id
+let lastUsdaResults = [];
+
+function renderFoodResults(query){
+  clearTimeout(searchDebounceTimer);
+  const all = getAllFoods(state.customFoods);
+  const q = query.trim().toLowerCase();
+  const localResults = q ? all.filter(f=>f.name.toLowerCase().includes(q)) : all.slice(0,8);
+
+  if (!q){
+    renderFoodResultsHTML(localResults, false);
+    return;
+  }
+
+  // Show local matches instantly, then append live USDA results once they arrive
+  renderFoodResultsHTML(localResults, true);
+  const myToken = ++usdaSearchToken;
+  searchDebounceTimer = setTimeout(async () => {
+    try {
+      const usdaResults = await searchUSDA(q);
+      if (myToken !== usdaSearchToken) return; // a newer search superseded this one
+      lastUsdaResults = usdaResults;
+      const localIds = new Set(localResults.map(f=>f.id));
+      const merged = [...localResults, ...usdaResults.filter(f=>!localIds.has(f.id))];
+      renderFoodResultsHTML(merged, false);
+    } catch(e){
+      // USDA lookup failed (offline, rate limit, etc) — local results already shown, just stop the loading state
+      renderFoodResultsHTML(localResults, false);
+    }
+  }, 350);
+}
+
+function selectFood(id, isUsda){
+  pendingFood = isUsda ? lastUsdaResults.find(f=>f.id===id) : getFood(id, state.customFoods);
+  if (!pendingFood) return;
+  showStep('stepPortion', 'Confirm portion');
+  document.getElementById('portionFoodName').textContent = pendingFood.icon+' '+pendingFood.name;
+  const existingNote = state.foodNotes[pendingFood.name.toLowerCase()];
+  document.getElementById('portionFoodNote').textContent = existingNote ? '📝 '+existingNote : '';
+  document.getElementById('portionGrams').value = pendingFood.typical;
+  document.getElementById('portionTimeDecision').innerHTML = '';
+  document.getElementById('portionSaveFav').checked = false;
+  updatePortionCalc();
+  buildPulseSelect('pulseSelect');
+  buildBackdateToggle('portionTimeToggle','portionTimePicker','portionTimeInput');
+}
+
+function updatePortionCalc(){
+  const grams = parseFloat(document.getElementById('portionGrams').value) || 0;
+  const protein = pendingFood ? Math.round((grams/100)*pendingFood.p100*10)/10 : 0;
+  document.getElementById('portionProtein').textContent = protein+'g';
+  document.getElementById('portionMacros').textContent = macroLine(pendingFood, grams);
+}
+
+// Builds the small "for your information" secondary macro line — carbs/fat/kcal.
+// Only shown when the food source actually has that data (USDA); returns '' otherwise
+// so we never fabricate numbers for local/custom foods.
+function macroLine(food, grams){
+  if (!food || (food.kcal100==null && food.c100==null && food.f100==null)) return '';
+  const parts = [];
+  if (food.kcal100!=null) parts.push(Math.round((grams/100)*food.kcal100)+' kcal');
+  if (food.c100!=null) parts.push(round1((grams/100)*food.c100)+'g C');
+  if (food.f100!=null) parts.push(round1((grams/100)*food.f100)+'g F');
+  return parts.join(' · ');
+}
+
+// --- Ported from the live app: backdating + the "keep original time vs use now" decision ---
+const GRACE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes — same-sitting entries log silently
+const customLogTime = {}; // { slotIdx: "HH:MM" }
+
+function customTimestampFor(slotIdx){
+  const val = customLogTime[slotIdx];
+  if (!val) return null;
+  const [h,m] = val.split(':').map(Number);
+  const d = new Date(); d.setHours(h,m,0,0);
+  if (d.getTime() > Date.now()) return null; // can't backdate into the future
+  return d.getTime();
+}
+
+// Resolves what timestamp a new entry should use, handling the grace window
+// and the keep-original-vs-use-now prompt exactly like the live app.
+// entry: {name,icon,grams,protein,id} — loggedAt gets attached once resolved.
+// Finds another pulse whose MPS window is still genuinely open right now —
+// used to warn when starting a NEW pulse too soon after a previous one.
+function findOverlappingSlot(excludeIdx){
+  for (let i=0;i<4;i++){
+    if (i===excludeIdx) continue;
+    const entries = state.slots[i] || [];
+    if (!entries.length) continue;
+    const mps = getMpsState(entries);
+    if (mps.status==='active' || mps.status==='ending') return { idx:i, label:mps.label };
+  }
+  return null;
+}
+
+// entries: array of {name,icon,grams,protein,id,p100} — loggedAt attached once resolved.
+// A single time decision applies to the whole batch (a scanned meal is one sitting).
+function resolveLogTime(slotIdx, entries, decisionContainerId){
+  if (!Array.isArray(entries)) entries = [entries];
+  const displayName = entries.length===1 ? entries[0].name : entries.length+' items';
+  const existing = state.slots[slotIdx] || [];
+  if (existing.length > 0){
+    const firstTs = new Date(existing[0].loggedAt).getTime();
+    const elapsed = Date.now() - firstTs;
+    if (elapsed <= GRACE_WINDOW_MS){
+      finalizeLog(slotIdx, entries, firstTs);
+      return;
+    }
+    // Outside grace window — show the KEEP / USE NOW decision inline
+    const originalTime = new Date(firstTs).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const nowTime = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const container = document.getElementById(decisionContainerId);
+    container.innerHTML = `
+      <div style="background:var(--surface2); border:1px solid var(--amber); border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+        <div style="color:var(--amber); font-weight:700; font-family:'Space Mono',monospace; font-size:0.68rem; letter-spacing:1px; margin-bottom:6px;">⏱ UPDATE PULSE TIME?</div>
+        <div style="color:var(--muted2); font-size:0.76rem; margin-bottom:10px; line-height:1.4;">${displayName} is ready to log. Which time should this pulse use?</div>
+        <div style="display:flex; gap:8px;">
+          <button id="keepTimeBtn" style="flex:1; background:var(--surface); border:1px solid var(--border2); color:var(--text); border-radius:8px; padding:9px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">KEEP ${originalTime}</button>
+          <button id="useNowBtn" style="flex:1; background:var(--g1); border:none; color:#fff; border-radius:8px; padding:9px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">USE NOW (${nowTime})</button>
+        </div>
+      </div>`;
+    container.querySelector('#keepTimeBtn').onclick = () => finalizeLog(slotIdx, entries, firstTs);
+    container.querySelector('#useNowBtn').onclick = () => finalizeLog(slotIdx, entries, Date.now());
+    return;
+  }
+
+  // Starting a brand-new pulse — check it isn't overlapping another still-open window
+  const overlap = findOverlappingSlot(slotIdx);
+  if (overlap){
+    const container = document.getElementById(decisionContainerId);
+    container.innerHTML = `
+      <div style="background:var(--surface2); border:1px solid var(--amber); border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+        <div style="color:var(--amber); font-weight:700; font-family:'Space Mono',monospace; font-size:0.68rem; letter-spacing:1px; margin-bottom:6px;">⚠️ PULSES WOULD OVERLAP</div>
+        <div style="color:var(--muted2); font-size:0.76rem; margin-bottom:10px; line-height:1.4;">${SLOT_NAMES[overlap.idx]}'s window is still open (${overlap.label}). Starting ${SLOT_NAMES[slotIdx]} now means both windows run at once — MPS works best when pulses are spaced out.</div>
+        <div style="display:flex; gap:8px;">
+          <button id="cancelOverlapBtn" style="flex:1; background:var(--surface); border:1px solid var(--border2); color:var(--text); border-radius:8px; padding:9px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">CANCEL</button>
+          <button id="logAnywayBtn" style="flex:1; background:var(--g1); border:none; color:#fff; border-radius:8px; padding:9px; font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:1px; cursor:pointer;">LOG ANYWAY</button>
+        </div>
+      </div>`;
+    container.querySelector('#cancelOverlapBtn').onclick = () => { container.innerHTML = ''; };
+    container.querySelector('#logAnywayBtn').onclick = () => {
+      const customTs = customTimestampFor(slotIdx);
+      finalizeLog(slotIdx, entries, customTs || Date.now());
+    };
+    return;
+  }
+
+  // No existing entries, no overlap — use a backdated time if one was set, else now
+  const customTs = customTimestampFor(slotIdx);
+  finalizeLog(slotIdx, entries, customTs || Date.now());
+}
+
+function finalizeLog(slotIdx, entries, ts){
+  if (!Array.isArray(entries)) entries = [entries];
+  delete customLogTime[slotIdx];
+  if (!state.slots[slotIdx]) state.slots[slotIdx] = [];
+  entries.forEach(entry => {
+    state.slots[slotIdx].push({ ...entry, loggedAt: new Date(ts).toISOString() });
+  });
+  saveUserData();
+  expandedSlot = slotIdx;
+  closeSheet();
+  render();
+}
+
+// Builds the "🕐 LOGGING NOW · TAP TO BACKDATE" toggle + time input for a step.
+function buildBackdateToggle(toggleId, pickerId, inputId){
+  const toggle = document.getElementById(toggleId);
+  const picker = document.getElementById(pickerId);
+  const input = document.getElementById(inputId);
+  toggle.textContent = customLogTime[pendingSlot] ? `🕐 LOGGING FOR ${customLogTime[pendingSlot]} · TAP TO CHANGE` : '🕐 LOGGING NOW · TAP TO BACKDATE';
+  toggle.onclick = () => {
+    if (picker.style.display !== 'none'){ picker.style.display='none'; return; }
+    input.value = customLogTime[pendingSlot] || new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
+    picker.style.display = 'flex';
+  };
+}
+function setBackdateTime(toggleId, pickerId, inputId){
+  const input = document.getElementById(inputId);
+  if (!input.value) return;
+  const [h,m] = input.value.split(':').map(Number);
+  const d = new Date(); d.setHours(h,m,0,0);
+  if (d.getTime() > Date.now()){ alert("Can't log a future time"); return; }
+  customLogTime[pendingSlot] = input.value;
+  document.getElementById(toggleId).textContent = `🕐 LOGGING FOR ${input.value} · TAP TO CHANGE`;
+  document.getElementById(pickerId).style.display = 'none';
+}
+function clearBackdateTime(toggleId, pickerId){
+  delete customLogTime[pendingSlot];
+  document.getElementById(toggleId).textContent = '🕐 LOGGING NOW · TAP TO BACKDATE';
+  document.getElementById(pickerId).style.display = 'none';
+}
+
+// --- Favourites ---
+function saveFavourite(name, icon, p100, typical){
+  const exists = state.favourites.find(f => f.name.toLowerCase() === name.toLowerCase());
+  if (exists) return; // don't duplicate
+  state.favourites.push({ id:'fav-'+Date.now(), name, icon, p100: round1(p100), typical });
+  saveUserData();
+}
+
+function renderFavourites(){
+  const el = document.getElementById('favouritesList');
+  if (!state.favourites.length){
+    el.innerHTML = `<div class="empty-state">No favourites yet — tick "Save as favourite" next time you log a food, and it'll show up here for one-tap logging.</div>`;
+    return;
+  }
+  el.innerHTML = state.favourites.map(f => `
+    <div class="food-result" onclick="selectFavourite('${f.id}')">
+      <div class="food-swatch">${f.icon}</div>
+      <div class="food-info"><h5>${f.name}</h5><span>${f.p100}g protein / 100g</span></div>
+      <button class="logged-remove" title="Remove favourite" onclick="event.stopPropagation(); deleteFavourite('${f.id}')">✕</button>
+      <button class="food-add-btn">+</button>
+    </div>`).join('');
+}
+
+// Permanently removes a favourite from the user's own data (syncs to Supabase immediately).
+function deleteFavourite(id){
+  state.favourites = state.favourites.filter(f => f.id !== id);
+  saveUserData();
+  renderFavourites();
+}
+
+function selectFavourite(id){
+  const fav = state.favourites.find(f=>f.id===id);
+  if (!fav) return;
+  pendingFood = fav;
+  showStep('stepPortion', 'Confirm portion');
+  document.getElementById('portionFoodName').textContent = fav.icon+' '+fav.name;
+  const existingNote = state.foodNotes[fav.name.toLowerCase()];
+  document.getElementById('portionFoodNote').textContent = existingNote ? '📝 '+existingNote : '';
+  document.getElementById('portionGrams').value = fav.typical;
+  document.getElementById('portionTimeDecision').innerHTML = '';
+  document.getElementById('portionSaveFav').checked = true; // already a favourite
+  updatePortionCalc();
+  buildPulseSelect('pulseSelect');
+  buildBackdateToggle('portionTimeToggle','portionTimePicker','portionTimeInput');
+}
+
+function confirmLog(){
+  const grams = parseFloat(document.getElementById('portionGrams').value) || 0;
+  const protein = pendingFood ? Math.round((grams/100)*pendingFood.p100*10)/10 : 0;
+  if (document.getElementById('portionSaveFav').checked){
+    saveFavourite(pendingFood.name, pendingFood.icon, pendingFood.p100, grams);
+  }
+  const macros = pendingFood ? scaledMacros(pendingFood, grams) : {};
+  resolveLogTime(pendingSlot, { name: pendingFood.name, icon: pendingFood.icon, grams, protein, id: pendingFood.id, p100: pendingFood.p100, ...macros }, 'portionTimeDecision');
+}
+
+// Scales a food's per-100g carbs/fat/kcal to the logged portion, keeping the per-100g
+// rates on the item too so grams can be edited later without losing the ratio.
+function scaledMacros(food, grams){
+  const out = {};
+  if (food.kcal100!=null){ out.kcal100 = food.kcal100; out.kcal = Math.round((grams/100)*food.kcal100); }
+  if (food.c100!=null){ out.c100 = food.c100; out.carbs = round1((grams/100)*food.c100); }
+  if (food.f100!=null){ out.f100 = food.f100; out.fat = round1((grams/100)*food.f100); }
+  return out;
+}
+
+// --- Type it in ---
+function confirmTypeIn(){
+  const name = document.getElementById('typeInName').value.trim() || 'Custom meal';
+  const grams = parseFloat(document.getElementById('typeInGrams').value) || 0;
+  const protein = round1(parseFloat(document.getElementById('typeInProtein').value) || 0);
+  resolveLogTime(pendingSlot, { name, icon:'🍽️', grams, protein, id:'custom-'+Date.now(), p100: null }, 'typeInTimeDecision');
+}
+
+// --- Real meal scan — calls the same Supabase Edge Function the live app uses ---
+let scanItems = [];
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function startScan(fileInputEl){
+  fileInputEl.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    document.getElementById('scanPhotoPreview').src = url;
+    showStep('stepMealScan', 'Analysing meal…');
+    document.getElementById('scanTimeDecision').innerHTML = '';
+    buildBackdateToggle('scanTimeToggle','scanTimePicker','scanTimeInput');
+    document.getElementById('mockItemsList').innerHTML = `<div class="empty-state">🔍 Analysing your photo…</div>`;
+    document.getElementById('scanTotalProtein').textContent = '—';
+
+    try {
+      const base64 = await fileToBase64(file);
+      const response = await fetch('https://xcfxizkflleeahjguviq.supabase.co/functions/v1/bright-endpoint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+        body: JSON.stringify({ imageBase64: base64, mediaType: file.type || 'image/jpeg' })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Analysis failed');
+      const foods = data.foods;
+      if (!Array.isArray(foods) || foods.length === 0) throw new Error('No protein-containing foods detected. Try a clearer photo.');
+
+      scanItems = foods.map(f => ({
+        icon: f.icon || '🍽️',
+        name: f.name,
+        grams: f.portionG || 0,
+        protein: round1(f.proteinG || 0),
+        confidence: f.confidence || null,
+        uncertain: f.confidence === 'low',
+      }));
+      document.getElementById('sheetTitle').textContent = 'Confirm meal';
+      renderScanItems();
+      buildPulseSelect('pulseSelectScan', updateScanTotal);
+      updateScanTotal();
+    } catch(err){
+      document.getElementById('mockItemsList').innerHTML = `<div class="empty-state" style="color:var(--red);">${err.message || 'Analysis failed. Please try again.'}</div>`;
+      document.getElementById('sheetTitle').textContent = 'Confirm meal';
+    }
+  };
+  fileInputEl.click();
+}
+
+function renderScanItems(){
+  const el = document.getElementById('mockItemsList');
+  el.innerHTML = scanItems.map((item, idx) => `
+    <div class="mock-item-card ${item.uncertain?'uncertain':''}">
+      <div class="mock-item-top">
+        <div class="mock-item-swatch">${item.icon}</div>
+        <input class="mock-item-name" value="${item.name}" onchange="scanItems[${idx}].name=this.value">
+        ${item.uncertain?'<span class="mock-item-flag" title="Low confidence"></span>':''}
+        <button class="remove-btn" onclick="removeScanItem(${idx})" style="background:none;border:none;color:var(--muted);font-size:1.05rem;cursor:pointer;">✕</button>
+      </div>
+      <div class="mock-item-row">
+        <div class="mock-item-field"><label>Portion</label><div class="mock-item-field-input"><input type="number" value="${item.grams}" oninput="scanItems[${idx}].grams=parseFloat(this.value)||0; updateScanTotal();"><span class="unit">g</span></div></div>
+        <div class="mock-item-field"><label>Protein</label><div class="mock-item-field-input"><input type="number" value="${item.protein}" oninput="scanItems[${idx}].protein=parseFloat(this.value)||0; updateScanTotal();"><span class="unit">g</span></div></div>
+      </div>
+    </div>`).join('') || `<div class="empty-state">No items — add manually or retake the photo.</div>`;
+}
+
+function removeScanItem(idx){
+  scanItems.splice(idx,1);
+  renderScanItems();
+  updateScanTotal();
+}
+
+function addMissedItem(){
+  scanItems.push({ icon:'🍽️', name:'', grams:100, protein:0, uncertain:false });
+  renderScanItems();
+  updateScanTotal();
+  // Focus the newly-added item's name field so they can type straight away
+  const inputs = document.querySelectorAll('#mockItemsList .mock-item-name');
+  if (inputs.length) inputs[inputs.length-1].focus();
+}
+
+function updateScanTotal(){
+  const total = round1(scanItems.reduce((s,i)=>s+(i.protein||0),0));
+  document.getElementById('scanTotalProtein').textContent = total+'g';
+}
+
+function confirmScan(){
+  const entries = scanItems.map(item => ({
+    name: item.name.trim() || 'Custom item',
+    icon: item.icon,
+    grams: item.grams,
+    protein: round1(item.protein),
+    id: 'scan-'+Date.now()+'-'+Math.random(),
+    p100: null,
+  }));
+  if (!entries.length) return;
+  resolveLogTime(pendingSlot, entries, 'scanTimeDecision');
+}
+
+// --- Wiring ---
+// --- Goal editing ---
+function openGoalSheet(){
+  document.getElementById('goalInput').value = state.goal;
+  document.getElementById('goalError').textContent = '';
+  document.getElementById('goalCalculator').style.display = 'none';
+  document.getElementById('goalSheetBackdrop').classList.add('open');
+  document.getElementById('goalSheet').classList.add('open');
+}
+function closeGoalSheet(){
+  document.getElementById('goalSheetBackdrop').classList.remove('open');
+  document.getElementById('goalSheet').classList.remove('open');
+}
+// --- Goal calculator: bodyweight × multiplier based on aim ---
+// Multipliers reflect commonly cited sports-nutrition ranges: ~1.6g/kg for
+// maintenance, ~2.0g/kg for building muscle, ~2.2g/kg in a fat-loss phase
+// where preserving muscle matters most.
+let calcUnit = 'kg';
+let calcMult = 2.0;
+
+function setCalcUnit(u){
+  calcUnit = u;
+  document.getElementById('unitKg').classList.toggle('active', u==='kg');
+  document.getElementById('unitLbs').classList.toggle('active', u==='lbs');
+  updateCalcResult();
+}
+
+function setCalcAim(el){
+  document.querySelectorAll('#calcAimRow .calc-option').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  calcMult = parseFloat(el.dataset.mult);
+  updateCalcResult();
+}
+
+function updateCalcResult(){
+  const raw = parseFloat(document.getElementById('calcWeight').value) || 0;
+  const resultBox = document.getElementById('calcResult');
+  resultBox.style.display = 'block';
+  if (raw <= 0){
+    document.getElementById('calcResultVal').textContent = '—';
+    document.getElementById('calcResultVal').style.fontSize = '1rem';
+    document.getElementById('calcResultVal').textContent = 'Enter your weight above';
+    return;
+  }
+  const kg = calcUnit === 'lbs' ? raw * 0.4536 : raw;
+  let suggested = Math.round(kg * calcMult);
+  suggested = Math.max(40, Math.min(400, suggested));
+  document.getElementById('calcResultVal').style.fontSize = '2.2rem';
+  document.getElementById('calcResultVal').textContent = suggested + 'g';
+  // Apply live to the main goal field too — tapping an aim updates the goal immediately
+  document.getElementById('goalInput').value = suggested;
+}
+
+document.getElementById('calcToggleBtn').onclick = () => {
+  const calc = document.getElementById('goalCalculator');
+  const opening = calc.style.display === 'none' || !calc.style.display;
+  calc.style.display = opening ? 'block' : 'none';
+  if (opening) updateCalcResult();
+};
+document.getElementById('calcWeight').oninput = updateCalcResult;
+
+function saveGoal(){
+  const v = parseInt(document.getElementById('goalInput').value);
+  if (!v || v<40 || v>400){
+    document.getElementById('goalError').textContent = 'Enter a goal between 40–400g';
+    return;
+  }
+  state.goal = v;
+  state.slotTargets = distributeGoal(v);
+  saveUserData();
+  closeGoalSheet();
+  render();
+}
+// --- 7-day history — ported classification logic from the live app ---
+function renderHistoryBars(){
+  const dayLabels = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const todayIdx = new Date().getDay(); // 0=Sunday
+  const off = todayIdx===0 ? 6 : todayIdx-1;
+  const reord = Array.from({length:7}, (_,i)=>({
+    label: dayLabels[(off-6+i+7)%7],
+    val: state.weekHistory[i],
+  }));
+  const mx = Math.max(...reord.map(d=>d.val), state.goal, 1);
+  const el = document.getElementById('historyBars');
+  el.innerHTML = reord.map((d,i) => {
+    const isToday = i===6;
+    const hit = d.val >= state.goal && d.val > 0;
+    const partial = !hit && d.val >= state.goal*0.5 && d.val > 0;
+    const color = hit ? 'var(--green)' : partial ? 'var(--amber)' : 'var(--border2)';
+    const h = d.val > 0 ? Math.max(4, Math.round((d.val/mx)*70)) : 4;
+    return `<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <div style="width:100%; height:70px; display:flex; align-items:flex-end;">
+        <div style="width:100%; height:${h}px; background:${color}; border-radius:4px 4px 0 0; ${isToday?'box-shadow:0 0 0 2px var(--g1) inset;':''}"></div>
+      </div>
+      <span style="font-family:'Space Mono',monospace; font-size:0.56rem; color:${isToday?'var(--g1)':'var(--muted)'}; font-weight:${isToday?'700':'400'};">${d.label}</span>
+    </div>`;
+  }).join('');
+}
+
+function openHistorySheet(){
+  renderHistoryBars();
+  document.getElementById('historySheetBackdrop').classList.add('open');
+  document.getElementById('historySheet').classList.add('open');
+}
+function closeHistorySheet(){
+  document.getElementById('historySheetBackdrop').classList.remove('open');
+  document.getElementById('historySheet').classList.remove('open');
+}
+document.getElementById('historyBtn').onclick = openHistorySheet;
+document.getElementById('historySheetClose').onclick = closeHistorySheet;
+document.getElementById('historySheetBackdrop').onclick = closeHistorySheet;
+
+document.getElementById('goalPill').onclick = openGoalSheet;
+document.getElementById('goalSheetClose').onclick = closeGoalSheet;
+document.getElementById('goalSheetBackdrop').onclick = closeGoalSheet;
+document.getElementById('confirmGoalBtn').onclick = saveGoal;
+
+document.getElementById('fabBtn').onclick = () => openSheet(activeSlotIndex());
+document.getElementById('sheetClose').onclick = closeSheet;
+document.getElementById('sheetBackdrop').onclick = closeSheet;
+
+document.getElementById('btnScanPhoto').onclick = () => startScan(document.getElementById('cameraInput'));
+document.getElementById('btnAddFoodTile').onclick = openAddFood;
+document.getElementById('btnGallery').onclick = () => startScan(document.getElementById('galleryInput'));
+document.getElementById('btnFavourites').onclick = () => { showStep('stepFavourites','Favourites'); renderFavourites(); };
+document.getElementById('btnSearchDb').onclick = () => { showStep('stepSearch','Search foods'); document.getElementById('foodSearchInput').value=''; renderFoodResults(''); document.getElementById('foodSearchInput').focus(); };
+document.getElementById('btnTypeIn').onclick = () => { showStep('stepTypeIn','Type it in'); document.getElementById('typeInName').value=''; document.getElementById('typeInGrams').value=150; document.getElementById('typeInProtein').value=0; document.getElementById('typeInTimeDecision').innerHTML=''; buildPulseSelect('pulseSelectTypeIn'); buildBackdateToggle('typeInTimeToggle','typeInTimePicker','typeInTimeInput'); };
+
+document.getElementById('foodSearchInput').oninput = (e) => renderFoodResults(e.target.value);
+document.getElementById('backToMethodFromFav').onclick = () => showStep('stepMethod','Add meal');
+document.getElementById('backToMethodFromSearch').onclick = () => showStep('stepMethod','Add meal');
+document.getElementById('backToMethodFromType').onclick = () => showStep('stepMethod','Add meal');
+document.getElementById('backToMethodFromScan').onclick = () => showStep('stepMethod','Add meal');
+document.getElementById('backToSearch').onclick = () => showStep('stepSearch','Search foods');
+
+document.getElementById('portionGrams').oninput = updatePortionCalc;
+document.getElementById('confirmLogBtn').onclick = confirmLog;
+document.getElementById('confirmTypeInBtn').onclick = confirmTypeIn;
+document.getElementById('confirmScanBtn').onclick = confirmScan;
+document.getElementById('addMissedItemBtn').onclick = addMissedItem;
+
+init();
+</script>
+</body>
+</html>
